@@ -1,1 +1,13 @@
+#interactive session
+srun --x11 -N 1 -n 1 -c 2 --time=1:00:00 --mem=5gb --pty /bin/bash
+module load gcc
+module load R
+R    
+#quit R
+module load intel/17
+module load openmpi/2.0.1
 
+module list 
+module avail
+module spider samtools
+module spider samtools/1.8
