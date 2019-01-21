@@ -11,3 +11,17 @@ module list
 module avail
 module spider samtools
 module spider samtools/1.8
+
+####################cluster batch run #############################
+$ cat 583267_2-TEM/batchPileup 
+#!/bin/bash
+#SBATCH -o test.pileup.o%j
+#SBATCH --time=100:30:00      # 20 minutes of wall time
+#SBATCH -N 1                 # 1 Node
+#SBATCH -n 1                 # 1 processor
+#SBATCH --mem=50gb             # Assign 2gb memory; default in 1gb
+
+samtools mpileup -Q 0 -q 20 -d 1000000 -f /home/lxm416/hg19/hg19.fa 583267_2-TEM.bam  > 583267_2-TEM.pileup
+
+######################### submit batch job###################
+$ sbatch batchPileup
