@@ -25,3 +25,11 @@ samtools mpileup -Q 0 -q 20 -d 1000000 -f /home/lxm416/hg19/hg19.fa 583267_2-TEM
 
 ######################### submit batch job###################
 $ sbatch batchPileup
+
+########################check job status ######################
+$ sacct -j 12428287 -o jobid,jobname,state,exitcode,derivedexitcode
+       JobID    JobName      State ExitCode DerivedExitCode 
+------------ ---------- ---------- -------- --------------- 
+12428287     batchPile+  COMPLETED      0:0             0:0 
+12428287.ba+      batch  COMPLETED      0:0                 
+12428287.ex+     extern  COMPLETED      0:0        
