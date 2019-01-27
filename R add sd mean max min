@@ -1,0 +1,16 @@
+x <- read.delim("meth-4-samples.20readsCov.CpG.sites.meth.5colum.noNA", header = T, row.names = 1)
+
+y = x
+
+library(genefilter)
+
+ x$sd <- rowSds(y)
+ x$mean <- rowMeans(y)
+ x$sd2meanRatio <- rowSds(y) / rowMeans(y)
+
+x$min <- apply(y, 1, FUN=min)
+x$max <- apply(y, 1, FUN=max)
+x$range <- x$max - x$min
+
+write.table(x, "meth-4-samples.20readsCov.CpG.sites.meth.5colum.noNA.sd.min.max", sep = "\t")
+
