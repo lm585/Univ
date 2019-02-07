@@ -33,3 +33,9 @@ $ sacct -j 12428287 -o jobid,jobname,state,exitcode,derivedexitcode
 12428287     batchPile+  COMPLETED      0:0             0:0 
 12428287.ba+      batch  COMPLETED      0:0                 
 12428287.ex+     extern  COMPLETED      0:0        
+
+$
+squeue
+sq
+i
+seff jobid
