@@ -1,0 +1,50 @@
+## get promoter and gene-body coordinates
+$ cat script-coord
+# cat genes.gtf | cut -f 1,4,5,7,9 
+# chr5	133450402	133487556	+	gene_id "ENSG00000081059"; gene_version "15"; gene_name "TCF7"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
+
+
+cat genes.gtf | cut -f 1,4,5,7,9 > temp-11-10-am
+awk '
+ BEGIN {
+   FS = "\t";
+   OFS = "\t";
+       }
+   {
+    if($4 == "+")
+    {
+     print $1, $2 - 10000, $3;
+    }
+    else
+    {
+     print $1, $2, $3 + 10000;
+    }
+   }
+ ' temp-11-10-am
+
+rm temp-11-10-am
+
+
+##### select CpG sites within a region for a gene
+$ cat script-getCgSites
+#
+
+cat genes.upstream10k-geneEnd | while read ll
+do
+  chr=`echo "$ll" | cut -f 1`
+  begin=`echo "$ll" | cut -f 2`
+  end=`echo "$ll" | cut -f 3`
+  gene=`echo "$ll" | cut -f 4`
+  awk '
+  BEGIN {
+   FS = "\t"
+   OFS = "\t"
+        }
+  {
+   if($1 == "'$chr'" && $2 >= '$begin' && $2 <= '$end')
+   {
+    print "'$gene'", $1,$2,$3,$4,$5,$5 - $4;
+   }
+  }
+  ' RA-RARO-5colum-111319 > temp-meth-RA-RARO-$gene.txt
+done
