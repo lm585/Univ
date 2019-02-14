@@ -1,3 +1,6 @@
+#### gene symbol (TCF7) to ensemble ID conversion
+cat genes | while read g; do grep -i "gene_name \"$g\";" ../hg19/*geneOnly; done 
+
 ## get promoter and gene-body coordinates
 $ cat script-coord
 # cat genes.gtf | cut -f 1,4,5,7,9 
