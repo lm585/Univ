@@ -7,3 +7,5 @@ echo $PYTHONPATH
 export PATH=/home/lxm416/temp/bin:$PATH
 echo $PATH
 macs2 -h
+
+macs2 callpeak  -t   IL10.ndupB.trim.norm.mapQ.PairOnly.bam -f BAMPE -g hs -n IL10  --nomodel  --nolambda    -q 0.01  --bdg  --SPMR    --tempdir /home/lxm416/temp 
