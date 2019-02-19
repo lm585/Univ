@@ -1,0 +1,40 @@
+# resource: http://seqanswers.com/forums/showthread.php?t=4914
+# Calculate length for each transcript for a GTF file
+# awk '$3=="exon"'   /mnt/projects/SOM_PATH_RXS745U/genome/GRCh38/Annotation/genes.gtf | sed 's/gene_id .*; transcript_id "\(ENST[0-9]*\)"; .*/\1/' > temp-exon-only
+
+
+awk '
+  BEGIN {FS = "\t"}
+  {
+   ID = $9
+   L[ID] += $5 - $4 + 1
+  } 
+  END {
+   for(i in L)
+        {print i"\t"L[i]}
+      } ' temp-exon-only
+
+#awk -F"\t" '
+#$3=="exon" 
+#    {
+#        ID= $9  
+#        L[ID]+=$5-$4+1
+#    } 
+#END{
+#    for(i in L)
+#        {print i"\t"L[i]}
+#    }
+#'  temp-exon-only  > output
+
+#1	havana	exon	11869	12227	.	+	.	ENST00000456328
+#
+#substr($9, length($9)-16, 15); 
+#gtf-file
+#chr1	hg19_ensGene	exon	66999066	66999090	0.000000	+	.	gene_id "ENSG00000118473"; gene_name "SGIP1"; transcript_id "ENST00000237247";
+#chr1	hg19_ensGene	start_codon	67000042	67000044	0.000000	+	.	gene_id "ENSG00000118473"; gene_name "SGIP1"; transcript_id "ENST00000237247";
+#chr1	hg19_ensGene	CDS	67000042	67000051	0.000000	+	0	gene_id "ENSG00000118473"; gene_name "SGIP1"; transcript_id "ENST00000237247";
+
+#output
+#ENST00000397500 2194
+#ENST00000344941 2923
+#ENST00000397501 4715
