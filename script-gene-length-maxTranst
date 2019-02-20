@@ -1,0 +1,11 @@
+#
+
+cut -f 1 geneID-transcriptID.txt | sort | uniq | while read g
+do
+  grep "$g	" geneID-transcriptID.txt | cut -f 2 | while read t
+  do
+     grep "$t	" transcript-length.txt 
+  done > temp-125320
+  len=`sort +1 -2nr temp-125320 | head -1 | cut -f 2`
+  echo "$g	$len"
+done
