@@ -1,0 +1,19 @@
+#
+#
+
+awk '
+BEGIN {FS = "\t"}
+  {
+   if( $3 >= r[$2] )
+   {
+    r[$2] = $3
+    g[$2] = $1
+   }
+  }
+ END {
+  for(i in r)
+  {
+   print i "\t" g[i] "\t" r[i];
+  }
+   }
+    ' temp-gene-peak-rpkm
