@@ -1,0 +1,20 @@
+#
+#1	629274	1179.00	2804.37305	416.42529	2797.42139	IL10_peak_2	promoter of the gene;	-264	gene_id "ENSG00000223659"; gene_version "1"; transcript_id "ENST00000452176"; transcript_version "1"; gene_name "RP5-857K21.5"; gene_source "havana"; gene_biotype "lincRNA"; havana_gene "OTTHUMG00000002332"; havana_gene_version "1"; transcript_name "RP5-857K21.5-001"; transcript_source "havana"; transcript_biotype "lincRNA"; havana_transcript "OTTHUMT00000006714"; havana_transcript_version "1"; tag "basic"; transcript_support_level "1"promoter of the gene;	-366	gene_id "ENSG00000225630"; gene_version "1"; transcript_id "ENST00000457540"; transcript_version "1"; gene_name "MTND2P28"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; havana_gene "OTTHUMG00000002336"; havana_gene_version "1"; transcript_name "MTND2P28-001"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; havana_transcript "OTTHUMT00000006718"; havana_transcript_version "1"; tag "basic"; transcript_support_level "NA";
+
+tail -n 2000 out| awk '
+ BEGIN {
+ FS = "\t"
+ OFS = "\t"
+ ORS = ""
+ }
+ {
+  for(i = 10; i <= NF; i = i+3)
+  {
+   for(j = 7; j <= 7; j++)
+   {
+    print $j "\t";
+   }
+   print $i "\n";
+  }
+ }
+ '
