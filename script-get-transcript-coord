@@ -1,0 +1,18 @@
+# temp-open-chrom-genes-transcript_id
+
+cat  temp-open-chrom-genes-transcript_id | while read t
+do
+   grep " transcript_id \"$t\";" /home/lxm416/hg20_GRCh38/GRCh38.transcript.only.sed2gene | awk '
+   BEGIN {FS = "\t"; OFS = "\t"} 
+   {
+    if($7 == "+")
+    {
+     print "'$t'", $1,  $4 - 1000, $4 + 500, $7;
+    }
+    else
+    {
+     print "'$t'", $1, $5 - 500, $5 + 1000, $7
+    }
+   }
+   '
+done
