@@ -1,0 +1,31 @@
+#
+#$ head temp-open-chrom-genes-transcript_prom-coord
+#ENST00000409333	2	169798279	169799779	+
+#ENST00000397520	22	31495608	31497108	-
+#
+#$ head stat3-bind-sites-homer 
+#1	13810	13823	Stat3+il21(Stat)	8	+
+#1	13811	13824	Stat3+il21(Stat)	9	-
+
+
+cat temp-open-chrom-genes-transcript_prom-coord | while read g
+do
+  chr=`echo "$g" | cut -f 2`
+  s=`echo "$g" | cut -f 3`
+  e=`echo "$g" | cut -f 4`
+  awk '
+       BEGIN {FS = "\t"; OFS = "\t"} 
+      {
+       if($1 == "'$chr'" && (($2 >= '$s' && $2 <= '$e') || ($3 >= '$s' && $3 <= '$e')))
+       {
+        print $0;
+       }
+      }
+      ' stat3-bind-sites-homer > temp-722-227
+   cat temp-722-227 | while read t ##one or more matches found
+   do
+     echo "$g	$t"
+   done
+done
+
+rm temp-722-227
