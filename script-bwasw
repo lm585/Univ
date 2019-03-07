@@ -1,0 +1,13 @@
+#
+#
+
+ls *.fastq | tail -n 2 | while read f
+do
+  bwa bwasw K03455_HIVHXB2CG.fasta "$f" -t 4 -b 5 -q 2 -r 1 -z 10 -f $f.sam
+  samtools view -b -S -o $f.bam $f.sam
+  samtools sort  $f.bam  $f.sorted
+  samtools index $f.sorted.bam
+done
+
+# bwa Version: 0.6.2-r126
+#
