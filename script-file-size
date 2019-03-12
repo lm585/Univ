@@ -1,0 +1,6 @@
+#pasted from source file; not uploaded
+
+find . -type f -name '*' | while read f
+do
+  du -h "$f"
+done
