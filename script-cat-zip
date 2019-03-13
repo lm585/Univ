@@ -1,0 +1,12 @@
+#
+#
+
+cat sample-list-1 | head -100 | while read s
+do
+ cd "$s"
+ t1=`ls *_1.fq.gz | awk 'BEGIN{ORS = " "} {print $1}'`
+ t2=`ls *_2.fq.gz | awk 'BEGIN{ORS = " "} {print $1}'`
+ cat $t1 > ../raw/samp-"$s"_1.fq.gz
+ cat $t2 > ../raw/samp-"$s"_2.fq.gz
+ cd ..
+done
