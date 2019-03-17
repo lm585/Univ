@@ -1,0 +1,20 @@
+# load modules
+module load intel/17
+module load openmpi/2.0.1
+module load python2/2.7.13
+module load samtools/1.5
+module load STAR/2.5.3a
+
+# set global variables for the script
+bin="/mnt/projects/SOM_PATH_RXS745U/bin"
+seqDependencies="/mnt/projects/SOM_PATH_RXS745U/genome/$genome"
+genomeFasta="$seqDependencies/Sequence/genome.fa"
+gtfFile="$seqDependencies/Annotation/genes.gtf"
+bedFile="$seqDependencies/Annotation/genes.bed"
+
+# 6. Loading genome in shared memory of the compute node
+genomeDir="$seqDependencies/ggOverhang$(($mateLength -1))" #single read; length 100-bp; 99
+
+STAR --genomeDir $genomeDir \
+--genomeLoad LoadAndExit &>/dev/null 
+
