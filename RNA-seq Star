@@ -25,3 +25,47 @@ mkdir genomedb
 nohup STAR --runMode genomeGenerate --runThreadN 2 \
 --genomeDir genomedb \
 --genomeFastaFiles genome.fa --sjdbGTFfile genome.gtf --sjdbOverhang 49 \ >& mystarlog &
+
+#map monkey PE reads (2 x 100bp) to human reference genome
+$ STAR --genomeDir /mnt/projects/SOM_PATH_RXS745U/genome/GRCh38/ggOverhang99  --readFilesIn \
+V300009683_L3_RDWHMACawzNAAAAA-562_1.fq.gz  V300009683_L3_RDWHMACawzNAAAAA-562_2.fq.gz \ 
+--readFilesCommand zcat  --runThreadN 16 --outSAMtype BAM SortedByCoordinate \
+--outFilterMismatchNmax 60  --outFilterMismatchNoverLmax 0.3  --outFilterScoreMinOverLread 0.3 \
+--outFilterMatchNminOverLread 0.3  --alignIntronMax 1000000 --alignMatesGapMax 1000000 
+
+########################################
+                                 Started job on |       Mar 17 14:01:39
+                             Started mapping on |       Mar 17 14:02:00
+                                    Finished on |       Mar 17 14:14:19
+       Mapping speed, Million of reads per hour |       91.66
+
+                          Number of input reads |       18815311
+                      Average input read length |       200
+                                    UNIQUE READS:
+                   Uniquely mapped reads number |       11993251
+                        Uniquely mapped reads % |       63.74%
+                          Average mapped length |       165.33
+                       Number of splices: Total |       1863806
+            Number of splices: Annotated (sjdb) |       1673718
+                       Number of splices: GT/AG |       1826009
+                       Number of splices: GC/AG |       12038
+                       Number of splices: AT/AC |       1182
+               Number of splices: Non-canonical |       24577
+                      Mismatch rate per base, % |       7.48%
+                         Deletion rate per base |       0.14%
+                        Deletion average length |       1.78
+                        Insertion rate per base |       0.07%
+                       Insertion average length |       2.18
+                             MULTI-MAPPING READS:
+        Number of reads mapped to multiple loci |       4694388
+             % of reads mapped to multiple loci |       24.95%
+        Number of reads mapped to too many loci |       26244
+             % of reads mapped to too many loci |       0.14%
+                                  UNMAPPED READS:
+       % of reads unmapped: too many mismatches |       0.00%
+                 % of reads unmapped: too short |       11.10%
+                     % of reads unmapped: other |       0.07%
+                                  CHIMERIC READS:
+                       Number of chimeric reads |       0
+                            % of chimeric reads |       0.00%
+################################################################
