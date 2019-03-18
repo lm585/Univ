@@ -109,3 +109,38 @@ $ STAR --genomeDir /mnt/projects/SOM_PATH_RXS745U/genome/GRCh38/ggOverhang99  --
                        Number of chimeric reads |	0
                             % of chimeric reads |	0.00%
 ###############################################################################
+
+$ samtools view  Aligned.sortedByCoord.out.bam | grep -w "NH:i:1" | awk 'NR % 22111 == 0' | head -1000 > temp.uniq.1k-read.sam
+### 1000 uniq mapped reads
+
+$ cut -f 2 temp.uniq.1k-read.sam | sort | uniq -c | sort -n
+      6 73
+      9 89
+     10 153
+     14 137
+    222 83
+    243 99
+    245 147
+    251 163
+#### sam bitflag , ~950/1000 are properly paired
+
+$ grep -o "AS:i:[0-9]*" temp.uniq.1k-read.sam | sed 's/AS:i://' | sort -n | uniq -c
+      6 60
+      3 61
+      2 62
+      1 64
+      7 65
+      2 66
+................
+     20 190
+      5 191
+     12 192
+     10 193
+     15 194
+     14 195
+      5 196
+      6 197
+     12 198
+      1 199
+      1 201
+#### align score: from 60 to 201
