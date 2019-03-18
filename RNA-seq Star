@@ -69,3 +69,43 @@ V300009683_L3_RDWHMACawzNAAAAA-562_1.fq.gz  V300009683_L3_RDWHMACawzNAAAAA-562_2
                        Number of chimeric reads |       0
                             % of chimeric reads |       0.00%
 ################################################################
+
+#param4
+$ STAR --genomeDir /mnt/projects/SOM_PATH_RXS745U/genome/GRCh38/ggOverhang99  --readFilesIn V300009683_L3_RDWHMACawzNAAAAA-562_1.fq.gz  V300009683_L3_RDWHMACawzNAAAAA-562_2.fq.gz --readFilesCommand zcat  --runThreadN 16 --outSAMtype BAM SortedByCoordinate --outFilterMismatchNmax 60  --outFilterMismatchNoverLmax 0.15  --outFilterScoreMinOverLread 0.3 --outFilterMatchNminOverLread 0.3 --alignIntronMax 500000 --alignMatesGapMax 500000
+
+###########################################################################
+                                 Started job on |	Mar 18 13:52:35
+                             Started mapping on |	Mar 18 13:53:10
+                                    Finished on |	Mar 18 14:02:20
+       Mapping speed, Million of reads per hour |	123.15
+
+                          Number of input reads |	18815311
+                      Average input read length |	200
+                                    UNIQUE READS:
+                   Uniquely mapped reads number |	11523829
+                        Uniquely mapped reads % |	61.25%
+                          Average mapped length |	164.73
+                       Number of splices: Total |	1805850
+            Number of splices: Annotated (sjdb) |	1677528
+                       Number of splices: GT/AG |	1772284
+                       Number of splices: GC/AG |	11723
+                       Number of splices: AT/AC |	1281
+               Number of splices: Non-canonical |	20562
+                      Mismatch rate per base, % |	6.88%
+                         Deletion rate per base |	0.14%
+                        Deletion average length |	1.79
+                        Insertion rate per base |	0.07%
+                       Insertion average length |	2.17
+                             MULTI-MAPPING READS:
+        Number of reads mapped to multiple loci |	4558999
+             % of reads mapped to multiple loci |	24.23%
+        Number of reads mapped to too many loci |	19339
+             % of reads mapped to too many loci |	0.10%
+                                  UNMAPPED READS:
+       % of reads unmapped: too many mismatches |	2.43%
+                 % of reads unmapped: too short |	11.92%
+                     % of reads unmapped: other |	0.07%
+                                  CHIMERIC READS:
+                       Number of chimeric reads |	0
+                            % of chimeric reads |	0.00%
+###############################################################################
