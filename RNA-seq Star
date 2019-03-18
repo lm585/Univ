@@ -18,3 +18,10 @@ genomeDir="$seqDependencies/ggOverhang$(($mateLength -1))" #single read; length 
 STAR --genomeDir $genomeDir \
 --genomeLoad LoadAndExit &>/dev/null 
 
+#index genome: from Cornell Workshop
+#--sjdbOverhang ReadLength-1
+
+mkdir genomedb
+nohup STAR --runMode genomeGenerate --runThreadN 2 \
+--genomeDir genomedb \
+--genomeFastaFiles genome.fa --sjdbGTFfile genome.gtf --sjdbOverhang 49 \ >& mystarlog &
