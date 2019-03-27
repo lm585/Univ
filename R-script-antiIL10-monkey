@@ -1,0 +1,132 @@
+#
+
+> setwd("Documents")
+> rawCount <- read.delim("antiIL10-monkey-genecount.head.txt", header = T, row.names = 1)
+> dim(rawCount)
+[1] 32386    65
+> summary(rawCount)
+    samp.55           samp.56           samp.57           samp.58           samp.59           samp.60           samp.62       
+ Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0  
+ Median :      0   Median :      0   Median :      1   Median :      0   Median :      1   Median :      0   Median :      0  
+ Mean   :    418   Mean   :    435   Mean   :    421   Mean   :    491   Mean   :    456   Mean   :    314   Mean   :    453  
+ 3rd Qu.:     33   3rd Qu.:     30   3rd Qu.:     32   3rd Qu.:     40   3rd Qu.:     42   3rd Qu.:     31   3rd Qu.:     31  
+ Max.   :6831490   Max.   :8092140   Max.   :7443144   Max.   :8091787   Max.   :7203891   Max.   :3537936   Max.   :8206339  
+     samp.6           samp.41            samp.4            samp.63           samp.64           samp.65           samp.66       
+ Min.   :      0   Min.   :      0   Min.   :       0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:       0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0  
+ Median :      0   Median :      0   Median :       0   Median :      0   Median :      0   Median :      0   Median :      0  
+ Mean   :    492   Mean   :    441   Mean   :     531   Mean   :    476   Mean   :    469   Mean   :    458   Mean   :    361  
+ 3rd Qu.:     31   3rd Qu.:     36   3rd Qu.:      27   3rd Qu.:     30   3rd Qu.:     28   3rd Qu.:     25   3rd Qu.:     43  
+ Max.   :9130373   Max.   :7664216   Max.   :10134315   Max.   :8503033   Max.   :9036487   Max.   :8514864   Max.   :5158342  
+     samp.8              samp.9           samp.42           samp.43           samp.44             samp.45       
+ Min.   :      0.0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0.0   Min.   :      0  
+ 1st Qu.:      0.0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0.0   1st Qu.:      0  
+ Median :      0.0   Median :      0   Median :      1   Median :      0   Median :      0.0   Median :      0  
+ Mean   :    308.4   Mean   :    503   Mean   :    459   Mean   :    435   Mean   :    347.7   Mean   :    516  
+ 3rd Qu.:     32.0   3rd Qu.:     34   3rd Qu.:     44   3rd Qu.:     44   3rd Qu.:     46.0   3rd Qu.:     37  
+ Max.   :3144690.0   Max.   :9053326   Max.   :6857614   Max.   :6287561   Max.   :2570678.0   Max.   :9425553  
+    samp.46           samp.47           samp.48             samp.49           samp.25           samp.26       
+ Min.   :      0   Min.   :      0   Min.   :      0.0   Min.   :      0   Min.   :      0   Min.   :      0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:      0.0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0  
+ Median :      0   Median :      0   Median :      0.0   Median :      0   Median :      0   Median :      0  
+ Mean   :    391   Mean   :    395   Mean   :    231.9   Mean   :    490   Mean   :    449   Mean   :    345  
+ 3rd Qu.:     35   3rd Qu.:     27   3rd Qu.:     28.0   3rd Qu.:     40   3rd Qu.:     34   3rd Qu.:     34  
+ Max.   :5970088   Max.   :7014140   Max.   :2433989.0   Max.   :8222123   Max.   :7488706   Max.   :3303433  
+    samp.27           samp.51           samp.52           samp.53           samp.54            samp.5        
+ Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :       0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:       0  
+ Median :      0   Median :      0   Median :      0   Median :      0   Median :      0   Median :       0  
+ Mean   :    470   Mean   :    480   Mean   :    438   Mean   :    423   Mean   :    394   Mean   :     530  
+ 3rd Qu.:     35   3rd Qu.:     43   3rd Qu.:     43   3rd Qu.:     36   3rd Qu.:     31   3rd Qu.:      36  
+ Max.   :8004229   Max.   :7729657   Max.   :6480584   Max.   :6858771   Max.   :6613614   Max.   :10221593  
+    samp.28             samp.29           samp.31           samp.32            samp.33           samp.35       
+ Min.   :      0.0   Min.   :      0   Min.   :      0   Min.   :       0   Min.   :      0   Min.   :      0  
+ 1st Qu.:      0.0   1st Qu.:      0   1st Qu.:      0   1st Qu.:       0   1st Qu.:      0   1st Qu.:      0  
+ Median :      0.0   Median :      0   Median :      0   Median :       0   Median :      0   Median :      0  
+ Mean   :    327.1   Mean   :    418   Mean   :    481   Mean   :     566   Mean   :    323   Mean   :    519  
+ 3rd Qu.:     37.0   3rd Qu.:     37   3rd Qu.:     30   3rd Qu.:      27   3rd Qu.:     31   3rd Qu.:     32  
+ Max.   :2930533.0   Max.   :6777290   Max.   :8059623   Max.   :11464490   Max.   :3375777   Max.   :8904172  
+    samp.36            samp.3           samp.10           samp.11           samp.12            samp.1           samp.37       
+ Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0  
+ Median :      0   Median :      1   Median :      0   Median :      0   Median :      0   Median :      0   Median :      0  
+ Mean   :    498   Mean   :    339   Mean   :    451   Mean   :    517   Mean   :    338   Mean   :    486   Mean   :    401  
+ 3rd Qu.:     33   3rd Qu.:     39   3rd Qu.:     28   3rd Qu.:     36   3rd Qu.:     38   3rd Qu.:     38   3rd Qu.:     33  
+ Max.   :8885372   Max.   :3818965   Max.   :8460244   Max.   :8922647   Max.   :3553157   Max.   :8065057   Max.   :6579826  
+    samp.38           samp.39           samp.40           samp.13           samp.15            samp.16       
+ Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :       0   Min.   :      0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:       0   1st Qu.:      0  
+ Median :      0   Median :      0   Median :      0   Median :      0   Median :       0   Median :      0  
+ Mean   :    497   Mean   :    462   Mean   :    507   Mean   :    431   Mean   :     583   Mean   :    490  
+ 3rd Qu.:     25   3rd Qu.:     28   3rd Qu.:     33   3rd Qu.:     19   3rd Qu.:      23   3rd Qu.:     37  
+ Max.   :9074176   Max.   :8026218   Max.   :9108673   Max.   :8771021   Max.   :13165975   Max.   :8323252  
+    samp.17            samp.18           samp.19           samp.20           samp.24           samp.21           samp.22       
+ Min.   :       0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0  
+ 1st Qu.:       0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0  
+ Median :       0   Median :      0   Median :      0   Median :      0   Median :      0   Median :      0   Median :      0  
+ Mean   :     523   Mean   :    350   Mean   :    456   Mean   :    513   Mean   :    462   Mean   :    495   Mean   :    464  
+ 3rd Qu.:      26   3rd Qu.:     32   3rd Qu.:     37   3rd Qu.:     34   3rd Qu.:     39   3rd Qu.:     33   3rd Qu.:     35  
+ Max.   :10510263   Max.   :3906795   Max.   :7672142   Max.   :9693431   Max.   :7067651   Max.   :9145360   Max.   :8287927  
+    samp.23           samp.14            samp.2           samp.30           samp.34           samp.50            samp.7       
+ Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0   Min.   :      0  
+ 1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0   1st Qu.:      0  
+ Median :      0   Median :      0   Median :      0   Median :      0   Median :      0   Median :      0   Median :      1  
+ Mean   :    417   Mean   :    328   Mean   :    461   Mean   :    464   Mean   :    524   Mean   :    462   Mean   :    514  
+ 3rd Qu.:     32   3rd Qu.:     27   3rd Qu.:     39   3rd Qu.:     27   3rd Qu.:     39   3rd Qu.:     30   3rd Qu.:     33  
+ Max.   :6827515   Max.   :4140682   Max.   :7713409   Max.   :8874179   Max.   :9813181   Max.   :8746032   Max.   :9974316  
+> group <- factor(rep(1, 65))
+> y <- DGEList(counts=rawCount,group=group)
+> y <- calcNormFactors(y)
+> plotMDS(y)
+> d <- cpm(y)
+> write.table(d, "CPM.txt", sep="\t")
+> t1 <- read.delim("CPM.txt", header = T, row.names = 1)
+> t2 = t1
+> library(genefilter)
+> t1$sd <- rowSds(t2)
+> t1$mean <- rowMeans(t2)
+> t1$min <- apply(t2, 1, FUN=min)
+> t1$max <- apply(t2, 1, FUN=max)
+> write.table(t1, "CPM.sd.mean.min.max.txt", sep = "\t")
+> pbmcColms <- c(44, 42, 49, 60, 50, 51, 52, 61, 59, 56, 26, 33, 62, 35, 37, 63, 38, 39, 45, 46, 47, 10, 48, 17, 18, 19, 21, 22, 23, 24, 28, 30, 31, 4, 8, 7, 11, 13, 14, 15, 16)
+> tpbmc <- t2[,pbmcColms]
+> dim(tpbmc)
+[1] 32386    41
+> a <- tpbmc
+> tpbmc$sd <- rowSds(a)
+> tpbmc$mean <- rowMeans(a)
+> tpbmc$min <- apply(a, 1, FUN=min)
+> tpbmc$max <- apply(a, 1, FUN=max)
+> write.table(tpbmc, "PBMC.sd.mean.min.max.txt", sep = "\t")
+
+> lColms <- c(41, 43, 53, 54, 55, 57, 58, 25, 27, 34, 40, 36, 9, 20, 32, 64, 29, 1, 2, 3, 5, 6, 12, 65)
+> tpbmc <- t2[, lColms]
+> dim(tpbmc)
+> a <- tpbmc
+> tpbmc$sd <- rowSds(a)
+> tpbmc$mean <- rowMeans(a)
+> tpbmc$min <- apply(a, 1, FUN=min)
+> tpbmc$max <- apply(a, 1, FUN=max)
+> write.table(tpbmc, "Lnode.sd.mean.min.max.txt", sep = "\t")
+
+####DEG genes############
+> setwd("/Users/linyongmao/Documents/antiIL10 monkey")
+> x <- read.delim("temp-pbmc-data3-5.txt", header = T, row.names=1)
+> group <- factor(c(1,1,1,1,1,1,2,2,2,2,2,2))
+> y <- DGEList(counts=x,group=group)
+> y <- calcNormFactors(y)
+> keep <-rowSums(cpm(y)>=1) >= 4
+> y<-y[keep,]
+> dim(y)
+[1] 10635    12
+> design<-model.matrix(~0+group) 
+> y <- estimateGLMCommonDisp(y,design) 
+> y <- estimateGLMTrendedDisp(y,design) 
+> y <- estimateGLMTagwiseDisp(y,design) 
+> fit<-glmFit(y,design) 
+> lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+> top2v1 <- topTags(lrt.2vs1, n=50000) 
+> write.table(top2v1, "diff2-1.txt", sep="\t")
+
+
