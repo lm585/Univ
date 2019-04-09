@@ -1,0 +1,10 @@
+#
+find /Users/linyongmao/gsea_home/output/apr05 -name '*.rpt' -type f | grep -v pbmc | while read f
+do
+ grep "param	res" "$f"
+ grep "param	metric" "$f"
+ ls -lh "$f"
+ echo
+ echo
+done
+
