@@ -1,0 +1,1 @@
+methyl-seq TEM analysis linyongmao$ cat RA-RARO-5colum-r-res | grep -w greater |  awk '($4 == 6 && $6 < 0.00001) || ($4 == 7 && $6 < 0.0001) || ($4 == 8 && $6 < 0.0001) || ($4 == 9 && $6 < 0.0001) || ($4 == 10 && $6 < 0.001) || ($4 == 11 && $6 < 0.001) || ($4 >= 12 && $6 < 0.05)' > RA-RARO-5colum-r-res-FDR-od1
