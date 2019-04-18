@@ -1,0 +1,17 @@
+#
+
+t=5
+
+echo "N 0.05 0.01 0.005 0.001 0.0005 0.0001  0.00005 0.00001  0.000005" 
+
+while [ $t -lt 20 ]
+do
+ echo -n "$t "
+ for b in `echo 0.05 0.01 0.005 0.001 0.0005 0.0001  0.00005 0.00001  0.000005`
+ do
+  a=`awk '$4 == '$t'  && $6 < '$b'  && $5 == "less"'  	  RA-RARO-5colum-r-res  | wc -l`
+  echo -n "$a "
+ done
+ echo
+ t=`expr $t + 1`
+done
