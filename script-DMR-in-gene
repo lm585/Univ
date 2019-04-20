@@ -1,0 +1,25 @@
+#
+# DMR region
+#chr1	39249632	39249748	14	greater	8.57E-05
+#v129-22-124-116:methyl-seq TEM analysis linyongmao$ head geneID-name-coord-hg19 
+#ENSG00000223972	DDX11L1	chr1	11869	14412	+
+#ENSG00000227232	WASH7P	chr1	14363	29806	-
+
+cat RA-RARO-5colum-r-res-FDR-od1-greater RA-RARO-5colum-r-res-FDR-od1-less  | while read g
+do
+  chr=`echo "$g" | cut -f 1`
+  s=`echo "$g" | cut -f 2`
+  e=`echo "$g" | cut -f 3`
+  awk '
+   BEGIN {FS = "\t"; ORS = "\t"} 
+   {
+    if($3 == "'$chr'" && (($5 >= '$s' && $4 <= '$s') || ($5 >= '$e' && $4 <= '$e')))
+    {
+        print $2;
+    }
+   }
+      ' geneID-name-coord-hg19 > temp-748pm
+  echo -n "$g	" 
+  cat temp-748pm
+  echo
+done
