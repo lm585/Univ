@@ -21,7 +21,8 @@ do
   n2=`cat temp-1038-2a3_4a5 | wc -l | awk '{print $1}'`
   nd=`cat temp-1038-2_4 temp-1038-2a3_4a5 | sort | uniq -d | wc -l | awk '{print $1}'`
   echo "$n1	$n2	$nd"
-  name=`echo "$p" | sed 's/ /-/g'` 
+  #name=`echo "$p" | sed 's/ /-/g'`
+  name="$p" 
   cat temp-1038-2_4 temp-1038-2a3_4a5 | sort | uniq -d > temp-common-lead-genes."$name".xls
   ls -lh temp-common-lead-genes."$name".xls
 done
