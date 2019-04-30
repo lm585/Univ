@@ -1,0 +1,14 @@
+#
+
+awk '
+ BEGIN {FS = "\t";
+        print "N = 4539  + 4501"
+        print " r = 4539"
+       }
+       {
+   print "n = " $2+$3;
+   print "y = " $2;
+   print "(sum(dhyper(0:y,r,N-r,n)))";
+   print "(sum(dhyper(y:n,r,N-r,n)))"; 
+       }
+ ' $1
