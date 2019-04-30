@@ -14,3 +14,6 @@ x$range <- x$max - x$min
 
 write.table(x, "meth-4-samples.20readsCov.CpG.sites.meth.5colum.noNA.sd.min.max", sep = "\t")
 
+> sink("temp-r-res")
+> source(file = "/Users/linyongmao/Documents/methyl-seq TEM analysis/temp.R", echo = T)
+> sink()
