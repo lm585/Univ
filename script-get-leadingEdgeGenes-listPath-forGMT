@@ -1,0 +1,21 @@
+#
+
+cat GeneSets.2019.gmt | while read ll
+do
+ p=`echo "$ll" | cut -f 1`
+ echo -n "$p	"
+ name="$p"
+ echo "$ll" | awk '
+ BEGIN{FS = "\t";
+       OFS = "\t";}
+ {
+  for(i = 3; i <= NF; i++)
+  {
+   if($i != "") ### && "$i" != "")
+     print $i;
+  }
+ }
+ '  | grep -vw "" > temp-common-lead-genes."$name".xls
+done
+
+echo
