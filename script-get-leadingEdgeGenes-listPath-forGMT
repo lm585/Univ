@@ -2,7 +2,7 @@
 
 cat GeneSets.2019.gmt | while read ll
 do
- p=`echo "$ll" | cut -f 1`
+ p=`echo "$ll" | cut -f 1 | sed 's#/#_or_#g' `
  echo -n "$p	"
  name="$p"
  echo "$ll" | awk '
