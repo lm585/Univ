@@ -1,0 +1,44 @@
+#
+
+res="temp-genes-0or1-table.txt"
+
+echo -n "pathway	" > $res
+cat temp-uniq-genes  | sort | awk '
+ BEGIN{
+    FS = "\t";
+    OFS = "\t";
+    ORS = "";
+       }
+ {
+  print $1 "\t";
+ }
+ ' >> $res
+echo >> $res
+
+cat temp-143dup-gene-sets | while read p
+do
+  cat temp-lead-genes."$p".xls temp-uniq-genes | sort | uniq -c > temp-534
+  ###temp-534:  all genes in all gene sets in the same order
+  ###if gene present in this pathway, count 2, else count 1
+ echo -n "$p	" >> $res
+ awk '
+  BEGIN{
+    OFS = "\t";
+    ORS = "";
+       }
+  {
+   if($1 == 1)
+     print 0 "\t";
+   else
+     print 1 "\t";
+  }
+ ' temp-534 >> $res
+ echo >> $res
+done
+
+cat $res | sed 's/	$//' > temp-545
+mv temp-545 $res
+wc -l $res
+
+rm temp-534
+
