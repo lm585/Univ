@@ -144,3 +144,8 @@ $ grep -o "AS:i:[0-9]*" temp.uniq.1k-read.sam | sed 's/AS:i://' | sort -n | uniq
       1 199
       1 201
 #### align score: from 60 to 201
+
+$ cat  cmd-3-13-2019
+bash mRNA.preprocess_master.sh -d /scratch/users/lxm416/il10RNASeq/raw  -g Mmul_8 -a /mnt/projects/SOM_PATH_RXS745U/bin/Trimmomatic-0.36/adapters/NuGen-lowInput-PE.fa  -p -e lxm416@case.edu
+
+bash mRNA.preprocess_master.sh -d /scratch/users/lxm416/temp-dir -g Mmul_8 -a /mnt/projects/SOM_PATH_RXS745U/bin/Trimmomatic-0.36/adapters/NuGen-lowInput-PE.fa  -p -e lxm416@case.edu
