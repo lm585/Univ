@@ -19,3 +19,12 @@ done
 
 rm temp.fn.352
 
+ cat  gsea-diff-comps-file-path-2 
+/Users/linyongmao/gsea_home/output/apr05/pbmc_date_2a3_4a5_ratio_plot300.Gsea.1554997505434/gsea_report_for_1_1554997505434.xls
+/Users/linyongmao/gsea_home/output/apr05/pbmc_date_2a3_4a5_ratio_plot300.Gsea.1554997505434/gsea_report_for_0_1554997505434.xls
+/Users/linyongmao/gsea_home/output/apr05/ln_date_2v4_ratio_plot300.Gsea.1555521230806/gsea_report_for_1_1555521230806.xls
+/Users/linyongmao/gsea_home/output/apr05/ln_date_2v4_ratio_plot300.Gsea.1555521230806/gsea_report_for_0_1555521230806.xls
+/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_permGenes_ratioOfClass_plot600.Gsea.1558456287648/gsea_report_for_1_1558456287648.xls
+/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_permGenes_ratioOfClass_plot600.Gsea.1558456287648/gsea_report_for_0_1558456287648.xls
+/Users/linyongmao/gsea_home/output/may05/LN_date_24_permGenes_ratio_plot600.Gsea.1558458761367/gsea_report_for_1_1558458761367.xls
+/Users/linyongmao/gsea_home/output/may05/LN_date_24_permGenes_ratio_plot600.Gsea.1558458761367/gsea_report_for_0_1558458761367.xls
