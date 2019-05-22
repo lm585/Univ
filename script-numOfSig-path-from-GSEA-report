@@ -1,0 +1,21 @@
+#
+
+cat  gsea-diff-comps-file-path-2 | while read f
+do
+  head -1 "$f" | awk '
+  BEGIN{FS = "\t";}
+  {
+   for(i = 1; i <= NF; i++)
+   {
+    if($i == "FDR q-val")
+      print i;
+   }
+  }
+  ' > temp.fn.352
+  nf=`head -1 temp.fn.352 | awk '{print $1}' `
+  echo "Field	$nf"
+  awk 'BEGIN {FS = "\t"; } $'$nf' < 0.05' "$f" |  wc -l
+done
+
+rm temp.fn.352
+
