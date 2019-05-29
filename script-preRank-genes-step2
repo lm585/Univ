@@ -1,0 +1,22 @@
+#
+
+sort -t '	'  +0 -1  diff-PBMC-date-2a3_4a5.all32kgenes.geneRank.rnk > temp
+sort -t '	' +0 -1  Mmul_8-geneId-name-type.txt > temp2
+join -t '	' -1 1 -2 1 temp temp2 | awk '{print $3 "\t" $2}' > temp3
+
+### a gene symbol has >1 gene IDs , thus >1 rank scores
+awk '
+BEGIN {FS = "\t";}
+{
+ if($2 * $2 > r[$1] * r[$1])
+   r[$1] = $2;
+}
+END {
+  for(i in r)
+  {
+   print i "\t" r[i];
+  }
+   }
+' temp3
+rm  temp temp2 #temp3
+
