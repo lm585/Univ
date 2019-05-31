@@ -1,0 +1,15 @@
+#
+
+cat ln-4-pathways | while read p
+do
+  cat /Users/linyongmao/gsea_home/output/may05/LN_date_2_4_preRank_seed1234_h.all.GseaPreranked.1559317488732/"$p".xls | awk '
+  BEGIN {FS = "\t";}
+  ##$8 == "Yes" {
+  {
+  print $2;
+  }
+  '  | grep -v -w PROBE > temp-lead-genes."$p".xls
+  wc -l temp-lead-genes."$p".xls
+done
+
+rm temp-1038-2_4 temp-1038-2a3_4a5 
