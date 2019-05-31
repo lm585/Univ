@@ -1,0 +1,43 @@
+#
+
+normExp="diff-LN.geneRank cluster data.xls" ### startardized gene exp by dChip
+
+head -1 "$normExp"
+
+ls temp-lead-genes.*.xls | head -91234 | while read file
+do
+ wc -l "$file"
+ cat "$file" | grep -w -v "PROBE" | while read geneName
+ do
+   grep -i  "	$geneName	" ../Mmul_8-geneId-name-type.txt
+ done | cut -f 1 > temp-gene-id
+ wc -l temp-gene-id
+ ###each pathway, genes' expr and avg
+ cat temp-gene-id | while read geneID
+ do
+   grep -i -w "$geneID" "$normExp"
+ done  | cut -f 2-100000 > temp-gene-expression
+ wc -l temp-gene-expression
+ ### avg expression
+ echo -n "$file	"
+ awk '
+  BEGIN{FS = "\t";
+       }
+  {
+   for(i = 1; i <= NF; i++)
+   {
+     s[i] += $i;
+   }
+  }
+  END{
+   for(i = 1; i <= NF; i++)
+   {
+    printf "%f\t", s[i]/NR;
+   }
+  }
+  ' temp-gene-expression
+  echo
+done
+
+#rm temp-gene-id temp-gene-expression
+
