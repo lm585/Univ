@@ -1,13 +1,14 @@
 #
 
-rf="/Users/linyongmao/gsea_home/output/apr05/ln_date_2v4_ratio_plot300.Gsea.1555521230806/ranked_gene_list_1_versus_0_1555521230806.xls"
+#rf="/Users/linyongmao/gsea_home/output/apr05/pbmc_date_2a3_4a5_ratio_plot300.Gsea.1554997505434/ranked_gene_list_1_versus_0_1554997505434.xls"
+ rf="/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_permPh_ratioOfClass_plot600.Gsea.1559166338340/ranked_gene_list_1_versus_0_1559166338340.xls"
 
 ls temp-common-lead-genes.*.xls | while read f
 do
  cat "$f" | while read g
  do
   grep -iw "^$g" "$rf"
- done > temp-geneSet-ratio
+ done | sort | uniq > temp-geneSet-ratio
 
  gt1=`cat temp-geneSet-ratio | awk 'BEGIN{FS = "\t"} $5 > 1' | wc -l`
  ls1=`cat temp-geneSet-ratio | awk 'BEGIN{FS = "\t"} $5 < 1' | wc -l`
