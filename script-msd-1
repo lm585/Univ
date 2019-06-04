@@ -1,0 +1,35 @@
+#
+cyto="$1"
+cat 20190528-MSD-aIL10-NHP.tab.txt | cut -f 2,4,8,21 | head -1 > temp.txt
+cat 20190528-MSD-aIL10-NHP.tab.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 == "'$cyto'" && $2 != ""' | cut -f 2,4,8,21 >> temp.txt
+
+# animalID	TimePoint	Assay	Calc. Conc. Mean
+# RBf16	-10	$cyto	0.071516654
+
+f=""
+field="1,2,4,6"
+for day in `echo "209 230 252"`
+do
+  echo "monkey	day $day" > temp-$cyto-$day
+  awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 == '$day' {print $1, $4}' temp.txt | sort +0 -1 >> temp-$cyto-$day
+  f=`echo "$f temp-$cyto-$day"`
+done
+
+echo "$f"
+paste $f > temp-$cyto.txt
+awk 'BEGIN {FS = "\t"; OFS = "\t"}
+    {
+     for(i = 3; i <= NF; i = i+2)
+     {
+      if($1 != $i)
+      {
+       print "error", $0;
+      }
+     }
+    }
+    ' temp-$cyto.txt
+
+cut -f $field temp-$cyto.txt > temp-$cyto.txt.2
+cat temp-$cyto.txt.2 > temp-$cyto.txt
+rm temp-$cyto.txt.2
+rm  $f temp.txt
