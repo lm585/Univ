@@ -1,0 +1,40 @@
+#
+
+pre="/Volumes/Elements/F18FTSUSAT1279_MACawzN/Reads/Clean"
+
+ls $pre | wc -l
+
+ls $pre | while read d
+do
+  echo "$pre/$d"
+done > file-510pm
+
+cat file-510pm | while read f
+do
+  echo "$f"
+done
+
+t=10
+while [ $t -lt 65 ]
+do
+ echo
+ echo $t
+ awk '
+  BEGIN{
+        OFS = "  ";
+        ORS = "";
+       }
+   {
+    if(NR > 0 && NR > '$t' - 10 && NR <= '$t' )
+    {
+     print $1 "   ";
+    }
+   }
+  ' file-510pm > file-540pm
+ tenDirect=`cat file-540pm`
+ ls $tenDirect
+ tar -cvf RNA-seq-$t.tar $tenDirect
+ t=`expr $t + 10`
+done
+
+rm file-510pm file-540pm
