@@ -1,4 +1,4 @@
 Get standardized expression (z-score) for all LN genes from dChip clustering result.
 Get a list of sig. pathways (Unix commands)
-For each pathway, get all members genes (script-all-genes-LN-hallMark-50geneSets)
+For each pathway, get all members genes (script-all-genes-LN-Malika-611)
 For each pathway, average z-scores over all genes (script-pathway-exprAvg-ln-hallmark)
