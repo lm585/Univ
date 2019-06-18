@@ -1,0 +1,25 @@
+#
+
+#pathway CAPitalized
+#temp-pre temp-hyp
+
+echo "Probe Set	Identifier	FirstOfLocusLink	FirstOfName	FirstOfFunction	Description"
+cat LN-611-pathways-Malika-avgGeneExpr.dChip.txt | awk 'NR > 1' | cut -f 1 | while read p
+do
+  t=`grep "^$p$" temp-pre temp-hyp | wc -l | awk '{print $1}' `
+  if [ $t -ge 2 ]
+  then
+    echo "$p				|preRank|hyperG|	$p"
+  elif [ $t -eq 1 ]
+  then
+    a=`grep "^$p$" temp-pre | wc -l | awk '{print $1}' `
+    if [ $a -eq 1 ]
+    then
+      echo "$p				|preRank|	$p"
+    else
+      echo "$p				|hyperG|	$p"
+    fi
+  else
+    b=1
+  fi
+done
