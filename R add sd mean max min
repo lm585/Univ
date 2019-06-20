@@ -21,3 +21,7 @@ write.table(x, "meth-4-samples.20readsCov.CpG.sites.meth.5colum.noNA.sd.min.max"
 > p <- read.delim("temp.3.xls", sep = "\t", header = F)
 > p2 <- qvalue(p$V1, pi0 = 1)
 > write.table(p2$qvalues, "temp.R.xls", sep = "\t")
+
+> (.packages())
+ [1] "qvalue"     "edgeR"      "limma"      "genefilter" "stats"      "graphics"   "grDevices" 
+ [8] "utils"      "datasets"   "methods"    "base"      
