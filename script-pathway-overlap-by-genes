@@ -1,0 +1,32 @@
+#
+ls temp-lead-genes.*.xls | while read f1
+do
+ n1=`wc -l "$f1" | awk '{print $1}'`
+ p1=`echo "$f1" | sed 's/temp-lead-genes.//' | sed 's/.xls$//'`
+ ls temp-lead-genes.*.xls |  while read f2 
+ do
+   n2=`wc -l "$f2" | awk '{print $1}'`
+   overlap=`cat "$f1" "$f2" | sort | uniq -d | wc -l | awk '{print $1}'`
+   p2=`echo "$f2" | sed 's/temp-lead-genes.//' | sed 's/.xls$//'`
+   echo -n "$p1	$p2	"
+   echo "hello" | awk '
+   BEGIN {FS = "\t"; 
+         OFS = "\t"}
+{
+ p = '$n1';
+ q = '$n2';
+ if(p == 0)
+ {
+  p = 1;
+ }
+ if(q == 0)
+ {
+  q = 1;
+ }
+
+print '$overlap', '$n1', '$n2', '$overlap'/p, '$overlap'/q;
+}
+'
+
+ done
+done
