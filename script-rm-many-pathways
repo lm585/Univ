@@ -1,0 +1,9 @@
+#
+cp pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap temp0
+cat 10-pathways-2beRemove | while read ll
+do
+   grep -v "^$ll	" temp0 > temp1 
+   grep -v "	$ll	" temp1 > temp0 
+done
+mv temp0 pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap.2
+rm temp0 temp1
