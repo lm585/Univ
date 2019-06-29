@@ -1,0 +1,19 @@
+$ cat "./BTI documents/Documents 8-27-2015/bin/scriptmclbatch"
+
+/home/linyong/fromIowa/local_mcl/bin/mcl  pcc0d83cutoff.net  -I 1.2  --abc  -scheme 7
+/home/linyong/fromIowa/local_mcl/bin/mcl  pcc0d83cutoff.net  -I 1.4 --abc  -scheme 7
+/home/linyong/fromIowa/local_mcl/bin/mcl  pcc0d83cutoff.net  -I 1.6  --abc  -scheme 7
+/home/linyong/fromIowa/local_mcl/bin/mcl  pcc0d83cutoff.net  -I 1.8  --abc  -scheme 7
+/home/linyong/fromIowa/local_mcl/bin/mcl  pcc0d83cutoff.net  -I 2.0  --abc  -scheme 7
+/home/linyong/fromIowa/local_mcl/bin/mcl  pcc0d83cutoff.net  -I 2.2  --abc  -scheme 7
+
+$ head "./BTI documents/Documents 8-27-2015/Osmotic data anal/lowBound2folds128diff/gene-correlations-networks/pcc0d83cutoff.net"
+244903_at	244959_s_at	0.846
+244912_at	244920_s_at	0.840
+244912_at	244921_s_at	0.855
+244912_at	244959_s_at	0.836
+244932_at	244933_at	0.962
+244932_at	244934_at	0.903
+(tab delimited)
+
+mcl net-component-1-78-nodes  -I 2.0  --abc  -scheme 7
