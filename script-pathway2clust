@@ -1,0 +1,13 @@
+#
+
+cat out.net-component-1-78-nodes.I20s7 | awk '
+BEGIN{FS = "\t";
+      OFS = "\t";
+      print "pathway", "clustNum";}
+ {
+  for(i = 1; i <= NF; i++)
+  {
+   print $i, "c" NR;
+  }
+ }
+ '
