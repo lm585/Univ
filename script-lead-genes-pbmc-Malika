@@ -1,0 +1,31 @@
+#
+
+cat 	pbmc-616-pathways-Malika-down-preRank-hyp-gene-info.txt | cut -f 1 | awk 'NR > 1' |   while read p
+do
+  t=`ls /Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_Malika_sets.GseaPreranked.1560384315208/"$p".xls | wc -l | awk '{print $1}' `
+  if [ $t -eq 0 ]
+  then
+    p="\"$p\""
+    #echo "$p"
+  else
+    a=1
+  fi
+  cat /Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_Malika_sets.GseaPreranked.1560384315208/"$p".xls | awk '
+  BEGIN {FS = "\t";}
+  {
+   if($8 == "Yes")
+   {
+    print $2;
+   }
+  }
+  '  | grep -v -w PROBE > temp-lead-genes."$p".xls
+  echo -n "$p"
+  cat temp-lead-genes."$p".xls | while read g
+  do
+    echo -n "	$g"
+  done
+  echo
+  #wc -l temp-lead-genes."$p".xls
+done
+
+rm temp-1038-2_4 temp-1038-2a3_4a5 
