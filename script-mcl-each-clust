@@ -1,0 +1,15 @@
+#
+c=1
+cat out.pbmc-616-pathways-Malika-down-21-paths-overlap.4.I20s7  | while read ll
+do
+ echo "$ll" | awk '
+ BEGIN {FS = "\t"}
+ {
+  for(i = 1; i <= NF; i++)
+    print $i
+ } 
+ ' > clust-$c.txt
+
+ c=`expr $c + 1`
+done
+
