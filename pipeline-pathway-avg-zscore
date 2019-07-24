@@ -1,0 +1,22 @@
+Correlates viral DNA readout (LN) with pathways:
+
+Convert DNA readout -> z score. LN; date 3 & 6;
+BUT correlate with PBMC pathway data because no LN RNA-seq at date 3;
+CPM-pbmc-date-2-3-4-5.10594.genes (get pbmc z-scores of these genes at date 3 & 6 only from dChip) (11 data points)
+  sample 61; PBMC; monkey Q; date 6; no RNA-seq data;
+Gene expr z scores: within [-3, 3] for all genes and 11 samples  (CPM-pbmc-date-3-6.10594genes-cluster-data.xls)
+rm temp*
+$ bash script-all-genes-pbmc-Malika
+ bash ../script-pathway-exprAvg-ln-hallmark > pbmc-616-pathways-Malika-avgGeneExpr-dChip.date3-6.scripOp.txt
+cat  pbmc-616-pathways-Malika-avgGeneExpr-dChip.date3-6.scripOp.txt | awk 'NF > 10' | sed 's/temp-lead-genes.//' | sed 's/.xls//'|cut -f 1-12 > pbmc-616-pathways-Malika-avgGeneExpr-dChip.date3-6.txt
+Also get rid of “” in 3-6.txt
+bash script-2-R-correlation.date3-6.R > temp-530pm.R
+> sink("temp-r-res")
+> source(file = "temp-530pm.R", echo= T)
+> sink()
+
+pbmc-msd-IL10-corr-616pathways-Malika-upAndDown-preRank-hyp.xlsx
+grep -v "^>" temp-r-res | awk 'NF > 0'  | grep "\[1\]" | awk 'NR % 2 == 1' | sed 's/.1. //' > temp1.txt
+grep -v "^>" temp-r-res | awk 'NF > 0'  | grep "\[1\]" | awk 'NR % 2 == 0' | sed 's/.1. //' > temp2.txt
+grep -v "^>" temp-r-res | awk 'NF > 0' | awk 'NR % 4 == 0' > temp3.txt
+Q-value for corr p-value
