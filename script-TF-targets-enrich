@@ -4,7 +4,7 @@ genome="CPM-pbmc-date-2-3-4-5.10594.genes.symbol"
 gc=`cat "$genome" |  wc -l |awk '{print $1}'`
 echo "pathway	TF	path-LEG-upreg-targets	path-LEG-upreg	genome-targets	genome"
 
-ls temp-lead-genes.*.xls | grep -i stat3 | while read p
+ls temp-lead-genes.*.xls |  while read p
 do
   ls chea-TF-*.targets.xls | while read tf
   do
