@@ -1,0 +1,29 @@
+#
+
+# dhyper(x, m, n, k, log = FALSE)
+# x,  	vector of quantiles representing the number of white balls drawn without replacement from an urn which contains both black and white balls.
+# m 	the number of white balls in the urn.
+# n 	the number of black balls in the urn.
+# k 	the number of balls drawn from the urn.
+
+#input file format
+#pathway	TF	path-LEG-upreg-targets	path-LEG-upreg	genome-targets	genome
+#"CELL ACTIVATION (IL15,TNF)"	AHR	1	7	346	8994
+
+#x <- $3
+#m <- $5
+#n <- $6 - $5
+#k <- $4
+
+cat "$1" | awk 'NR > 1' | awk ' #header line
+ BEGIN{
+  FS = "\t";
+  }
+ {
+  print "x <- " $3;
+  print "m <- " $5;
+  print "n <- " ($6 - $5);
+  print "k <- " $4;
+  print "(sum(dhyper(x:k, m, n, k)))"; 
+ }
+ '
