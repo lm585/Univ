@@ -1,0 +1,32 @@
+#
+# ENRICHED IN ANTIGEN PRESENTATION (I)	viral DNA (LN)	0.6111673		
+# GROSS_HIF1A_TARGETS_DN	viral RNA (LN)	-0.7956708		
+
+# net-path-TF-viral-cyto.node-prop.txt
+# "MYELOID, DENDRITIC CELL ACTIVATION VIA NFKB (II) (M43.1)"	path-pos-reg
+# ENRICHED IN B CELLS (II) (M47.1)	path-down-reg
+
+cat net-path-TF-viral-cyto.txt | grep -i "viral .na" | while read ll
+do
+  path=`echo "$ll" | cut -f 1`
+  pcc=`echo "$ll" | cut -f 3`
+  t=`grep "^$path	path-" net-path-TF-viral-cyto.node-prop.txt | wc -l | awk '{print $1}' `
+  if [ $t -ne 1 ]
+  then
+    reg="path"
+    echo "error: $path not uniq hit in the node-property file"
+  else
+    reg=`grep "^$path	path-" net-path-TF-viral-cyto.node-prop.txt | cut -f 2` ### "path-pos-reg" or "path-down-reg"
+  fi
+  echo "$path	$pcc	$reg" | awk '
+  BEGIN { FS = "\t";}
+  {
+   if($2 < 0 && $3 == "path-pos-reg")
+     print $1;
+   else if($2 > 0 && $3 == "path-down-reg")
+     print $1;
+   else
+     a = 0;
+  }
+  '
+done
