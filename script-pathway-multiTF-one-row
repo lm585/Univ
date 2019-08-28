@@ -1,0 +1,12 @@
+#
+
+cut -f 2 temp-path-15TFs | sort | uniq | while read p
+do
+ echo -n "$p	"
+ grep "	$p$" temp-path-15TFs | cut -f 1 | sort | uniq  > temp-p-TFs
+ cat temp-p-TFs | while read tf
+ do
+   echo -n "$tf	"
+ done
+ echo
+done
