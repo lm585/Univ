@@ -1,0 +1,55 @@
+#
+
+c1="$1"
+c2="$2"
+
+head -1 star-hiv-genecount.11718genes.txt | awk '
+ BEGIN{FS = "\t";
+       OFS = "\t"}
+ {
+  for(i = 1; i <= NF; i++)
+    print i, $i;
+ }
+ ' > temp-col-samp
+
+cat "$c1" | while read s
+do
+ grep "	$s$" temp-col-samp | head -1 | cut -f 1
+done > temp1-238-915
+
+cat "$c2" | while read s
+do
+ grep "	$s$" temp-col-samp | head -1 | cut -f 1
+done > temp2-238-915
+
+wc -l temp1-238-915 temp2-238-915
+
+echo -n "1," > t1
+cat temp1-238-915  | awk '
+ BEGIN{FS = "\t";
+       OFS = "";
+       ORS = ""}
+ {
+  print $1 ",";
+ }
+ ' >> t1
+echo >> t1
+f1=`cat t1 | sed 's/,$//'`
+cut -f $f1  star-hiv-genecount.11718genes.txt > t1-op
+
+cat temp2-238-915| awk '
+ BEGIN{FS = "\t";
+       OFS = "";
+       ORS = ""}
+ {
+  print $1 ",";
+ }
+ ' > t2
+echo >> t2
+f2=`cat t2 | sed 's/,$//'`
+cut -f $f2 star-hiv-genecount.11718genes.txt > t2-op
+
+paste t1-op t2-op > out
+
+rm t1 t2  t1-op t2-op 
+
