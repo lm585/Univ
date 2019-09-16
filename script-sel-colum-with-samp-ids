@@ -3,7 +3,7 @@
 c1="$1"
 c2="$2"
 
-head -1 star-hiv-genecount.11718genes.txt | awk '
+head -1 star-hiv-genecount.txt | awk '
  BEGIN{FS = "\t";
        OFS = "\t"}
  {
@@ -35,7 +35,7 @@ cat temp1-238-915  | awk '
  ' >> t1
 echo >> t1
 f1=`cat t1 | sed 's/,$//'`
-cut -f $f1  star-hiv-genecount.11718genes.txt > t1-op
+cut -f $f1  star-hiv-genecount.txt > t1-op
 
 cat temp2-238-915| awk '
  BEGIN{FS = "\t";
@@ -47,7 +47,7 @@ cat temp2-238-915| awk '
  ' > t2
 echo >> t2
 f2=`cat t2 | sed 's/,$//'`
-cut -f $f2 star-hiv-genecount.11718genes.txt > t2-op
+cut -f $f2 star-hiv-genecount.txt > t2-op
 
 paste t1-op t2-op > out
 
