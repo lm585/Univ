@@ -1,0 +1,31 @@
+
+#
+# head -1 diff2-1.10compare.FDR0d05.745gene.gt0.lt0.count.txt
+# ENSG00000168283	BMI1	4	0	4	3	2	5	2	4	6	0	7	7	0	10	10	9	23	32	
+
+count01="diff2-1.10compare.FDR0d05.745gene.gt0.lt0.count.txt"
+
+awk '
+ BEGIN {FS = "\t";
+        OFS = "";
+        ORS = "\n";}
+ {
+  print "gene <- " "\"" $1 "\"";
+  ## print(x,quote=FALSE)
+  print "print(gene, " "quote=FALSE)";
+  for(i = 3; i <= 15; i = i+3)
+  {
+   print "x <- " $i;
+   print "m <- " $18;
+   print "n <- " ($20 - $18);
+   print "k <- " $(i+2);
+   print "-log10(sum(dhyper(x:k, m, n, k)))"; 
+   ##hyperg test for less than 0 samples
+   print "x <- " $(i+1);
+   print "m <- " $19;
+   print "n <- " ($20 - $19);
+   print "k <- " $(i+2);
+   print "-log10(sum(dhyper(x:k, m, n, k)))";
+  }
+ }
+  ' "$count01"
