@@ -55,6 +55,8 @@ cat "$zscorFile" | awk 'NR > 1' | awk '
       gt0++;
     else if ($j < 0)
       lt0++;
+    else
+      temp=0;
    }
    print gt0 "\t" lt0 "\t" (e - s + 1) "\t"
   } 
