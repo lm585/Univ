@@ -1,0 +1,32 @@
+#
+
+
+cat "$1" | awk '{print toupper($0)}' | sort | uniq > temp-uniq-genes-CAP
+cat "$2" | awk '{print toupper($0)}' | sort | uniq > temp-uniq-genome-CAP
+s2=`cat temp-uniq-genome-CAP | wc -l | awk '{print $1}'`
+
+ls /Users/linyongmao/Documents/dir-gene-set-database/*.gmt | while read file
+do
+  cat "$file" | while read ll
+  do
+    echo "$ll" | sed 's/[ 	][ 	]*$//' | awk '
+    BEGIN {FS = "\t";
+           OFS = "";
+           ORS = "";}
+    {
+     for(i = 3; i <= NF; i++)
+       print toupper($i) "\n";
+    }
+    ' | sort | uniq  > temp-1line-gene-set-uniq-CAP
+    echo -n "$file	"
+    path=`echo "$ll" | cut -f 1`
+    echo -n "$path	"
+    over1=`cat temp-uniq-genes-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | wc -l | awk '{print $1}' `
+    s1=`cat temp-uniq-genes-CAP | wc -l | awk '{print $1}' `
+    over2=`cat temp-uniq-genome-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | wc -l | awk '{print $1}' `
+    echo "$over1	$s1	$over2	$s2"
+  done
+done
+
+cd ./
+
