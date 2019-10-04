@@ -1,11 +1,16 @@
 #
-
+if [ $# -le 2 ]
+then
+  echo "$0 listOfGenes(1) genomeGenes(2) listOFfilesOfGMT(3)"
+  exit 1
+fi
 
 cat "$1" | awk '{print toupper($0)}' | sort | uniq > temp-uniq-genes-CAP
 cat "$2" | awk '{print toupper($0)}' | sort | uniq > temp-uniq-genome-CAP
 s2=`cat temp-uniq-genome-CAP | wc -l | awk '{print $1}'`
 
-ls /Users/linyongmao/Documents/dir-gene-set-database/*.gmt | while read file
+###ls /Users/linyongmao/Documents/dir-gene-set-database/*.gmt | while read file
+cat "$3" |  while read file
 do
   cat "$file" | while read ll
   do
@@ -24,7 +29,12 @@ do
     over1=`cat temp-uniq-genes-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | wc -l | awk '{print $1}' `
     s1=`cat temp-uniq-genes-CAP | wc -l | awk '{print $1}' `
     over2=`cat temp-uniq-genome-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | wc -l | awk '{print $1}' `
-    echo "$over1	$s1	$over2	$s2"
+    echo -n "$over1	$s1	$over2	$s2"
+    cat temp-uniq-genes-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | while read gene210
+    do
+     echo -n "	$gene210"
+    done
+    echo
   done
 done
 
