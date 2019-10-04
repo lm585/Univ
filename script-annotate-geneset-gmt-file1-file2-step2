@@ -1,0 +1,15 @@
+#
+
+# /Users/linyongmao/Documents/dir-gene-set-database/c2.all.v7.0.symbols.gmt	KEGG_MAPK_SIGNALING_PATHWAY	2	19	144	9581
+
+awk '
+ BEGIN {FS = "\t";
+        OFS = "";
+        ORS = "\n";}
+ {
+  print "x <- " $3;
+  print "m <- " $5;
+  print "n <- " ($6 - $5);
+  print "k <- " $4;
+  print "-log10(sum(dhyper(x:k, m, n, k)))"; 
+ }' "$1"
