@@ -34,7 +34,7 @@ do
              OFS = "\t";
              ORS = "";}
       {
-       print $1, $2, $1/$2, $3, $4, $3/$4 "\t";
+       print $1, $2, $1/$2, $3, $4, $3/$4 ;
       }'
     cat temp-uniq-genes-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | while read gene210
     do
