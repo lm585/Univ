@@ -29,7 +29,13 @@ do
     over1=`cat temp-uniq-genes-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | wc -l | awk '{print $1}' `
     s1=`cat temp-uniq-genes-CAP | wc -l | awk '{print $1}' `
     over2=`cat temp-uniq-genome-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | wc -l | awk '{print $1}' `
-    echo -n "$over1	$s1	$over2	$s2"
+    echo -n "$over1	$s1	$over2	$s2" | awk '
+      BEGIN {FS = "\t";
+             OFS = "\t";
+             ORS = "";}
+      {
+       print $1, $2, $1/$2, $3, $4, $3/$4 "\t";
+      }'
     cat temp-uniq-genes-CAP temp-1line-gene-set-uniq-CAP | sort | uniq -d | while read gene210
     do
      echo -n "	$gene210"
