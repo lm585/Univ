@@ -1,0 +1,39 @@
+#
+
+normExp="diff2-1.10compare.9590genes.CD25Set.z-score.txt"
+
+head -1 "$normExp"
+ls geneClust-CD25+.*.geneID.txt | head -91234 | while read file
+do
+ wc -l "$file"
+ cat "$file" | grep -w -v "PROBE" | cut -f 1 > temp-gene-id
+ wc -l temp-gene-id
+ ###each pathway, genes' expr and avg
+ cat temp-gene-id | while read geneID
+ do
+   grep -i -w "$geneID" "$normExp"
+ done  | cut -f 3-100000 > temp-gene-expression ###geneID	Name	expr
+ wc -l temp-gene-expression
+ ### avg expression
+ echo -n "$file	"
+ awk '
+  BEGIN{FS = "\t";
+       }
+  {
+   for(i = 1; i <= NF; i++)
+   {
+     s[i] += $i;
+   }
+  }
+  END{
+   for(i = 1; i <= NF; i++)
+   {
+    printf "%f\t", s[i]/NR;
+   }
+  }
+  ' temp-gene-expression
+  echo
+done
+
+#rm temp-gene-id temp-gene-expression
+
