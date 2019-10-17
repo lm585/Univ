@@ -1,0 +1,32 @@
+#
+
+cat chemical-list.txt | while read chem
+do
+ echo "$chem"
+ cat  dates-interest-chem | while read day
+ do
+  grep "$day" samp-info.txt > temp-day
+  ####47	aIL10	RRs15	8/30/17 (day 209)
+  ####48	aIL10	RSr15	8/30/17 (day 209)
+  ####49	aIL10	RQv15	8/30/17 (day 209)
+  ### assume 6 monkeys have 6 names, always RRs15,...
+  sort -t '	' +2 -3 temp-day | cut -f 1 | while read sampID
+  do
+    ### grep U047 chem-CTACK-conc.xls 
+    grep "U0$sampID" "chem-$chem-conc.xls"
+    ###U047	CTACK	2360.411204
+  done > temp-6monkeys-1day
+  cat temp-6monkeys-1day | cut -f 3 | awk '
+  BEGIN {
+   FS = "\t";
+   OFS = "";
+   ORS = "";
+        }
+  {
+   print $1 "\t";
+  }
+  '
+  echo
+ done
+done
+#cat  dates-interest-chem | while read
