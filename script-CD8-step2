@@ -1,0 +1,27 @@
+#
+
+ls temp-col-*-CD8.txt | while read f
+do
+ echo "name <- c( \"$f\" )"; 
+ cat "$f" | cut -f 1-7 | awk '
+ BEGIN{
+  FS = "\t";
+  OFS = "";
+  ORS = "";
+      }
+  {
+   print "a" (NR % 4)  " <- c(";
+   for(i = 2; i < NF; i++) ###pathway day209-6-elements 8th
+   {
+    print $i ", ";
+   }
+   print $NF ")" "\n";
+   if(NR % 4 == 0)
+   {
+    print "cor <- t.test(c(log10(a1 + 1), log10(a2 + 1)), c(log10(a3+1),log10(a0+1))) \n";
+    print "name\n";
+    print "cor$p.value\n";
+    print "cor$estimate\n";
+   } 
+  }'
+done
