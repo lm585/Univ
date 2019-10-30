@@ -1,0 +1,31 @@
+#
+#rm: temp-col-357-CD8.txt: No such file or directory
+#d167	28	43	41	36	16	27
+#d230	26	50	13	21	12	19
+#d264	16	26	20	34	18	17
+
+echo "msd <- c(563.1, 612.4, 529.1, 675.2, 486.8,  208.8, 377.3, 282.3, 496.5, 166.1, 698.2, 246, 289.7, 320.5, 333, 317.9, 417.7)"
+ls temp-col-*-CD8.txt | while read f
+do
+  echo "name <- c(\"$f\")" 
+  cat "$f" | awk '
+    BEGIN{
+     FS = "\t";
+     OFS = "";
+     ORS = "";
+         }
+    {
+     print $1 " <- c(";
+     for(i = 2; i < 7; i++) ###pathway day209-6-elements 8th
+     {
+      print $i ", ";
+     }
+     print $7 ")" "\n";
+    }
+    END{
+     print "cor <- cor.test(log10(msd+1), c(log10(d167[1:5] + 1), log10(d230 +1), log10(d264 +1))) \n";
+   print "name\n";
+   print "cor$p.value\n";
+   print "cor$estimate\n";
+       }'
+done
