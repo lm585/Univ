@@ -130,3 +130,30 @@
 > write.table(top2v1, "diff2-1.txt", sep="\t")
 
 
+#####using a gene subset to PCA
+cat sampID-pbmc-dates23456.genecount.txt | awk '{print NR - 1 "\t" $1}' > temp-gene-rowNUm
+cat gene-list-DEG-2-3-4-5-fourComp.375.txt | while read g; do grep -i " $g$"  temp-gene-rowNUm | head -1; done | cut -f 1 > temp-rowNUm
+sort -n temp-rowNUm | awk '
+ BEGIN{FS = "\t";
+       OFS = "";
+       ORS = "";}
+ {
+  print $1 ", "
+ }
+ END{print "\n";}' > temp
+vi temp
+###keep <- c(18, 220, 246, 254, 341, 367, 446, 505, 508, 543, 559, ............, 32099)   
+
+#R-cmd
+> rawCount <- read.delim("sampID-pbmc-dates23456.genecount.txt", header = T, row.names = 1)
+> dim(rawCount)
+[1] 32386    29
+> group <- factor(rep(1, 29))
+> y <- DGEList(counts=rawCount,group=group)
+> y <- calcNormFactors(y)
+> keep <- c(18, 220, 246, 254, 341, 367, 446,........
+> y<-y[keep,]
+> dim(y)
+> y
+> mds1 = plotMDS(y, top = 91234)
+> cmdscale(mds1$distance.matrix , k =2, eig = TRUE)
