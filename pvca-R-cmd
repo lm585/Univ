@@ -1,0 +1,43 @@
+ library(Biobase)
+ rawCount <- read.delim("sampID-pbmc-dates23456.genecount.txt", header = T, row.names = 1)
+ dim(rawCount)
+###[1] 32386    29
+ group <- factor(rep(1, 29))
+ y <- DGEList(counts=rawCount,group=group)
+ y <- calcNormFactors(y)
+ d <- cpm(y)
+ summary(log2(d+1))
+ ## d is a matrix
+
+ pData <- read.delim("pheo-pvca.txt", header = T, row.names = 1)
+ phenoData <- AnnotatedDataFrame(data=pData)
+## write.table(colnames(log2(d+1)), "temp.colnames.txt", sep="\t")
+##"pheo-pvca.txt", order in the file exactly same as order in colnames(log2(d+1))
+ eset <- ExpressionSet(log2(d+1), phenoData=phenoData)
+ ### eset <- ExpressionSet(d, phenoData=phenoData)
+ pct_threshold <- 0.6
+batch.factors <- c("monkey", "treatment")
+
+pvcaObj <- pvcaBatchAssess (eset, batch.factors, pct_threshold) 
+
+ bp <- barplot(pvcaObj$dat,  xlab = "Effects", 
+ 	ylab = "Weighted average proportion variance", 
+ 	ylim= c(0,1.1),col = c("blue"), las=2, 
+ 	main="PVCA estimation bar chart")
+ axis(1, at = bp, labels = pvcaObj$label, xlab = "Effects", cex.axis = 0.5, las=2)
+ values = pvcaObj$dat
+ new_values = round(values , 3)
+ text(bp,pvcaObj$dat,labels = new_values, pos=3, cex = 0.8) 
+
+
+
+###cat  pheo-pvca.txt
+## 	monkey	dates
+## samp.6	S	control
+## samp.63	N	treat
+## samp.66	B	treat
+## samp.8	R	control
+## samp.9	N	control
+## samp.42	N	treat
+## samp.43	S	treat
+## 
