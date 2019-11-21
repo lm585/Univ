@@ -32,7 +32,7 @@ pvcaObj <- pvcaBatchAssess (eset, batch.factors, pct_threshold)
 
 
 ###cat  pheo-pvca.txt
-## 	monkey	dates
+## 	monkey	treatment
 ## samp.6	S	control
 ## samp.63	N	treat
 ## samp.66	B	treat
