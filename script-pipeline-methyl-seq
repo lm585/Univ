@@ -1,0 +1,14 @@
+#
+
+samtools view 583268_3-SCMRA.bam | awk 'BEGIN {FS = "\t";} $2 == 99 || $2 == 147 || $2 == 83 || $2 == 163' | head -1000 > temp.sam
+wc -l temp.sam
+### frag > 0, then read upsteam its mate; frag < 0, then read downsteam its mate
+awk 'BEGIN {FS = "\t";} ($9 > 0 && $4 <= $8) || ($9 < 0 && $4 >= $8)' temp.sam > temp.fowReadUpstream.sam 
+wc -l temp.fowReadUpstream.sam
+#rm temp.sam
+sam-overlap-rp  temp.fowReadUpstream.sam out
+#rm temp.fowReadUpstream.sam
+samtools view -b -S -t /home/lxm416/hg19/hg19.fa.fai -o out.bam out
+samtools sort  out.bam out.sorted
+samtools mpileup -Q 0 -q 20 -d 1000000 -f /home/lxm416/hg19/hg19.fa  out.sorted.bam   > out.pile
+
