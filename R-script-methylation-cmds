@@ -1,0 +1,17 @@
+$ head temp-cov-2.methPerc.txt
+0	0	0.333333	0	0	0	0	0
+1	0.8	0.75	1	1	1	1	0.857143
+0.5	0.666667	0.6875	0.6	0.8	0.5	0.333333	0.4
+0.357143	0.6	0.444444	0.25	0.625	0.625	0.6	0.375
+0.5	0.8	0.375	0.882353	1	0.875	0.8	0.888889
+0.7	1	0.555556	0.882353	0.875	0.777778	0.571429
+
+x <- read.delim("temp-cov-2.methPerc.txt", header = F)
+dim(x)
+summary(x)
+### correlation matrix, x - data frame
+m <- cor(x)
+####1-m as distance matrix
+cmdscale(1-m , k =2, eig = TRUE)
+r <- cmdscale(1-m , k =2, eig = TRUE)
+(r$eig) / sum(r$eig)
