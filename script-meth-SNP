@@ -8,10 +8,23 @@ do
              ORS = "";}
       {
    s=$7 + $8 + $9 + $10 + $12; ##A, C, G, T, Del cov
+   c=$1 + $2 + $3 + $4 + $6; ##A, C, G, T, Del cov at C-pos
+   t=0;
    if(s > 1)
    {
-    if( $9/s <= 0.5 || $11/s >= 0.5) 
+    if( $9/s <= 0.5) ### || $11/s >= 0.5) 
     {
+     t=1;
+     for(i = 1; i < NF; i++)
+       print $i "\t";
+     print $NF "\n";
+    }
+   }
+   if(t == 0)
+   {
+    if(c > 1 && $5/c >= 0.5) ### c-pos has an insertion; 
+    {
+     t=1;
      for(i = 1; i < NF; i++)
        print $i "\t";
      print $NF "\n";
@@ -24,7 +37,8 @@ do
              ORS = "";}
       {
    s=$7 + $8 + $9 + $10 + $12; ##A, C, G, T, Del cov
-   if(s > 1)
+   c=$1 + $2 + $3 + $4 + $6; ##A, C, G, T, Del cov at C-pos
+   if(s > 1 || c > 1)
    { print "\n";}
       }' temp-1027 | wc -l
  wc -l SNP-$f  
