@@ -1,0 +1,35 @@
+###detct SNPs
+for f in `echo 583266_1-TN.watson.CpG.txt 583268_3-SCMRA.watson.CpG.txt 583269_4-SCMRARO.watson.CpG.txt 583267_2-TEM.watson.CpG.txt`
+do
+ ls -lh $f
+ paste $f hg19.CpG.sites.list  > temp-1027
+ awk 'BEGIN {FS = "\t";
+             OFS = "";
+             ORS = "";}
+      {
+   s=$7 + $8 + $9 + $10 + $12; ##A, C, G, T, Del combined cov, G-pos
+   t=0;
+   if(s > 1)
+   {
+    if( $9/s <= 0.5) 
+    {
+     t=1;
+     for(i = 1; i < NF; i++)
+       print $i "\t";
+     print $NF "\n";
+    }
+   }
+      }' temp-1027 > SNP-$f
+
+ awk 'BEGIN {FS = "\t";
+             OFS = "";
+             ORS = "";}
+      {
+   s=$7 + $8 + $9 + $10 + $12; ##A, C, G, T, Del cov
+   if(s > 1)
+   { print "\n";}
+      }' temp-1027 | wc -l
+ wc -l SNP-$f  
+done
+rm temp-1027
+
