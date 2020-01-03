@@ -1,0 +1,55 @@
+#
+
+paste 583268_3-SCMRA.watson.CpG.txt 583268_3-SCMRA.crick.CpG.txt > temp.txt
+cut -f 1-6,19-24 temp.txt > out
+mv  out temp.txt
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+awk 'BEGIN {FS = "\t"; OFS = "\t"}
+    {
+ if($2 + $4 > 4 && $7 + $9 > 4)
+ {
+  print $2 / ($2 + $4) , $9 / ($7 + $9);
+ }
+    }
+    ' temp.txt
+
+awk 'BEGIN {FS = "\t"; OFS = "\t"}
+    {
+ if($2 + $4 > 1 && $7 + $9 > 1 && $2 + $4 + $7 + $9 > 9)
+ {
+  print $2 / ($2 + $4) , $9 / ($7 + $9);
+ }
+    }
+    ' temp.txt
+
+CGfiles="583266_1-TN.watson.CpG.txt 583266_1-TN.crick.CpG.txt 583268_3-SCMRA.watson.CpG.txt 583268_3-SCMRA.crick.CpG.txt 583269_4-SCMRARO.watson.CpG.txt 583269_4-SCMRARO.crick.CpG.txt 583267_2-TEM.watson.CpG.txt 583267_2-TEM.crick.CpG.txt"
+### C + T > 9 && A + G > 9
+paste $CGfiles  | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+                        $2 + $4 > 9 &&  $26 + $28 > 9 && $50 + $52 > 9 && $74 + $76 > 9 &&
+                       $19 + $21 > 9 && $43 + $45 > 9 && $67 + $69 > 9 && $91 + $93 > 9'
+$ wc -l temp.txt
+102028 temp.txt
+
+### C + T > 1 && A + G > 1; >= 2 reads
+paste $CGfiles  | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+                        $2 + $4 > 1 &&  $26 + $28 > 1 && $50 + $52 > 1 && $74 + $76 > 1 &&
+                       $19 + $21 > 1 && $43 + $45 > 1 && $67 + $69 > 1 && $91 + $93 > 1'
+wc -l temp-cov-2.txt
+ 13,368,883 temp-cov-2.txt
+
+###G(watson) C(crick) G C G C G C
+cut -f 9,33,57,81,14,38,62,86 temp.txt
+
+awk 'BEGIN {FS = "\t"; OFS = "\t"}
+{ 
+### if(NR > 1)
+   print $2 / ($2 + $4),
+$26 / ($26 + $28),
+$50 / ($50 + $52),
+$74 / ($74 + $76),
+$21 / ($19 + $21),
+$45 / ($43 + $45),
+$69 / ($67 + $69),
+$93 / ($91 + $93);
+}' temp.txt
+
