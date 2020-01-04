@@ -1,0 +1,22 @@
+#
+
+cat hg19.random998genes.txt | while read ll
+do
+ chr=`echo "$ll" | cut -f 1`
+ id=`echo "$ll" | cut -f 9 | awk '{print $2}' | sed 's/"//g' | sed 's/;//' `
+ strand=`echo "$ll" | cut -f 7`
+ a=`echo "$ll" | cut -f 4`
+ b=`echo "$ll" | cut -f 5`
+ if [ $strand == "-" ]
+ then
+   s=`expr $b - 2000`
+   e=`expr $b + 3000`
+ elif [ $strand == "+" ]
+ then
+   s=`expr $a - 3000`
+   e=`expr $a + 2000`
+ else
+   echo "error $id"
+ fi
+ echo "$id	$chr	$s	$e"
+done
