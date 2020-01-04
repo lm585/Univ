@@ -1,0 +1,19 @@
+#
+#ENSG00000230368	chr1	810283	815283
+# TN-w	RA-w	RARO-w	TEM-w	TN-c	RA-c	RARO-c	TEM-c	chr	pos	cG
+# 0	0	0.333333	0	0	0	0	0	chr10	66938	cg
+# 1	0.8	0.75	1	1	1	1	0.857143	chr10	69164	cg
+
+cat hg19.random998genes.5Kprom.txt | head -100 |  while read ll
+do
+ chr=`echo "$ll" | cut -f 2`
+ id=`echo  "$ll" | cut -f 1 `
+ a=`echo "$ll" | cut -f 3`
+ b=`echo "$ll" | cut -f 4`
+ awk 'BEGIN {FS = "\t"; OFS = "\t"} 
+ {
+  if($10 > '$a' && $10 < '$b' && $9 == "'$chr'")
+    print $0;
+ }
+     '  cov-2.noSNP.methPerc.txt.$chr | cut -f 1-8 > $id.methPerc.txt
+done
