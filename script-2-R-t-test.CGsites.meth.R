@@ -3,20 +3,26 @@
 #1	0.8	0.714286	0.64	0.9	0.857143	0.714286	0.6
 
 
-wc -l ENSG* | awk '
+
+ls | grep "^ENSG" | while read f 
+do 
+ wc -l $f; 
+done | awk '
  {
   if($1 > 0)
     print $2;
- } 
+ }
  ' > temp-ENSG-files
 
-cat temp-ENSG-files | while read file
+cat temp-ENSG-files | head -3 | while read file
 do
- echo "name <- c(\"" $file  "\")";
+ echo "name <- c(\"$file\")";
  cut -f 1 $file > temp-s1
  cut -f 5 $file >> temp-s1
  cut -f 4 $file > temp-s2
+ nl=`wc -l temp-s2 | awk '{print $1}'`
  cut -f 8 $file >> temp-s2
+ echo "nl = $nl"
  
  cat temp-s1 | awk '
  BEGIN{
@@ -50,6 +56,11 @@ do
 
  echo "cor <- t.test(a, b, paired = TRUE)";
  echo "name";
+ echo "nl";
+ echo "mean1 <- mean(a)"
+ echo "mean2 <- mean(b)"
  echo "cor\$p.value";
+ echo "mean1";
+ echo "mean2";
  echo "cor\$estimate";
 done
