@@ -39,3 +39,17 @@ squeue
 sq
 i
 seff jobid
+
+[lxm416@hpc3 ~]$ cat .bashrc      
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific aliases and functions
+export PYTHONPATH="/mnt/rstor/SOM_PATH_RXS745U/lib/python3.7/site-packages:$PYTHONPATH"
+
+export LD_LIBRARY_PATH=/mnt/rstor/SOM_PATH_RXS745U/bin/cellranger-3.0.2/miniconda-cr-cs/4.3.21-miniconda-cr-cs-c10/lib:$LD_LIBRARY_PATH
+
