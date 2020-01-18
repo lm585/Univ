@@ -1,0 +1,45 @@
+rawCount <- read.delim("smac-jan2020-genecount.txt", header = T, row.names = 1)
+group <- factor(rep(1, 8))
+y <- DGEList(counts=rawCount,group=group)
+y <- calcNormFactors(y)
+d <- cpm(y)
+write.table(d, "smac-CPM.txt", sep="\t")
+plotMDS(y) ##used this one
+###plotMDS(y, top=91234)
+mds1 = plotMDS(y)
+r <-  cmdscale(mds1$distance.matrix , k =2, eig = TRUE)
+plot(cumsum(r$eig) / sum(r$eig), 
+       type="h", lwd=5, las=1, 
+       xlab="Number of dimensions", 
+       ylab=expression(R^2))
+(r$eig) / sum(r$eig) ### proportion of variance
+# ysub <- y[,c(1,3,4,5,7,8)]
+# plotMDS(ysub)
+#paired sample DEGs
+> x <- read.delim("smac-jan2020-genecount.dmso-10F.2-2.txt", header = T, row.names=1)
+> group <- factor(c(1,1,2,2))
+> y <- DGEList(counts=x,group=group)
+>  y <- calcNormFactors(y)
+> dim(y)
+[1] 60448     4
+> keep <-rowSums(cpm(y)>=1) >= 2
+> y<-y[keep,]
+>  dim(y)
+[1] 14627     4
+
+> targets <- read.delim("factor-dmso-10F.2-2.txt", row.names=1)
+> targets
+   Subject Treatment
+f1       1         C
+f2       2         C
+f3       1         T
+f4       2         T
+> Subject <- factor(targets$Subject)
+> Treat <- factor(targets$Treatment, levels=c("C","T"))
+> design <- model.matrix(~Subject+Treat)
+> y <- estimateDisp(y,design)
+> fit <- glmQLFit(y, design)
+> qlf <- glmQLFTest(fit)
+> top2v1 <- topTags(qlf, n = 91234)
+> write.table(top2v1, "diff2-1.txt", sep="\t")
+
