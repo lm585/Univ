@@ -40,6 +40,7 @@ f4       2         T
 > y <- estimateDisp(y,design)
 > fit <- glmQLFit(y, design)
 > qlf <- glmQLFTest(fit)
+### Note that we can omit the coef argument to glmQLFTest because the treatment effect is the last coefficient in the model.
 > top2v1 <- topTags(qlf, n = 91234)
 > write.table(top2v1, "diff2-1.txt", sep="\t")
 
