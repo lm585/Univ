@@ -1,0 +1,8 @@
+#
+
+cat temp-chr-name | while read chr
+do
+ grep -iw  "$chr" cov5.noSNP.methPerc.txt > cov5.noSNP.methPerc.txt.$chr
+ wc -l cov5.noSNP.methPerc.txt.$chr
+done
+
