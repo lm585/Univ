@@ -28,7 +28,7 @@ paste $CGfiles  | awk 'BEGIN {FS = "\t"; OFS = "\t"}
                         $2 + $4 > 9 &&  $26 + $28 > 9 && $50 + $52 > 9 && $74 + $76 > 9 &&
                        $19 + $21 > 9 && $43 + $45 > 9 && $67 + $69 > 9 && $91 + $93 > 9'
 $ wc -l temp.txt
-102028 temp.txt
+102,028 temp.txt
 
 ### C + T > 1 && A + G > 1; >= 2 reads
 paste $CGfiles  | awk 'BEGIN {FS = "\t"; OFS = "\t"}
@@ -36,6 +36,15 @@ paste $CGfiles  | awk 'BEGIN {FS = "\t"; OFS = "\t"}
                        $19 + $21 > 1 && $43 + $45 > 1 && $67 + $69 > 1 && $91 + $93 > 1'
 wc -l temp-cov-2.txt
  13,368,883 temp-cov-2.txt
+
+$ paste $CGfiles hg19.CpG.sites.list | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+                         $2 + $4 > 4 &&  $26 + $28 > 4 && $50 + $52 > 4 && $74 + $76 > 4 &&
+                        $19 + $21 > 4 && $43 + $45 > 4 && $67 + $69 > 4 && $91 + $93 > 4' > cov5.txt
+
+$ ./methyl-seq-SNP-select  cov5.txt  SNP-1M-covGT1-allel0d5 cov5.noSNP.txt  97 98
+Linyongs-MacBook-Pro:IL10 methyl-seq linyongmao$ wc -l cov5.txt 
+ 3,171,625 cov5.txt
+ 3,124,448 cov5.noSNP.txt
 
 ###G(watson) C(crick) G C G C G C
 cut -f 9,33,57,81,14,38,62,86 temp.txt
@@ -52,4 +61,67 @@ $45 / ($43 + $45),
 $69 / ($67 + $69),
 $93 / ($91 + $93);
 }' temp.txt
+
+awk 'BEGIN {FS = "\t"; OFS = "\t"}
+{
+### if(NR > 1)
+   print $2 / ($2 + $4),
+$26 / ($26 + $28),
+$50 / ($50 + $52),
+$74 / ($74 + $76),
+$21 / ($19 + $21),
+$45 / ($43 + $45),
+$69 / ($67 + $69),
+$93 / ($91 + $93),
+$97, $98, $99;
+}'  cov5.noSNP.txt
+
+###########################################################################
+Linyongs-MacBook-Pro:methyl-seq-TEM-2 linyongmao$ head -1 $CGfiles
+==> 583266_1-TN.watson.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+
+==> 583266_1-TN.crick.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+
+==> 583268_3-SCMRA.watson.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+        26              28
+==> 583268_3-SCMRA.crick.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+                                                43             45
+==> 583269_4-SCMRARO.watson.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+        50             52
+==> 583269_4-SCMRARO.crick.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+                                                67             69
+==> 583267_2-TEM.watson.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+
+==> 583267_2-TEM.crick.CpG.txt <==
+A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+###RA vs RARO
+
+$ head hg19.random998genes.txt
+chr1	ensembl_havana	gene	803451	812283	.	-	.	gene_id "ENSG00000230368"; gene_version "2"; gene_name "FAM41C"; gene_source "ensembl_havana"; gene_biotype "lincRNA";
+chr1	havana	gene	1365919	1369953	.	-	.	gene_id "ENSG00000225285"; gene_version "1"; gene_name "RP4-758J18.10"; gene_source "havana"; gene_biotype "lincRNA";
+
+57905 Homo_sapiens.GRCh37.82.chrNameConverted.genes
+
+step - using script-gene-promoter to obtain 57905 genes (hg19) promoter coordinators
+step - using script-divide-file-chromosome to divide cov5.noSNP.methPerc.txt into chromosome (for parallel speeding)
+cov5.noSNP.methPerc.txt.chr1    cov5.noSNP.methPerc.txt.chr10          cov5.noSNP.methPerc.txt.chrM       cov5.noSNP.methPerc.txt.chrX   
+
+step - using script-gene-prom-CGsites to get CG sites methyl % within each gene's promoter
+
+# TESTING error
+#TN.w   TEM.w  TN.c    TEM.c
+#1	0.6	1	0.6   error
+#1	0.8	0.9	0.7   error
+#1      1       0.8     0.8  ok 
+
+step - using script-meth-rem-t-test-outlier to remove genes which will cause paired t-test outliers
+step - bash ../script-2-R-t-test.CGsites.meth.RAvsRO.R > temp-530pm.R
+step - Rscript  temp-530pm.R > out
 
