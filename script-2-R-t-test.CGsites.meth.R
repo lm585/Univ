@@ -14,7 +14,10 @@ done | awk '
  }
  ' > temp-ENSG-files
 
-cat temp-ENSG-files | head -3 | while read file
+cat temp-ENSG-files genes-constant-meth-t-test-error.genes.txt | sort | uniq -u > temp-441pm
+mv temp-441pm temp-ENSG-files
+
+cat temp-ENSG-files |  while read file
 do
  echo "name <- c(\"$file\")";
  cut -f 1 $file > temp-s1
