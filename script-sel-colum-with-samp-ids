@@ -1,26 +1,21 @@
 #
 
 c1="$1"
-c2="$2"
+#c1="sampID-pbmc-dates23456.txt"
 
-head -1 star-hiv-genecount.txt | awk '
+head -1   antiIL10-monkey-genecount.txt | awk '
  BEGIN{FS = "\t";
        OFS = "\t"}
  {
   for(i = 1; i <= NF; i++)
-    print i, $i;
+    print i, $i; #### header line has a column for geneID
  }
  ' > temp-col-samp
 
 cat "$c1" | while read s
 do
  grep "	$s$" temp-col-samp | head -1 | cut -f 1
-done > temp1-238-915
-
-cat "$c2" | while read s
-do
- grep "	$s$" temp-col-samp | head -1 | cut -f 1
-done > temp2-238-915
+done > temp1-238-915  ###get column # for each sample
 
 wc -l temp1-238-915 temp2-238-915
 
@@ -35,21 +30,9 @@ cat temp1-238-915  | awk '
  ' >> t1
 echo >> t1
 f1=`cat t1 | sed 's/,$//'`
-cut -f $f1  star-hiv-genecount.txt > t1-op
+#######convert column numbers into 1,2,3,4,6,8,...
 
-cat temp2-238-915| awk '
- BEGIN{FS = "\t";
-       OFS = "";
-       ORS = ""}
- {
-  print $1 ",";
- }
- ' > t2
-echo >> t2
-f2=`cat t2 | sed 's/,$//'`
-cut -f $f2 star-hiv-genecount.txt > t2-op
+cut -f $f1  antiIL10-monkey-genecount.txt  > t1-op
 
-paste t1-op t2-op > out
-
-rm t1 t2  t1-op t2-op 
+rm t1 t2 
 
