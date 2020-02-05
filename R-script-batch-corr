@@ -1,0 +1,41 @@
+setwd("/Users/linyongmao/Documents/antiIL10 monkey")
+rawCount <- read.delim("antiIL10-monkey-genecount.LN.2nd-1st-batches.2.txt", header = T, row.names = 1)
+ dim(rawCount)
+ summary(rawCount)
+group <- factor(rep(1, 25))
+y <- DGEList(counts=rawCount,group=group)
+y <- calcNormFactors(y)
+d <- cpm(y)
+##write.table(d, "star-CPM.txt", sep="\t")
+##plotMDS(y)
+
+keep <-rowSums(cpm(y)>=1) >= 6
+d2 <- d[keep,]
+dim(d2)
+### [1] 10958    25
+a <- log10(d2+1)
+batch <- c(rep(1, 7), rep(2, 18))
+pData <- read.delim("LN-246-1st-2nd-batch.samp-info.txt", header = T, row.names = 1)
+
+library(Biobase)
+phenoData <- AnnotatedDataFrame(data=pData)
+eset <- ExpressionSet(a, phenoData=phenoData)
+
+modelMat <- model.matrix(~subset+infection+timepoint+treatment,
+			 data = pData(esetTemp))
+modelMat <- model.matrix(~date, data = pData(eset))
+
+combat <- ComBat(dat       = exprs(eset),
+                 batch     = batch,
+                 mod       = modelMat)
+### Found2batches
+### Adjusting for1covariate(s) or covariate level(s)
+### Standardizing Data across genes
+### Fitting L/S model and finding priors
+### Finding parametric adjustments
+### Adjusting the Data
+
+write.table(combat, "Combat.txt", sep = "\t")
+
+
+
