@@ -1,0 +1,18 @@
+#
+
+f="$1"
+pref=`echo "$1" | sed 's/.CpG.txt//' `
+
+awk 'BEGIN {FS = "\t";}
+ {
+  c=$1 + $2 + $3 + $4 + $6; ##A, C, G, T, Del cov at C-pos
+  if(c > 4 && c < 51)
+  {
+   t = $1/c; ### A allele freq
+   print t;
+  }
+  else
+  {
+   print "N";
+  }
+ }' "$f" > temp-$pref.C2Asnp.txt
