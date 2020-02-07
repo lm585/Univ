@@ -1,0 +1,23 @@
+#
+#  head 2-760741.watson.CpG.txt 2-760741.crick.CpG.txt 
+#A	C	G	T	Ins	Del	A	C	G	T	Ins	Del
+
+p="$1"
+paste $p.watson.CpG.txt $p.crick.CpG.txt | awk '
+BEGIN {FS = "\t";}
+{
+ ###watson 12 field; crick 12 fields;
+ # watson C/(C+T) 2/2+4
+ # crick  G/G+A   21/21+19
+ cov = $2 + $4 + $19 + $21;
+ if(cov > 1)
+ {
+  m = ($2+$21)/cov;
+  print m;
+ } 
+ else
+ {
+  print "NA";
+ }
+}
+' > temp-$p.methPerc.cov2.txt
