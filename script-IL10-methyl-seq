@@ -1,0 +1,81 @@
+#
+
+snpFile="temp-2-760741.crick.C2Asnp.txt   temp-2-760742.crick.C2Asnp.txt   temp-2-760743.crick.C2Asnp.txt   temp-2-760744.crick.C2Asnp.txt   temp-2-760745.crick.C2Asnp.txt   temp-2-760746.crick.C2Asnp.txt   temp-2-760747.crick.C2Asnp.txt   temp-2-760748.crick.C2Asnp.txt   temp-2-760749.crick.C2Asnp.txt   temp-2-760750.crick.C2Asnp.txt   temp-2-760801.crick.C2Asnp.txt   temp-2-760802.crick.C2Asnp.txt   temp-2-760803.crick.C2Asnp.txt   temp-2-760804.crick.C2Asnp.txt   temp-2-760805.crick.C2Asnp.txt   temp-2-760806.crick.C2Asnp.txt"
+
+paste hg19.CpG.sites.list.head3lines $snpFile | awk '
+BEGIN{FS = "\t"}
+{
+ t = 0;
+ nn = 0;
+ for(i = 4; i <= NF; i++)
+ {
+  if($i != "N" && $i >= 0.8)
+    t = 1;
+  if($i == "N")
+    nn++;
+ }
+ if(t == 1 && nn <= 14) ###16 samples, at most 14 N; at least 2 numbers
+   print $0;
+}
+' > temp-u
+
+echo $snpFile > temp.txt
+cat temp-u >> temp.txt
+vi temp.txt
+mv -i temp.txt genotype-C2A-crick.txt
+cp -i genotype-C2A-crick.txt genotype-C2A-crick.noN.txt
+vi genotype-C2A-crick.noN.txt
+
+mv -i temp.txt genotype-C2A-crick.cov5.2num.txt
+cp -i genotype-C2A-crick.cov5.2num.txt genotype-C2A-crick.cov5.2num.noN.txt
+vi genotype-C2A-crick.cov5.2num.noN.txt
+
+ls 2-760* | sed 's/.crick.CpG.txt//' | sed 's/.watson.CpG.txt//' | uniq | wc -l
+      16
+
+ls temp*.methPerc.cov2.txt | while read f
+do
+  echo "name <- \"$f\""
+  echo "name"
+  echo "a <- read.delim(\"$f\", header = F, sep = \"\t\")"
+  echo "mean(a\$V1, na.rm = T)"
+  echo "var(a\$V1, na.rm = T)"
+done
+
+vi temp-r-res
+awk 'NR % 3 == 1' temp-r-res > temp1
+awk 'NR % 3 == 2' temp-r-res > temp2
+awk 'NR % 3 == 0' temp-r-res > temp3
+paste temp[123]
+
+meth="temp-2-760741.methPerc.cov2.txt	temp-2-760742.methPerc.cov2.txt	temp-2-760743.methPerc.cov2.txt	temp-2-760744.methPerc.cov2.txt	temp-2-760745.methPerc.cov2.txt	temp-2-760746.methPerc.cov2.txt	temp-2-760747.methPerc.cov2.txt	temp-2-760748.methPerc.cov2.txt	temp-2-760749.methPerc.cov2.txt	temp-2-760750.methPerc.cov2.txt	temp-2-760801.methPerc.cov2.txt	temp-2-760802.methPerc.cov2.txt	temp-2-760803.methPerc.cov2.txt	temp-2-760804.methPerc.cov2.txt	temp-2-760805.methPerc.cov2.txt	temp-2-760806.methPerc.cov2.txt"
+
+paste $meth hg19.CpG.sites.list.head3lines | grep -vw NA > temp-methPerc.cov2.16Num
+../methyl-seq-TEM-2/methyl-seq-SNP-select temp-methPerc.cov2.16Num SNP-3.3M-covGT1-allel0d5  temp-methPerc.cov2.16Num.noSNP 17 18
+wc -l temp-methPerc.cov2.16Num*
+  331276 temp-methPerc.cov2.16Num
+  279907 temp-methPerc.cov2.16Num.noSNP
+
+ls 2-760*.crick.CpG.txt | sed 's/.crick.CpG.txt//' | while read ll; do echo -n "$ll       "; bash tem-script-meth-quantifi $ll; done
+2-760741	25104017
+2-760742	22789125
+2-760743	6544160
+
+### TEM 7 samples, removed outlier
+meth="temp-2-760742.methPerc.cov2.txt	temp-2-760744.methPerc.cov2.txt	temp-2-760748.methPerc.cov2.txt	temp-2-760750.methPerc.cov2.txt	temp-2-760802.methPerc.cov2.txt	temp-2-760804.methPerc.cov2.txt	temp-2-760806.methPerc.cov2.txt"
+paste $meth ../hg19.CpG.sites.list.head3lines | grep -vw NA > temp-methPerc.cov2.7Num
+../../methyl-seq-TEM-2/methyl-seq-SNP-select   temp-methPerc.cov2.7Num  ../SNP-3.3M-covGT1-allel0d5 temp-methPerc.cov2.7Num.noSNP   8 9
+wc -l  temp-methPerc.cov2.7Num*
+ 7625240 temp-methPerc.cov2.7Num
+ 6645826 temp-methPerc.cov2.7Num.noSNP
+
+tem="2-760744   2-760742   2-760802    2-760750"
+paste 2-760744.crick.CpG.txt 2-760742.crick.CpG.txt 2-760802.crick.CpG.txt 2-760750.crick.CpG.txt hg19.CpG.sites.list.head3lines | awk 'NR > 2' | cut -f 2,14,26,38 > temp.txt
+ Mean   :   2.052   Mean   :   1.936   Mean   :   2.303   Mean   :   2.039  
+for ll in `echo $tem`; do echo $ll; bash script-meth-quantifi-combine-wats-crick-cov5  $ll; done
+paste  temp-2-760744.methPerc.cov5.txt   temp-2-760742.methPerc.cov5.txt   temp-2-760802.methPerc.cov5.txt   temp-2-760750.methPerc.cov5.txt  hg19.CpG.sites.list.head3lines | grep -vw NA > temp-methPerc.cov5.4Num
+../methyl-seq-TEM-2/methyl-seq-SNP-select  temp-methPerc.cov5.4Num SNP-3.3M-covGT1-allel0d5  temp-methPerc.cov5.4Num.noSNP 5 6
+wc -l temp-methPerc.cov5.4Num*
+ 2754803 temp-methPerc.cov5.4Num
+ 2413803 temp-methPerc.cov5.4Num.noSNP
+Mean   :0.6990   Mean   :0.6889   Mean   :0.6849   Mean   :0.6841   
