@@ -79,3 +79,19 @@ wc -l temp-methPerc.cov5.4Num*
  2754803 temp-methPerc.cov5.4Num
  2413803 temp-methPerc.cov5.4Num.noSNP
 Mean   :0.6990   Mean   :0.6889   Mean   :0.6849   Mean   :0.6841   
+#TEM-ns	TEM-stim	TEM-ns	TEM-stim
+#LH001	LH001	LH96	LH96
+#0.72497	0.666317	0.770751	0.678218	chrM	15392	CG
+
+cat Tem-4samp-t-test-r-res | awk '
+BEGIN {OFS = "";
+       ORS = ""}
+{
+ if(NR % 7 != 6 && NR % 7 != 0)
+   print $2 "\t";
+ else if(NR % 7 != 6 && NR % 7 == 0)
+   print $1 "\n";
+ else
+   a = 0;
+}
+'
