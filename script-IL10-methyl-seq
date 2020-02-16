@@ -95,3 +95,68 @@ BEGIN {OFS = "";
    a = 0;
 }
 '
+
+vi Tem-4samp-plusMeanIL10incr.protein_coding.rnk 
+##:1, $ s/^I$/^I0/
+
+ail10geneexpInc="/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_Malika_sets.GseaPreranked.1560384315208/gsea_report_for_na_pos_1560384315208.xls"
+ail10geneexpDec="/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_Malika_sets.GseaPreranked.1560384315208/gsea_report_for_na_neg_1560384315208.xls"
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TEM-cov5-plusIL10dec-Malika.GseaPreranked.1581617300554/gsea_report_for_na_pos_1581617300554.xls"
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TEM-cov5-plusIL10dec-Malika.GseaPreranked.1581617300554/gsea_report_for_na_neg_1581617300554.xls"
+cat "$ail10geneexpInc" | awk 'BEGIN{FS = "\t"} $8 < 0.05' |  cut -f 1 > temp-ail10geneexpInc-pathFDR0.05
+cat gene_set_sizes.xls | awk 'NR > 1' | grep -vw "Rejected\!" | cut -f 1 > temp-meth-genesets-used
+cat temp-ail10geneexpInc-pathFDR0.05  temp-meth-genesets-used | sort | uniq -d | wc -l
+     177
+494 temp-meth-genesets-used
+cat gsea_report_for_na_neg_1581617300554.xls | awk 'BEGIN{FS = "\t"} $7 < 0.1' |  cut -f 1 > temp-meth-path-0.1-39
+39  temp-meth-path-0.1-39
+27 both temp-meth-path-0.1-39 && temp-ail10geneexpInc-pathFDR0.05
+x = 27
+m = 177
+n = 494 - 177
+k = 39
+> (sum(dhyper(x:k, m, n, k)))
+[1] 1.031912e-05
+
+cut -f 1 "$ail10geneexpInc" | awk 'NR > 1' > temp-aIl10-geneInc-path
+cut -f 1 "$ail10geneexpDec" | awk 'NR > 1' > temp-aIl10-geneDec-path
+wc -l temp-aIl10-geneInc-path temp-aIl10-geneDec-path
+     484 temp-aIl10-geneInc-path
+     132 temp-aIl10-geneDec-path
+     616 total
+
+cat gsea_report_for_na_pos_1581617300554.xls | cut -f 1 | awk 'NR > 1' > temp-meth-dec-IL10-paths
+cat gsea_report_for_na_neg_1581617300554.xls | cut -f 1 | awk 'NR > 1' > temp-meth-inc-IL10-paths
+wc -l temp-meth-dec-IL10-paths temp-meth-inc-IL10-paths
+     193 temp-meth-dec-IL10-paths
+     301 temp-meth-inc-IL10-paths
+     494 total
+cat temp-meth-dec-IL10-paths ../temp-aIl10-geneInc-path | sort | uniq -d | wc -l
+     144
+cat temp-meth-dec-IL10-paths ../temp-aIl10-geneDec-path | sort | uniq -d | wc -l
+      46
+cat temp-meth-inc-IL10-paths ../temp-aIl10-geneInc-path | sort | uniq -d | wc -l
+     246
+cat temp-meth-inc-IL10-paths ../temp-aIl10-geneDec-path | sort | uniq -d | wc -l
+      46
+Fisher's Exact Test for Count Data
+data:  tab
+p-value = 0.02424
+odds ratio 
+  1.706298 
+
+cat gsea_report_for_na_pos_1581617300554.xls | awk 'BEGIN{FS = "\t"} $7 < 0.1' | cut -f 1  > temp-meth-dec-IL10-paths
+cat gsea_report_for_na_neg_1581617300554.xls | awk 'BEGIN{FS = "\t"} $7 < 0.1' | cut -f 1  > temp-meth-inc-IL10-paths
+wc -l temp-meth-dec-IL10-paths temp-meth-inc-IL10-paths
+      10 temp-meth-dec-IL10-paths
+      39 temp-meth-inc-IL10-paths
+cat temp-meth-dec-IL10-paths ../temp-aIl10-geneInc-path | sort | uniq -d | wc -l
+       5
+cat temp-meth-dec-IL10-paths ../temp-aIl10-geneDec-path | sort | uniq -d | wc -l
+       3
+cat temp-meth-inc-IL10-paths ../temp-aIl10-geneInc-path | sort | uniq -d | wc -l
+      34
+cat temp-meth-inc-IL10-paths ../temp-aIl10-geneDec-path | sort | uniq -d | wc -l
+       3
+
+
