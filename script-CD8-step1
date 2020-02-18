@@ -1,3 +1,26 @@
+#cat temp-cd8-pbmc
+#RRs15	PBMC	day -10	47.5
+#RSr15	PBMC	day -10	55.1
+#RQv15	PBMC	day -10	54.7
+#RNw15	PBMC	day -10	55
+#RPz15	PBMC	day -10	53.8
+#RBf16	PBMC	day -10	44.9
+#RRs15	PBMC	day 35	34.8
+#......
+#RRs15	PBMC	day 167	44.9
+
+#cat temp-dates
+#day 167
+#day 209
+#day230
+#day252
+
+#cat temp-col-30-CD8.txt
+#d167	36.3	51.6	52.9	49.9	44.9	61.4
+#d209	41.4	54.1	48.4	48.4	48.9	58.6
+#d230	39.1	51.8	46.6	41.5	44.5	52.3
+#d252	42.8	53.6	49.2	47.7	46.2	56.9
+
 #
 
 col="$1"
