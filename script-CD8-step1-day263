@@ -1,0 +1,33 @@
+#
+
+col="$1"
+file="20190822 aIL10 outcomes_results table.txt" 
+echo "day 167" > temp-dates
+echo "day 209" >> temp-dates
+echo "day230" >> temp-dates
+echo "day26" >> temp-dates
+
+
+cut -f 5,6,9,$col "$file"  | grep "	PBMC	" | sed 's/day26[34]/day26/' > temp-cd8-pbmc
+
+rm temp-col-$col-CD8.txt
+echo -n "$col" >> temp-col-$col-CD8.txt
+
+cat temp-dates | while read d
+do
+  echo -n "$d"  ### >> temp-col-$col-CD8.txt  ###| sed 's/day /d/' | sed 's/day/d/'
+  grep "	$d	" temp-cd8-pbmc | sort | cut -f 4 | awk '
+  BEGIN {FS = "\t";
+         OFS = "";
+         ORS = "";}
+  {
+    print "\t" $1
+  }  
+  ' >> temp-col-$col-CD8.txt
+done
+  echo >> temp-col-$col-CD8.txt
+  echo
+
+cat  temp-col-$col-CD8.txt |  sed 's/day /d/' | sed 's/day/d/' > temp-1208pm
+mv temp-1208pm temp-col-$col-CD8.txt 
+cat temp-col-$col-CD8.txt 
