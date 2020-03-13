@@ -108,6 +108,7 @@ chr1	ensembl_havana	gene	803451	812283	.	-	.	gene_id "ENSG00000230368"; gene_ver
 chr1	havana	gene	1365919	1369953	.	-	.	gene_id "ENSG00000225285"; gene_version "1"; gene_name "RP4-758J18.10"; gene_source "havana"; gene_biotype "lincRNA";
 
 57905 Homo_sapiens.GRCh37.82.chrNameConverted.genes
+57905 ../methyl-seq-TEM-2/hg19.genes.prom.coord.txt
 
 step - using script-gene-promoter to obtain 57905 genes (hg19) promoter coordinators
 step - using script-divide-file-chromosome to divide cov5.noSNP.methPerc.txt into chromosome (for parallel speeding)
