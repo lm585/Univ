@@ -1,6 +1,8 @@
 #
-#TN.w	RA.w	RARO.w	TEM.w	TN.c	RA.c	RARO.c	TEM.c
-#1	0.8	0.714286	0.64	0.9	0.857143	0.714286	0.6
+# paste  temp-2-760744.methPerc.cov5.txt   temp-2-760742.methPerc.cov5.txt   temp-2-760802.methPerc.cov5.txt   temp-2-760750.
+#TEM-ns	TEM-stim	TEM-ns	TEM-stim
+#LH001	LH001	LH96	LH96
+#0.72497	0.666317	0.770751	0.678218	chrM	15392	CG
 
 #TN.w   TEM.w  TN.c    TEM.c
 #1	0.6	1	0.6   error
@@ -18,23 +20,24 @@ done | awk '
  ' > temp-ENSG-files
 
 ls -lh temp-ENSG-files 
+wc -l temp-ENSG-files
 
 cat temp-ENSG-files |  while read file
 do
- cut -f 2 $file > temp-s1
- cut -f 6 $file >> temp-s1
- cut -f 3 $file > temp-s2
- cut -f 7 $file >> temp-s2
+ cut -f 1 $file > temp-s1
+ cut -f 3 $file >> temp-s1
+ cut -f 2 $file > temp-s2
+ cut -f 4 $file >> temp-s2
  
  paste temp-s1 temp-s2 | awk '{print $1 - $2}' | uniq  > temp-s3
  t=`wc -l temp-s3 | awk '{print $1}'`
- if [ $t -eq 1 ]
+ if [ $t -eq 1 ] ### diff between two states is a constant. e.g. 0.4
  then
    t2=`cat temp-s3`
    if [ "$t2" != "0" ]
    then
     echo "$file"
-    cat "$file" | cut -f 2,3,6,7,9,10,11 
+    cat "$file" | cut -f 1,2,3,4,5,6,7
    fi
  fi
 done
