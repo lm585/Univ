@@ -22,6 +22,11 @@ write.table(x, "meth-4-samples.20readsCov.CpG.sites.meth.5colum.noNA.sd.min.max"
 > p2 <- qvalue(p$V1, pi0 = 1)
 > write.table(p2$qvalues, "temp.R.xls", sep = "\t")
 
+words1 = rnorm(100); words2 = rt(100, df=3)
+## Perform the test
+shapiro.test(words1); shapiro.test(words2)
+##In the Shapiro-Walk normality test, the p-value is large for the first data set (>.9) but very small for the second data set (<.01). This will lead you to reject the null hypothesis for the second.
+
 > (.packages())
  [1] "qvalue"     "edgeR"      "limma"      "genefilter" "stats"      "graphics"   "grDevices" 
  [8] "utils"      "datasets"   "methods"    "base"      
