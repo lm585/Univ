@@ -1,0 +1,27 @@
+#
+
+f="20200528_IL10_aIL10DEGS vs COVIDSignatures_PBMC_Malika.txt"
+
+for il in `echo "aIL10_down_1e2 aIL10_up_1e2"`
+do
+ echo -n "$il"
+ t=7
+ while [ $t -lt 13 ]
+ do
+   grep -w "$il"  "$f" |awk 'BEGIN {FS = "\t"; OFS = "\t"} $'$t' > 0 && $'$t' != "NA"' | wc -l  > temp-count
+   awk 'BEGIN {ORS = ""; OFS = "";} {print "\t" $1 }' temp-count
+   t=`expr $t + 1`
+ done 
+   echo
+
+ echo -n "$il"
+ t=7
+ while [ $t -lt 13 ]
+ do
+   grep -w "$il"  "$f" |awk 'BEGIN {FS = "\t"; OFS = "\t"} $'$t' < 0 && $'$t' != "NA"' | wc -l  > temp-count
+   awk 'BEGIN {ORS = ""; OFS = "";} {print "\t" $1 }' temp-count
+   t=`expr $t + 1`
+ done
+   echo
+
+done
