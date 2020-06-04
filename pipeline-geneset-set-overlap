@@ -1,0 +1,20 @@
+###annotate genes in pathways, hypergeo test
+genome="../dir-TF-db/CPM-pbmc-date-2-3-4-5.10594.genes.symbol" (8994)
+cat ../../dir-human-IL10-methyl-seq/hg19-geneIDsorted-name-type-chr | grep -w protein_coding|cut -f 2 > temp-genes (20356)
+cat "$genome" temp-genes | sort | uniq > genes-20662.txt
+cat genes-20662.txt | awk '{print toupper($1)}' | sort | uniq > temp
+mv temp genes-20656.txt
+
+bash  script-generate-chea-target-file
+bash script-TF-targets-enrich > IL10-aIL10-up-down.h.all.path-overlap.txt
+bash "../../antiIL10 monkey/dir-TF-db/script-hyperG-test-2-R" IL10-aIL10-up-down.h.all.path-overlap.txt > temp-r-input
+Rscript temp-r-input > temp-r-res
+cat temp-r-res | awk '{print $2}' > IL10-aIL10-up-down.h.all.path-overlap.p-value.txt
+vi IL10-aIL10-up-down.h.all.path-overlap.p-value.txt
+
+bash script-TF-targets-enrich-overlapGenes > IL10-aIL10-up-down.h.all.path-overlap.genesOverlap.txt
+vi IL10-aIL10-up-down.h.all.path-overlap.genesOverlap.txt
+
+paste IL10-aIL10-up-down.h.all.path-overlap.q-value.txt IL10-aIL10-up-down.h.all.path-overlap.p-value.txt IL10-aIL10-up-down.h.all.path-overlap.txt  IL10-aIL10-up-down.h.all.path-overlap.genesOverlap.txt | awk '$1 < 0.1'
+
+bash script-make-table-path-condition-p-value | uniq
