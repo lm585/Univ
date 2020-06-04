@@ -1,0 +1,204 @@
+
+awk 'NR % 4 == 1' temp-r-res | awk '{print $2}' > temp-1
+awk 'NR % 4 == 2' temp-r-res | awk '{print $2}' > temp-2
+awk 'NR % 4 == 0' temp-r-res | awk '{print $1}' > temp-3
+paste temp-1 temp-2 temp-3 > temp.xls
+
+### post-process script-2-R-correlation.date2-3-4-5-6.29data.d6nQ.CD4.R res.
+cat temp-r-res | awk 'NR % 5 == 1 {print $2}'  > temp-1
+cat temp-r-res | awk 'NR % 5 == 2 ' | sed 's/\[1\] //' > temp-2
+cat temp-r-res | awk 'NR % 5 == 3 {print $2}'  > temp-3
+cat temp-r-res | awk 'NR % 5 == 0 {print $1}' > temp-5
+paste  temp-1 temp-2 temp-3 temp-5 > temp.xls
+
+###C7 pathways corr with CD4/CD8 EFF/naive readouts
+ls -lh $file
+-rw-r--r--  1 linyongmao  staff   691K Mar  5 14:49 /Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_c7v7.GseaPreranked.1583437106501/gsea_report_for_na_pos_1583437106501.xls
+cat $file | grep -i cd[48] | grep -i eff | awk 'BEGIN{FS = "\t"} $8 < 0.05' | cut -f 1 >  temp1
+cat $file | grep -i cd[48] | grep -i naive| awk 'BEGIN{FS = "\t"} $8 < 0.05' | cut -f 1 >  temp2
+cat temp1  temp2 | sort | uniq > temp-cd-paths
+#130 temp-cd-paths
+
+cat 	temp-cd-paths | while read p
+do
+  cat /Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_c7v7.GseaPreranked.1583437106501/"$p".xls | awk '
+  BEGIN {FS = "\t";}
+  ##$8 == "Yes" {
+  {
+   print $2;
+  }
+  '  | grep -v -w PROBE > temp-lead-genes."$p".xls
+done
+
+### some pathways not in top 1000 (although FDR < 0.05), these pathways have no gene content, will not be considered
+94 pathways in top 1000 (activated paths by aIL10) remain
+
+###5 CD8 eff increase
+GOLDRATH_EFF_VS_MEMORY_CD8_TCELL_UP
+GSE23321_EFFECTOR_MEMORY_VS_NAIVE_CD8_TCELL_UP
+GSE9650_EFFECTOR_VS_EXHAUSTED_CD8_TCELL_UP
+GSE9650_EFFECTOR_VS_MEMORY_CD8_TCELL_UP
+KAECH_DAY8_EFF_VS_MEMORY_CD8_TCELL_UP
+
+### CD4 eff increase
+GSE11057_EFF_MEM_VS_CENT_MEM_CD4_TCELL_UP
+GSE26928_EFF_MEM_VS_CENTR_MEM_CD4_TCELL_UP
+GSE3982_EFF_MEMORY_VS_CENT_MEMORY_CD4_TCELL_UP
+
+for ll in `echo 377	388	362	419	428	406`
+do
+  echo $ll
+  bash script-CD8-step1-5dates $ll
+done
+
+#388	singlets/singlets/Lymphocytes/CD3plive/CD4p/TEM | Freq. of Parent_PMA_iono	GOLDRATH_EFF_VS_MEMORY_CD8_TCELL_UP	0.08891011	0.3215919
+awk '$0 ~ /CD4p.naive/ || $0 ~ /TEM/' temp-tem-naive-corr-C7pathways.txt | sort -t '	' +2 -3 +1 -2 | awk '
+BEGIN {FS = "\t";
+       ORS = ""}
+{
+ if(NR % 3 == 1)
+ {
+   print $3 "\t";
+ }
+ print $5 "\t";
+ if(NR % 3 == 0)
+ {
+   print "\n"; 
+ }
+}
+'
+
+cat temp.xls | awk 'NR > 1' | cut -f 2-100 | awk '
+BEGIN {FS = "\t";
+       OFS = "";
+       ORS = ""}
+{
+ for(i = 1; i <= NF; i++)
+ {
+  print $i "\t";
+  if(i % 6 == 0)
+    print "\n";
+ }
+ print "\n";
+}'
+
+###IL2 overlapping LEG
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TCM-cov5-plusIL10dec_Malika.GseaPreranked.1586204026768/REACTOME_IL_2_SIGNALING.xls"
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TCM-cov5-plusIL10dec_Malika.GseaPreranked.1586204026768/IL2RB_PATHWAY.xls"
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TCM-cov5-plusIL10dec_Malika.GseaPreranked.1586204026768/IL2_PATHWAY.xls"
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TCM-cov5-plusIL10dec_Malika.GseaPreranked.1586204026768/SCHURINGA_STAT5A_TARGETS_UP.xls"
+"/Users/linyongmao/gsea_home/output/sep15/methyl-IL10-TEM-cov5-plusIL10dec-rnk2_Malika.GseaPreranked.1586198980482/IL2RB_PATHWAY.xls"
+f="/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_Malika_sets.GseaPreranked.1560384315208/gsea_report_for_na_pos_1560384315208.xls"
+f="/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_pyroptosis.GseaPreranked.1589348893984/gsea_report_for_na_pos_1589348893984.xls"
+f="/Users/linyongmao/gsea_home/output/may05/pbmc_date_2a3_4a5_preRank_seed1234_Malika_sets.GseaPreranked.1560384315208/ranked_gene_list_na_pos_versus_na_neg_1560384315208.xls"
+
+cat IL10_H12_FDR5.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 > 0' | cut -f 1 | sort | uniq | grep  -v ProbeID:  > temp.IL10_FDR5-gt0.txt
+###     346 temp.IL10_FDR5-gt0.txt
+###     199 temp.IL10_FDR5-lt0.txt
+cat temp.IL10_FDR5-gt0.txt | while read g; do grep -i "^$g     " $f; done > temp2
+### 216; temp2; $f -> ranked_gene_list_na_pos_versus_na_neg_1560384315208.xls
+### 138; IL10-lt0
+
+### construct / build pathway vDNA CD8 TF network
+RESTING_DENDRITIC_CELL_SURFACE_SIGNATURE_S10
+STAT3_TARGETS
+CELL_ACTIVATION_IL15_IL23_TNF_M24
+### 3 identical pathways wrt same leading-edge genes, discarded
+## TF --- pathway
+cat temp-path-corr-vDNA-0.5 | while read ll; do grep -iw rela dir-PBMC/net-path-TF-viral-cyto.txt | grep -i "$ll"; done > temp-path-TF
+vi temp-path-TF
+### rm the line IL6_JAK_STAT3_SIGNALING	CHea-RELA		0.5
+### rm \"
+### all path in CAP
+mv -i temp-path-TF net-pathPcc0d5-TF-viral-CD8.txt
+### pathway -- vDNA correlation
+cat  dir-PBMC/pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap.4 > temp-net
+vi temp-net
+### rm \"
+### 1, $ s/RESTING_DENDRITIC_CELL_SURFACE_SIGNATURE_S10/RESTING DENDRITIC CELL SURFACE SIGNATURE/g
+### 1, $ s/^ISTAT3_TARGETS^I/^ISTAT3_SIGNALING^I/g    
+### 1, $ s/CELL_ACTIVATION_IL15_IL23_TNF_M24/CELL ACTIVATION (IL15,TNF)/g
+cat  net-pathPcc0d5-TF-viral-CD8.txt | grep -w vDNA | cut -f 1 > temp-paths
+vi temp-paths ##no trailing space
+### path --- path overlap
+bash script-select-edges-in-net ### >> net-pathPcc0d5-TF-viral-CD8.txt
+### path --- CD8 corr
+file : CD8-flow-p-value.xlsx
+vi net-pathPcc0d5-TF-viral-CD8.txt
+### open in excel, corr	overlap	TF in different columns
+
+cor.test(log10(pbmc_p27_raw_d167), log10(pbmc_dna_raw_d167))
+cor.test(log10(pbmc_p27_raw_d209), log10(pbmc_dna_raw_d209))
+cor.test(log10(pbmc_p27_raw_d229), log10(pbmc_dna_raw_d229))
+cor.test(log10(pbmc_p27_raw_d263), log10(pbmc_dna_raw_d263))
+
+cor.test(log10(pbmc_p27_raw_d167), log10(pbmc_rna_raw_d167))
+cor.test(log10(pbmc_p27_raw_d209), log10(pbmc_rna_raw_d209))
+cor.test(log10(pbmc_p27_raw_d229), log10(pbmc_rna_raw_d229))
+cor.test(log10(pbmc_p27_raw_d263), log10(pbmc_rna_raw_d263))
+
+cor.test(log10(c(pbmc_p27_raw_d167, pbmc_p27_raw_d209) ), log10(c(pbmc_dna_raw_d167, pbmc_dna_raw_d209) ))
+cor.test(log10(c(pbmc_p27_raw_d167, pbmc_p27_raw_d209) ), log10(c(pbmc_rna_raw_d167, pbmc_rna_raw_d209) ))
+cor.test(log10(c(pbmc_p27_raw_d229, pbmc_p27_raw_d263) ), log10(c(pbmc_rna_raw_d229, pbmc_rna_raw_d263) ))
+cor.test(log10(c(pbmc_p27_raw_d167, pbmc_p27_raw_d209, pbmc_p27_raw_d229) ), log10(c(pbmc_dna_raw_d167, pbmc_dna_raw_d209, pbmc_dna_raw_d229) ))
+cor.test(log10(c(pbmc_p27_raw_d167, pbmc_p27_raw_d209, pbmc_p27_raw_d229) ), log10(c(pbmc_rna_raw_d167, pbmc_rna_raw_d209, pbmc_rna_raw_d229) ))
+
+###annotate genes in pathways, hypergeo test
+genome="../dir-TF-db/CPM-pbmc-date-2-3-4-5.10594.genes.symbol" (8994)
+cat ../../dir-human-IL10-methyl-seq/hg19-geneIDsorted-name-type-chr | grep -w protein_coding|cut -f 2 > temp-genes (20356)
+cat "$genome" temp-genes | sort | uniq > genes-20662.txt
+cat genes-20662.txt | awk '{print toupper($1)}' | sort | uniq > temp
+mv temp genes-20656.txt
+
+bash  script-generate-chea-target-file
+bash script-TF-targets-enrich > IL10-aIL10-up-down.h.all.path-overlap.txt
+bash "../../antiIL10 monkey/dir-TF-db/script-hyperG-test-2-R" IL10-aIL10-up-down.h.all.path-overlap.txt > temp-r-input
+Rscript temp-r-input > temp-r-res
+cat temp-r-res | awk '{print $2}' > IL10-aIL10-up-down.h.all.path-overlap.p-value.txt
+vi IL10-aIL10-up-down.h.all.path-overlap.p-value.txt
+
+bash script-TF-targets-enrich-overlapGenes > IL10-aIL10-up-down.h.all.path-overlap.genesOverlap.txt
+vi IL10-aIL10-up-down.h.all.path-overlap.genesOverlap.txt
+
+paste IL10-aIL10-up-down.h.all.path-overlap.q-value.txt IL10-aIL10-up-down.h.all.path-overlap.p-value.txt IL10-aIL10-up-down.h.all.path-overlap.txt  IL10-aIL10-up-down.h.all.path-overlap.genesOverlap.txt | awk '$1 < 0.1'
+
+cat temp-fdr0.1-paths | while read p
+do
+  grep -w "$p" temp-p-mod-path | wc -l
+done
+
+cat temp-fdr0.1-paths | while read p; do   grep -w "$p" temp-p-mod-path ; done | awk '
+BEGIN {FS = "\t";
+       OFS = "";
+       ORS = "";}
+{
+ if(NR % 4 == 1)
+   print $3 "\t" $1 "\t";
+ else if(NR % 4 == 2 || NR % 4 == 3)
+   print $1 "\t";
+ else
+   print $1 "\n";
+}
+'
+# f="20200528_IL10_aIL10DEGS vs COVIDSignatures_PBMC_Malika.txt"
+# $ grep aIL10_up_1e2 "$f" |awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 > 0 && $8 != "NA"'  | cut -f 8 | wc -l
+     111
+paste aIL10-up-down-covid-up-down.pathway-overlap.p-value.txt aIL10-up-down-covid-up-down.pathway-overlap.txt | awk '$1 < 0.005' | grep -i hallmark | cut -f 3 | sort | uniq > temp-paths
+paste aIL10-up-down-covid-up-down.pathway-overlap.p-value.txt aIL10-up-down-covid-up-down.pathway-overlap.txt | awk '$1 < 0.005' | grep -iv hallmark | cut -f 3 | sort | uniq | grep inflammasome_GeneRIF >> temp-paths
+bash script-make-table-path-condition-p-value | uniq
+
+cat temp-lead-genes.IL10_12H_up-COVID19up-d8.xls | grep -iv GIMAP7  | grep -iv SURF4 | sort | uniq  | awk '
+BEGIN {FS = "\t";
+       OFS = "";
+       ORS = "";}
+{
+ print $1 "   ";
+ if(NR % 6 == 0)
+   print "\n";
+}' 
+
+vRNA <- c(6.2, 6.3, 5.3, 2.7, 2.2, 1.7)
+HALLMARK_APOPTOSIS <- c(1.13, 2.76, 1.68, 0, 0, 0)
+p <- c(4.01, 9.16, 2.58, 0, 0, 0)
+cor.test(vRNA, HALLMARK_APOPTOSIS)
+cor.test(vRNA, p)
