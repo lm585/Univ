@@ -1,0 +1,33 @@
+#
+
+cat temp-paths | while read p; do   grep -w "$p" temp-p-mod-path ; done > temp-res-1029
+
+cat temp-res-1029 | awk '
+BEGIN {FS = "\t";
+       OFS = "";
+       ORS = "";}
+{
+ if(NR % 24 == 1)
+   print "probe" "\t" $2 "\t"; ##probe  aIL10_down_1e2-COVID19down-d10  |
+ else if(NR % 24 != 0)
+   print $2 "\t";
+ else
+   print $2 "\n";
+}
+'
+
+
+cat temp-res-1029 | awk '
+BEGIN {FS = "\t";
+       OFS = "";
+       ORS = "";}
+{
+ if(NR % 24 == 1)
+   print $3 "\t" $1 "\t"; ##inflammasome_GeneRIF	3.736586e-07	|
+ else if(NR % 24 != 0)
+   print $1 "\t";
+ else
+   print $1 "\n";
+}
+'
+
