@@ -1,3 +1,6 @@
+#result table
+#probe	aIL10_down_1e2-COVID19down-d7	aIL10_down_1e2-COVID19down-d10	aIL10_down_1e2-COVID19down-d14	aIL10_down_1e2-COVID19down-d1	aIL10_down_1e2-COVID19down-d2	aIL10_down_1e2-COVID19down-d4	aIL10_down_1e2-COVID19up-d7	aIL10_down_1e2-COVID19up-d10	aIL10_down_1e2-COVID19up-d14	aIL10_down_1e2-COVID19up-d1	aIL10_down_1e2-COVID19up-d2	aIL10_down_1e2-COVID19up-d4	aIL10_up_1e2-COVID19down-d7	aIL10_up_1e2-COVID19down-d10	aIL10_up_1e2-COVID19down-d14	aIL10_up_1e2-COVID19down-d1	aIL10_up_1e2-COVID19down-d2	aIL10_up_1e2-COVID19down-d4	aIL10_up_1e2-COVID19up-d7	aIL10_up_1e2-COVID19up-d1aIL10_up_1e2-COVID19up-d14	aIL10_up_1e2-COVID19up-d1	aIL10_up_1e2-COVID19up-d2	aIL10_up_1e2-COVID19up-d4
+#HALLMARK_ALLOGRAFT_REJECTION	0.1760981	0.2665652	1	1	1	1	1	1	1	1	1	1	1	1	10.02862584	0.09228817	1.292074e-06	0.002675912
 #
 
 cat temp-paths | while read p; do   grep -w "$p" temp-p-mod-path ; done > temp-res-1029
