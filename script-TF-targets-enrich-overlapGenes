@@ -1,0 +1,40 @@
+#
+
+genome="../dir-TF-db/CPM-pbmc-date-2-3-4-5.10594.genes.symbol"
+gc=`cat "$genome" |  wc -l |awk '{print $1}'`
+echo "pathway	TF	path-LEG-upreg-targets	path-LEG-upreg	genome-targets	genome"
+
+ls temp-lead-genes.*.xls |  while read p
+do
+  ls chea-TF-*.targets.xls | while read tf
+  do
+   ##genome background, this TF how many targets
+   cat "$tf" |  awk '{print toupper($0)}' |sort | uniq > temp-tf
+   gtc=`cat "$genome" temp-tf |  awk '{print toupper($0)}' |sort | uniq -d | wc -l |awk '{print $1}'`
+   ### LEG, up-reg genes, overlaps with genome background, should be the # of genes in the temp-lead-genes.*.xls
+   cat "$p" "$genome" | awk '{print toupper($0)}' |sort | uniq -d > temp-pathway
+   pc=`cat temp-pathway | wc -l |awk '{print $1}'`
+   # # of (LEG && up-reg && in genome bg)  are targets
+   #temp-tf , CAP, uniq
+   #temp-pathway, CAP, uniq
+   ptc=`cat temp-tf temp-pathway | sort | uniq -d | wc -l |awk '{print $1}'`
+   if [ $ptc -gt 0 ]
+   then
+   cat temp-tf temp-pathway | sort | uniq -d | awk '
+   BEGIN {OFS = "";
+          ORS = "";}
+   {
+    print $1 ", ";
+   }
+   END {print "\n";}
+   '
+   else
+     echo ", "
+   fi
+   p2=`echo "$p" | sed 's/temp-lead-genes.//' | sed 's/.xls$//'`
+   tf2=`echo "$tf" | sed 's/chea-TF-//' | sed 's/.targets.xls//' `
+   ###echo "$p2	$tf2	$ptc	$pc	$gtc	$gc"
+  done
+done
+
+#rm temp-tf temp-pathway
