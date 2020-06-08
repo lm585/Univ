@@ -1,0 +1,15 @@
+#
+cat  ../pyroptosis.gmt |  while read ll
+do
+  p=`echo "$ll" | cut -f 1 | sed 's/ /_/g' `
+  echo "$ll" | awk '
+BEGIN {FS = "\t";}
+{
+ for( i = 3; i <= NF; i++)
+ {
+  print $i;
+ }
+}
+ ' | awk 'NF == 1 {print $1}' > "chea-TF-$p.targets.xls"
+done
+
