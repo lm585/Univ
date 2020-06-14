@@ -44,3 +44,28 @@ f4       2         T
 > top2v1 <- topTags(qlf, n = 91234)
 > write.table(top2v1, "diff2-1.txt", sep="\t")
 
+###adjust by age (Blocking)
+> dim(y)
+[1] 60483    29
+> keep <-rowSums(cpm(y)>=1) >= 6
+> y<-y[keep,]
+> dim(y)
+[1] 18376    29
+> targets <- read.delim("factor.tcga-AA-ser-29samples.txt", row.names=1)
+> age <- factor(targets$age)
+> treat <- factor(targets$bmi)
+> design <- model.matrix(~age+treat)
+> design
+   (Intercept) age60 age70 age80 treatobesity
+1            1     0     0     0            0
+2            1     1     0     0            0
+3            1     0     0     1            0
+4            1     1     0     0            0
+> y <- estimateDisp(y,design)
+> fit <- glmQLFit(y, design)
+> qlf <- glmQLFTest(fit) 
+###eq to coef= 5
+> top2v1 <- topTags(qlf, n = 91234)
+> write.table(top2v1, "diff2-1.txt", sep="\t")
+
+
