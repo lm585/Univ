@@ -55,7 +55,7 @@ f4       2         T
 > age <- factor(targets$age)
 > treat <- factor(targets$bmi)
 > design <- model.matrix(~age+treat)
-> design
+> design ### 5 col x 29 rows
    (Intercept) age60 age70 age80 treatobesity
 1            1     0     0     0            0
 2            1     1     0     0            0
