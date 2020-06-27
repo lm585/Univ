@@ -1,0 +1,34 @@
+#
+#TCGA-A5-A0G3	black or african american	22421	23.507805325987142	c904d92e-b3bb-402c-ae37-fea2b8328970
+
+
+cat tcga-AA-ser-29samples.samp-info.txt | awk '
+BEGIN {FS = "\t";
+ OFS = "\t";
+      }
+{
+ age = $3 / 365;
+ if(age < 60)
+   a = "50";
+ else if (age < 70)
+   a = "60";
+ else if (age < 80)
+   a = "70";
+ else if (age < 90)
+   a = "80";
+ else
+   a = "90";
+
+ bmi = $4;
+ if(bmi < 30)
+   b = "norm";
+ else if (bmi < 40)
+   b = "obesity";
+ else if (bmi < 50)
+   b = "w45";
+ else
+   b = "x55";
+
+ print $5, $1, $2, a, b;
+}
+'
