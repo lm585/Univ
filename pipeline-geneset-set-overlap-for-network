@@ -1,0 +1,27 @@
+--------------------------------------------------------------------------------------------
+PBMC down-reg pathway overlapping network
+
+pbmc-616-pathways-Malika-down-preRank-hyp-gene-info.txt (21 down pathways)
+bash tem-script-lead-genes-pbmc-Malika; #get leading edge genes for 21 pathways)
+bash script-pathway-overlap-by-genes > pbmc-616-pathways-Malika-down-21-paths-overlap
+No identical pathways wrt lead genes
+No need to run script-rm-many-pathways because no identical paths
+cat  pbmc-616-pathways-Malika-down-21-paths-overlap | awk 'BEGIN {FS = "\t"; OFS = "\t"} $1 != $2 && ($6 >= 0.25 && $7 >= 0.25)' >   pbmc-616-pathways-Malika-down-21-paths-overlap.3
+bash  tem-script-rm-dup  > pbmc-616-pathways-Malika-down-21-paths-overlap.4   remove duplicated links, generate link weight
+
+10 nodes (pathways) in the network; 3 modukes; (cut -f 1 pbmc-616-pathways-Malika-down-21-path-clust.hyperP-value.txt > temp-10-net-paths)
+temp-21-paths
+temp-11-single-paths (11 single paths)
+
+--------------------------------------------------------------------------------------------
+PBMC up-reg pathway overlapping network
+
+bash script-pathway-overlap-by-genes > pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap
+cat  pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap | awk 'BEGIN {FS = "\t"; OFS = "\t"} $1 != $2 && ($6 == 1 && $7 == 1)' > temp
+# 10 identical pathways wrt same leading-edge genes
+bash script-rm-many-pathways
+#remove lines contain one of the 10 identical pathways
+cat  pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $1 != $2 && ($6 >= 0.25 && $7 >= 0.25)' >  pbmc-616-pathways-Malika-up-preRank-hyp-251paths-overlap.3 
+# select pathway pairs
+bash script-rm-dup
+# remove dup links, generate link weight
