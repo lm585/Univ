@@ -1,0 +1,20 @@
+#
+
+dir="/Users/linyongmao/gsea_home/output/may05"
+cat temp-dir | while read d
+do
+ cat "$dir/$d"/gsea_report_for*.xls | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 0.05' | cut -f 1 | grep -iv name > temp-path
+ cat temp-path | while read p
+ do
+   t=`echo "$d" | grep Malika | wc -l`
+   if [ $t -eq 1 ]
+   then
+     p2="Ma-$p"
+   else
+     p2="$p"
+   fi
+   cat "$dir/$d/$p.xls" | grep -w Yes | cut -f 2 | grep -v PROBE | awk '{print toupper($0)}' > "chea-TF-$p2.targets.xls"
+   cp "chea-TF-$p2.targets.xls" "temp-lead-genes.$p2.xls"
+ done
+ rm temp-path 
+done
