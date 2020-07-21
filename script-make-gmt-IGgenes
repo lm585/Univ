@@ -1,0 +1,15 @@
+#
+
+cat /Users/linyongmao/Documents/dir-human-IL10-methyl-seq/hg19-geneIDsorted-name-type-chr |awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 ~ /IG/' | cut -f 3 | sort | uniq | grep -v pseudo | while read g
+do
+ echo -n "$g	$g"
+ cat /Users/linyongmao/Documents/dir-human-IL10-methyl-seq/hg19-geneIDsorted-name-type-chr |awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 == "'$g'" ' | cut -f 2 | sort | uniq | awk 'BEGIN {FS = "\t";
+ OFS = "";
+ ORS = "";
+ }
+ {
+  print "\t" $1;
+ }
+ ' 
+ echo
+done
