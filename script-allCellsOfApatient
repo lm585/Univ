@@ -1,0 +1,25 @@
+#
+
+# "COV025"	0	0	0	0	0	0	"NEG"
+# "COV025"	0	0	0	0	0	0	"NEG"
+# patient	IGHV3-30	IGKV4-1	IGLV3-10	IGKV1D-8	IGHV3-23	IGHV3-64	status	
+
+
+grep "\"NEG\"" temp.transpose.sorted.samp > temp.transpose.sorted.samp.neg
+grep "\"POS\"" temp.transpose.sorted.samp > temp.transpose.sorted.samp.pos
+for f in `echo temp.transpose.sorted.samp.neg temp.transpose.sorted.samp.pos`
+do
+ awk '
+ BEGIN {FS = "\t";
+        OFS = "";
+        ORS = "";}
+ {
+  a[$1] = a[$1] "\t" $2;
+ }
+ END {for (b in a) 
+      { print b; 
+        print a[b] "\n";
+      }
+     }
+ ' $f
+done
