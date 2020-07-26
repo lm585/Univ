@@ -1,3 +1,27 @@
+###
+cat tem-IFN.gmt | while read ll
+do
+ p=`echo "$ll" | cut -f 1 `
+ echo -n "$p	"
+ name="$p"
+ echo "$ll" | awk '
+ BEGIN{FS = "\t";
+       OFS = "\t";}
+ {
+  for(i = 3; i <= NF; i++)
+  {
+   if($i != "") ### && "$i" != "^M")
+     print $i;
+  }
+ }
+"  > "chea-TF-$p.targets.xls"
+done
+
+echo
+
+
+
+#prev version below
 #
 
 cat GeneSets.2019.gmt | while read ll
@@ -11,11 +35,13 @@ do
  {
   for(i = 3; i <= NF; i++)
   {
-   if($i != "") ### && "$i" != "")
+   if($i != "") ### && "$i" != "
+")
      print $i;
   }
  }
- '  | grep -vw "" > temp-common-lead-genes."$name".xls
+ '  | grep -vw "
+" > temp-common-lead-genes."$name".xls
 done
 
 echo
