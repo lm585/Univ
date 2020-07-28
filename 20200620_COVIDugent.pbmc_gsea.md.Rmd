@@ -1,0 +1,340 @@
+---
+title: Geneset analysis of B cells in PBMCs
+author: Slim Fourati
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: github_documents
+---
+
+Load packages
+```{r, load-packages}
+suppressPackageStartupMessages(library(package = "knitr"))
+suppressPackageStartupMessages(library(package = "Seurat"))
+suppressPackageStartupMessages(library(package = "MAST"))
+suppressPackageStartupMessages(library(package = "parallel"))
+suppressPackageStartupMessages(library(package = "ComplexHeatmap"))
+suppressPackageStartupMessages(library(package = "GSEABase"))
+suppressPackageStartupMessages(library(package = "tidyverse"))
+```
+
+Set session options
+```{r, session-options}
+workDir <- dirname(getwd())
+opts_chunk$set(tidy = FALSE, fig.path = "../figure/")
+options(stringsAsFactors       = FALSE,
+        dplyr.summarise.inform = FALSE,
+	mc.cores               = 1)
+# result will be written in directory called advanced
+gseaDir <- file.path(workDir, "advanced")
+if (!file.exists(gseaDir)) {
+  flag <- dir.create(path = gseaDir)
+}
+```
+
+Load scRNAseq data
+```{r, load-seurat}
+load(file = file.path(workDir, "output/ugent.seurat.RData"))
+```
+
+Use MAST do differential expression (adjust for sample of origin)
+```{r, diff-exprs, message=FALSE, warning=FALSE}
+# subset on PBMCs B-cell at T1 (where we have COVID19 pos vs neg)
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+			seuratComb$Sample..type %in% "PBMC" &
+			grepl(pattern = "T1", seuratComb$Patient.number)]
+bComb <- AddMetaData(object   = bComb,
+		     metadata = colnames(bComb),
+		     col.name = "wellKey")
+bAssay <- FromMatrix(exprsArray = list(et = bComb$RNA@data),
+		     cData      = bComb@meta.data)
+# DEG: COVID status
+fit <- zlm(formula  = ~COVID19.status+orig.ident,
+	   sca      = bAssay,
+	   parallel = FALSE)
+summaryCond <- MAST::summary(fit, doLRT = "COVID19.statusPOS")
+top <- summaryCond$datatable %>%
+  filter(contrast %in% "COVID19.statusPOS" &
+	   # hurdle test
+	   component %in% c("H", "logFC")) %>% 
+  pivot_longer(cols = c("Pr(>Chisq)", "coef")) %>%
+  filter(!is.na(value)) %>%
+  select(primerid, contrast, name, value) %>%
+  pivot_wider(names_from = name, values_from = value) %>%
+  dplyr::rename(`logFC` = `coef`) %>%
+  mutate(adjp = p.adjust(`Pr(>Chisq)`, method = "BH"))
+# DEG: time effect
+```
+
+```{r, print-top10}
+# print top 10 DEG
+top %>%
+  mutate(primerid = gsub(pattern = ".+---", replacement = "", primerid)) %>%
+  top_n(n = 10, wt = -adjp) %>%
+  print()
+```
+
+Print heatmap based on top50 DEGs
+```{r, pbmc-b-heatmap-top50}
+top50 <- top_n(top, n = 50, wt = -adjp)
+
+mat <- as.matrix(bComb$RNA@data[top50$primerid, ])
+rownames(mat) <- gsub(pattern = ".+---", replacement = "", rownames(mat))
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident)
+
+Heatmap(matrix = mat,
+	column_split = bComb@meta.data$COVID19.status,
+	top_annotation = ha,
+	row_split = c("DN", "UP")[(top50$logFC > 0) + 1],
+	show_column_names = FALSE,
+	name = "log2(counts)")
+```
+
+Run GSEA
+```{r, dowload-gsea-gmt, eval=FALSE}
+unzip(zipfile = file.path(workDir, "utils/GSEA_4.0.3.zip"),
+      exdir = gseaDir)
+gseaCli <- file.path(gseaDir, "GSEA_4.0.3/gsea-cli.sh")
+gmtFile <- file.path(workDir, "utils/msigdb.v7.1.symbols.gmt")
+```
+
+```{r, create-rnk, eval=FALSE}
+modelName <- "PBMC_BCELL_T1"
+contrast <- "COVID19.statusPOS"
+ranked <- top %>%
+  filter(!is.na(logFC)) %>%
+  mutate(score = sign(logFC) * -log10(`Pr(>Chisq)`),
+	 gene_name = gsub(pattern = ".+---",
+			  replacement = "",
+			  primerid)) %>%
+  select(gene_name, score)
+rnkFile <- paste0("gsea_", modelName, "_", contrast,  ".rnk")
+rnkFile <- make.names(rnkFile)
+rnkFile <- file.path(workDir, "advanced", rnkFile)
+write(paste(c("#", colnames(ranked)), collapse = " "), file = rnkFile)
+write_tsv(ranked,
+	  path      = rnkFile,
+	  append    = TRUE,
+	  col_names = FALSE)
+rnkList <- data.frame(modelName = modelName,
+		      contrast  = contrast,
+		      rnk       = rnkFile)
+```
+
+```{r, run-gsea, eval=FALSE}
+gseaRnk <- rnkList$rnk
+logFileName <- gsub(pattern = "rnk$", replacement = "log", gseaRnk)
+gseaRpt <- paste(gsub(pattern     = "rnk",
+                          replacement = "",
+                          basename(gseaRnk)),
+                     gsub(pattern     = "^([^\\.]+).+$",
+                          replacement = "\\1",
+                          basename(gmtFile)),
+                     sep = ".")
+gseaCall <- paste("bash",
+		  gseaCli,
+		  "GSEAPreranked",
+		  "-gmx",
+		  gmtFile,
+		  "-collapse No_Collapse",
+		  "-mode Max_probe",
+		  "-norm None",
+		  "-nperm 1000",
+		  "-rnk",
+		  gseaRnk,
+		  "-scoring_scheme weighted",
+		  "-rpt_label",
+		  gseaRpt,
+		  "-create_svgs false",
+		  "-include_only_symbols true",
+		  "-make_sets true",
+		  "-plot_top_x 1",
+		  "-rnd_seed 111",
+		  "-set_max 2000",
+		  "-set_min 15",
+		  "-zip_report false",
+		  "-out",
+		  gseaDir,
+		  ">",
+		  logFileName)
+gseaIntern <- system(command       = gseaCall,
+                       intern        = TRUE,
+		     ignore.stderr = TRUE)
+
+gseaIndex <- data.frame(rnk = gseaRnk, rpt = file.path(gseaDir, gseaRpt))
+gseaIndex <- merge(rnkList, gseaIndex, by = "rnk")
+```
+
+```{r, clean-up-advanced-directory, eval=FALSE}
+# remove previous gsea run from the advanced directory
+dirLS <- list.dirs(path = file.path(workDir, "advanced"), recursive = FALSE)
+dirLS <- cbind(directory = dirLS,
+               rpt       = gsub(pattern = ".GseaPreranked.+$",
+                   replacement = "",
+                   dirLS))
+gseaIndex <- merge(gseaIndex, dirLS, by = "rpt")
+```
+
+```{r, delete-temporary-directory, eval=FALSE}
+# delete temporary directory create during gsea run
+dirName <- tolower(format(Sys.Date(), "%b%d"))
+flag <- file.remove(dirName)
+```
+
+```{r, read-gsea-output, eval=FALSE}
+# read gsea output directories
+gseaOutput <- apply(gseaIndex, MARGIN = 1, FUN = function(gseaRun) {
+  print(gseaRun[["modelName"]])
+  gseaDir <- gseaRun[["directory"]]
+  # read rpt file in gsea output directory
+  rptFile <- list.files(path = gseaDir, pattern = "rpt", full.names = TRUE)
+  rpt <- read_tsv(file      = rptFile,
+                  col_names = c("type", "name", "value"))
+  # read gmt file
+  gmxFile <- rpt$value[rpt$name %in% "gmx"]
+  cNames <- count_fields(file = gmxFile, tokenizer = tokenizer_tsv()) %>%
+    max() %>%
+    seq(from = 1) %>%
+    as.character()
+  gmx <- read_tsv(file = gmxFile, col_names = cNames)
+  # remove geneset name and description column
+  gsNames <- toupper(gmx$"1")
+  gmx <- apply(select(gmx, -(1:2)), MARGIN = 1, FUN = function(x) {
+    return(value = setdiff(unname(x), NA))
+  })
+  names(gmx) <- gsNames
+  # read result files
+  resFile <- grep(pattern = "gsea_report.*xls",
+                  dir(path = gseaDir, full.names = TRUE),
+                  value   = TRUE)
+  resOut <- lapply(resFile, FUN = function(fileName) {
+    resTable <- read_tsv(file = fileName)
+  })
+  resOut <- do.call(what = rbind, args = resOut)
+  # extract leading edge genes
+  rnk <- read_tsv(file      = gseaRun[["rnk"]],
+                  skip      = 1,
+                  col_names = c("SYMBOL", "score")) %>%
+         arrange(desc(score))
+  leGenes <- group_by(resOut, NAME) %>%
+             do(LEADING_EDGE = ifelse(test = sign(.$NES) %in% 1,
+                    yes = paste(intersect(rnk$SYMBOL[seq(from = 1,
+                        to = .$"RANK AT MAX" + 1)],
+                        gmx[[.$NAME]]), collapse = ","),
+                    no  = paste(intersect(rnk$SYMBOL[seq(from = nrow(rnk) -
+                        .$"RANK AT MAX",
+                        to = nrow(rnk))],
+                        gmx[[.$NAME]]), collapse = ","))) %>%
+             ungroup() %>%
+             mutate(LEADING_EDGE = unlist(LEADING_EDGE))
+  resOut <- merge(resOut, leGenes, by = "NAME")
+  # append directory name
+  resOut <- mutate(resOut, directory = gseaDir)
+  return(value = resOut)
+})
+gseaOutput <- do.call(what = rbind, args = gseaOutput)
+gseaOutput <- merge(gseaOutput, gseaIndex, by = "directory")
+
+save(gseaOutput, file = file.path(workDir, "output/ugent.pbmc.bcell.gseaOutput.RData"))
+```
+
+remove advanced directory
+```{r, delete-gseadir, eval=FALSE}
+unlink(gseaDir, recursive = TRUE)
+```
+
+```{r, load-gsea-output, echo=FALSE}
+load(file = file.path(workDir, "output/ugent.pbmc.bcell.gseaOutput.RData"))
+```
+
+Print B cell activation pathway enriched between COVID19 POS vs NEG
+```{r, print-sig-b-act}
+# read msigdb
+xmlFile <- file.path(workDir, "utils/msigdb_v7.1.xml")
+msig <- getBroadSets(uri = xmlFile)
+descDF <- sapply(msig, FUN = description) %>%
+  data.frame(DESC = .) %>%
+  mutate(NAME = names(msig))
+
+# Identify genesets of interest based on keywords
+# keywords: B-CELL and activation
+gsNames <- descDF %>%
+  filter(grepl(pattern = "B.?CELL", NAME) &
+	   grepl(pattern = "activation", DESC, ignore.case = TRUE)) %>%
+  filter(!grepl(pattern = "NEGATIVE_REGULATION", NAME))
+
+# print b cell activation genesets
+print(gsNames$NAME)
+
+# print b cell activation genesets meeting size restriction (min=15, max=2000)
+print(intersect(gsNames$NAME, gseaOutput$NAME))
+
+# print number significantly associated with COVID19
+filter(gseaOutput, NAME %in% gsNames$NAME & `NOM p-val` <= 0.05) %>%
+  select(modelName, contrast, NAME, NES, `NOM p-val`, `FDR q-val`)
+```
+Only one out of three of the genesets is significantly associated with COVID19
+
+Print leading edge heatmap
+```{r, le-heat}
+sigDF <- filter(gseaOutput, NAME %in% gsNames$NAME & `NOM p-val` <= 0.05)
+
+leLS <- strsplit(sigDF$LEADING_EDGE, split = ",") %>%
+  unlist()
+
+rNames <- gsub(pattern = ".+---", replacement = "", rownames(bComb))
+mat <- as.matrix(bComb$RNA@counts[match(leLS, table = rNames), ])
+rownames(mat) <- leLS
+flag <- rowMeans(mat > 0) >= 0.2
+mat <- mat[flag, ]
+mat <- log2(mat + 0.25)
+Heatmap(matrix = mat,
+	column_split = bComb@meta.data$COVID19.status,
+	show_column_names = FALSE,
+	name = "log2(counts)")
+```
+
+Print leading edge heatmap over time
+```{r, le-heat}
+bComb2 <- bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+			seuratComb$Sample..type %in% "PBMC"]
+# identify pts with T1 and T2 samples
+regex <- bComb2@meta.data %>%
+  filter(grepl(pattern = "_T2", Patient.number)) %>%
+  .$Patient.number  %>%
+  unique() %>%
+  gsub(pattern = "_T2", replacement = "") %>%
+  paste(collapse = "|")
+bComb2 <- bComb2[, grepl(pattern = regex, bComb2@meta.data$Patient.number)]
+
+rNames <- gsub(pattern = ".+---", replacement = "", rownames(bComb2))
+mat <- as.matrix(bComb2$RNA@counts[match(leLS, table = rNames), ])
+rownames(mat) <- leLS
+flag <- rowMeans(mat > 0) >= 0.2
+mat <- mat[flag, ]
+mat <- log2(mat + 0.25)
+cSplit <- interaction(bComb2@meta.data$COVID19.status,
+		      gsub(pattern = ".+_",
+			   replacement = "",
+			   bComb2@meta.data$Patient.number))
+Heatmap(matrix = mat,
+	column_split = cSplit,
+	show_column_names = FALSE,
+	name = "log2(counts)")
+```
+
+```{r, prot-markers}
+Idents(bComb) <- bComb@meta.data$COVID19.status
+degDF <- FindMarkers(bComb, slot = "data", ident.1 = "POS", ident.2 = "NEG", assay = "ADT") %>%
+  rownames_to_column() %>%
+  rename(gene_name = rowname)
+filter(degDF, avg_logFC > 0 & p_val_adj <= 0.05)
+
+VlnPlot(bComb,
+	features = c("ADT_HLA-A2", "ADT_CD93"),
+	split.by = "COVID19.status")
+```
+
+Print session info
+```{r, session-info}
+sessionInfo()
+```
+
