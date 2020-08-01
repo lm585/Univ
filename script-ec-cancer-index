@@ -158,3 +158,752 @@ mv -i factor-2 factor-tcga-white-serous-62samp.txt
 61           1     0     0     0            1
 62           1     1     0     0            1
 > 
+
+> setwd("/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master")
+> install.packages('knitr', dependencies = TRUE)
+> library(knitr)
+> install.packages('Seurat')
+> library(Seurat) ####install some python 
+> suppressPackageStartupMessages(library(package = "Seurat"))
+> if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+> BiocManager::install("MAST")
+> library(MAST)
+> suppressPackageStartupMessages(library(package = "MAST"))
+> BiocManager::install("ComplexHeatmap")
+> library(ComplexHeatmap)
+> suppressPackageStartupMessages(library(package = "ComplexHeatmap"))
+> BiocManager::install("GSEABase")
+> library(GSEABase)
+> suppressPackageStartupMessages(library(package = "GSEABase"))
+> install.packages("tidyverse")
+> library(tidyverse)
+> suppressPackageStartupMessages(library(package = "tidyverse"))
+> sessionInfo()
+
+> fit <- zlm(formula = ~COVID19.status+orig.ident, sca = bAssay)
+                                                                                                                                                
+Done!
+Warning message:
+In .nextMethod(object = object, value = value) :
+  Coefficients orig.identCOV029_3 are never estimible and will be dropped.
+
+
+   primerid   contrast          `Pr(>Chisq)` logFC        adjp
+   <chr>      <fct>                    <dbl> <dbl>       <dbl>
+ 1 ACADVL     COVID19.statusPOS     2.15e- 9  1.80 0.0000131  
+ 2 AL450405.1 COVID19.statusPOS     3.83e-11 -2.38 0.000000465
+ 3 CHCHD1     COVID19.statusPOS     2.44e- 8  1.74 0.0000687  
+ 4 HLA-A      COVID19.statusPOS     3.48e-10 28.2  0.00000264 
+ 5 HSP90B1    COVID19.statusPOS     3.41e- 9 48.9  0.0000173  
+ 6 HSPA5      COVID19.statusPOS     2.56e- 9 13.9  0.0000141  
+ 7 IFI6       COVID19.statusPOS     2.49e- 8  5.61 0.0000687  
+ 8 IGHGP      COVID19.statusPOS     2.37e- 8 -6.78 0.0000687  
+ 9 ITM2C      COVID19.statusPOS     5.58e- 9 10.7  0.0000242  
+10 LMAN1      COVID19.statusPOS     5.10e- 9  7.66 0.0000238  
+
+> top50 <- top_n(top, n = 98765, wt = -adjp)
+> write.table(top50, "diff2-1.txt", sep="\t")
+mv -i diff2-1.txt belg-scrna-bcell-T1.diff2-1.txt 
+cat belg-scrna-bcell-T1.diff2-1.txt  | awk 'BEGIN {FS = "\t"; OFS = "\t"} $5 != "NA" {print $2,$5, $1, $3, $4, $6}' > temp-diff2-1
+vi temp-diff2-1
+bash   /Users/linyongmao/Documents/dir-cancer-endometrial/script-preRank-genes temp-diff2-1 > temp-1
+mv -i temp-1 belg-scrna-bcell-T1.diff2-1.rnk
+
+####scRNA-seq T1 T2 time effect
+> str(seuratComb)
+Formal class 'Seurat' [package "Seurat"] with 12 slots
+  ..@ assays      :List of 2
+  .. ..$ RNA:Formal class 'Assay' [package "Seurat"] with 8 slots
+  .. .. .. ..@ counts       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:389097309] 39 62 68 88 107 109 122 138 139 140 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 3640 6872 11572 15524 21956 24812 28239 29306 30392 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 60688 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:60688] "GRCh38.99-------------DDX11L1" "GRCh38.99-------------WASH7P" "GRCh38.99-------------MIR6859-1" "GRCh38.99-------------MIR1302-2HG" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:389097309] 1 1 4 1 1 1 1 1 1 3 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:389097309] 39 62 68 88 107 109 122 138 139 140 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 3640 6872 11572 15524 21956 24812 28239 29306 30392 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 60688 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:60688] "GRCh38.99-------------DDX11L1" "GRCh38.99-------------WASH7P" "GRCh38.99-------------MIR6859-1" "GRCh38.99-------------MIR1302-2HG" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:389097309] 0.607 0.607 1.468 0.607 0.607 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ scale.data   : num [1:2000, 1:201009] -0.1503 -0.229 -0.0714 -0.2222 -0.019 ...
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:2000] "GRCh38.99-------------MTND1P23" "GRCh38.99-------------MTND2P28" "GRCh38.99-------------MTCO1P12" "GRCh38.99-------------HES4" ...
+  .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. ..@ key          : chr "rna_"
+  .. .. .. ..@ assay.orig   : NULL
+  .. .. .. ..@ var.features : chr [1:2000] "GRCh38.99-------------IGLC3" "GRCh38.99-------------IGHM" "GRCh38.99-------------IGHA1" "GRCh38.99-------------IGHG1" ...
+  .. .. .. ..@ meta.features:'data.frame':	60688 obs. of  5 variables:
+  .. .. .. .. ..$ vst.mean                 : num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variance             : num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variance.expected    : num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variance.standardized: num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variable             : logi [1:60688] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. .. .. ..@ misc         : NULL
+  .. ..$ ADT:Formal class 'Assay' [package "Seurat"] with 8 slots
+  .. .. .. ..@ counts       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:13569513] 1 5 6 14 17 19 21 23 27 31 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 0 0 0 0 0 0 0 0 0 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 300 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:300] "CD80" "CD86" "CD274" "CD273" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:13569513] 3 1 2 1 22 2 1 14 1 5 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:13569513] 1 5 6 14 17 19 21 23 27 31 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 0 0 0 0 0 0 0 0 0 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 300 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:300] "CD80" "CD86" "CD274" "CD273" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:13569513] 3 1 2 1 22 2 1 14 1 5 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ scale.data   : num[0 , 0 ] 
+  .. .. .. ..@ key          : chr "ADT_"
+  .. .. .. ..@ assay.orig   : NULL
+  .. .. .. ..@ var.features : logi(0) 
+  .. .. .. ..@ meta.features:'data.frame':	300 obs. of  0 variables
+  .. .. .. ..@ misc         : NULL
+  ..@ meta.data   :'data.frame':	201009 obs. of  30 variables:
+  .. ..$ orig.ident               : chr [1:201009] "COV001" "COV001" "COV001" "COV001" ...
+  .. ..$ nCount_RNA               : num [1:201009] 11980 9912 17403 12512 29394 ...
+  .. ..$ nFeature_RNA             : int [1:201009] 3640 3232 4700 3952 6432 2856 3427 1067 1086 3791 ...
+  .. ..$ nCount_ADT               : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ nFeature_ADT             : int [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ nCount_HTO               : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ nFeature_HTO             : int [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ HTO_maxID                : chr [1:201009] NA NA NA NA ...
+  .. ..$ HTO_secondID             : chr [1:201009] NA NA NA NA ...
+  .. ..$ HTO_margin               : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ HTO_classification       : chr [1:201009] NA NA NA NA ...
+  .. ..$ HTO_classification.global: chr [1:201009] NA NA NA NA ...
+  .. ..$ hash.ID                  : chr [1:201009] NA NA NA NA ...
+  .. ..$ Library.ID               : chr [1:201009] "COV001" "COV001" "COV001" "COV001" ...
+  .. ..$ Patient.number           : chr [1:201009] "COVIM54" "COVIM54" "COVIM54" "COVIM54" ...
+  .. ..$ Sample..type             : chr [1:201009] "BAL" "BAL" "BAL" "BAL" ...
+  .. ..$ COVID19.status           : chr [1:201009] "POS" "POS" "POS" "POS" ...
+  .. ..$ Sampling                 : POSIXct[1:201009], format: "2020-04-08" "2020-04-08" "2020-04-08" "2020-04-08" ...
+  .. ..$ RBC.contamination        : chr [1:201009] "Hi" "Hi" "Hi" "Hi" ...
+  .. ..$ Remarks                  : chr [1:201009] "Red pellet upon arrival" "Red pellet upon arrival" "Red pellet upon arrival" "Red pellet upon arrival" ...
+  .. ..$ Granulocyte..            : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ Alternative.diagnosis    : chr [1:201009] NA NA NA NA ...
+  .. ..$ Comorbidities            : chr [1:201009] "multiple sclerosis" "multiple sclerosis" "multiple sclerosis" "multiple sclerosis" ...
+  .. ..$ CITEseq                  : chr [1:201009] "No" "No" "No" "No" ...
+  .. ..$ Sort                     : chr [1:201009] "Yes" "Yes" "Yes" "Yes" ...
+  .. ..$ CD45.enrichment          : chr [1:201009] "No" "No" "No" "No" ...
+  .. ..$ Fresh.Frozen             : chr [1:201009] "Fresh" "Fresh" "Fresh" "Fresh" ...
+  .. ..$ HTO                      : chr [1:201009] "/" "/" "/" "/" ...
+  .. ..$ singler.subset           : chr [1:201009] "Macrophage" "T_cells" "Macrophage" "Macrophage" ...
+  .. ..$ singler.subset2          : chr [1:201009] "Macrophage:monocyte-derived:M-CSF/IFNg" "T_cell:gamma-delta" "Macrophage:monocyte-derived:M-CSF/IFNg" "Macrophage:monocyte-derived:M-CSF/IFNg" ...
+  ..@ active.assay: chr "RNA"
+  ..@ active.ident: Factor w/ 20 levels "COV001","COV002",..: 1 1 1 1 1 1 1 1 1 1 ...
+  .. ..- attr(*, "names")= chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  ..@ graphs      : list()
+  ..@ neighbors   : list()
+  ..@ reductions  :List of 2
+  .. ..$ pca :Formal class 'DimReduc' [package "Seurat"] with 9 slots
+  .. .. .. ..@ cell.embeddings           : num [1:201009, 1:50] 1.1851 0.0496 0.7136 1.2482 1.2421 ...
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..$ : chr [1:50] "PC_1" "PC_2" "PC_3" "PC_4" ...
+  .. .. .. ..@ feature.loadings          : num [1:2000, 1:50] 0.002682 0.002627 0.002984 0.000752 0.003792 ...
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:2000] "GRCh38.99-------------IGLC3" "GRCh38.99-------------IGHM" "GRCh38.99-------------IGHA1" "GRCh38.99-------------IGHG1" ...
+  .. .. .. .. .. ..$ : chr [1:50] "PC_1" "PC_2" "PC_3" "PC_4" ...
+  .. .. .. ..@ feature.loadings.projected: num[0 , 0 ] 
+  .. .. .. ..@ assay.used                : chr "RNA"
+  .. .. .. ..@ global                    : logi FALSE
+  .. .. .. ..@ stdev                     : num [1:50] 12.57 7.81 5.7 5.31 4.81 ...
+  .. .. .. ..@ key                       : chr "PC_"
+  .. .. .. ..@ jackstraw                 :Formal class 'JackStrawData' [package "Seurat"] with 4 slots
+  .. .. .. .. .. ..@ empirical.p.values     : num[0 , 0 ] 
+  .. .. .. .. .. ..@ fake.reduction.scores  : num[0 , 0 ] 
+  .. .. .. .. .. ..@ empirical.p.values.full: num[0 , 0 ] 
+  .. .. .. .. .. ..@ overall.p.values       : num[0 , 0 ] 
+  .. .. .. ..@ misc                      :List of 1
+  .. .. .. .. ..$ total.variance: num 1056
+  .. ..$ umap:Formal class 'DimReduc' [package "Seurat"] with 9 slots
+  .. .. .. ..@ cell.embeddings           : num [1:201009, 1:2] -12.1 4.8 -12.1 -10.7 -10.8 ...
+  .. .. .. .. ..- attr(*, "scaled:center")= num [1:2] -0.0125 -0.2442
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..$ : chr [1:2] "UMAP_1" "UMAP_2"
+  .. .. .. ..@ feature.loadings          : num[0 , 0 ] 
+  .. .. .. ..@ feature.loadings.projected: num[0 , 0 ] 
+  .. .. .. ..@ assay.used                : chr "RNA"
+  .. .. .. ..@ global                    : logi TRUE
+  .. .. .. ..@ stdev                     : num(0) 
+  .. .. .. ..@ key                       : chr "UMAP_"
+  .. .. .. ..@ jackstraw                 :Formal class 'JackStrawData' [package "Seurat"] with 4 slots
+  .. .. .. .. .. ..@ empirical.p.values     : num[0 , 0 ] 
+  .. .. .. .. .. ..@ fake.reduction.scores  : num[0 , 0 ] 
+  .. .. .. .. .. ..@ empirical.p.values.full: num[0 , 0 ] 
+  .. .. .. .. .. ..@ overall.p.values       : num[0 , 0 ] 
+  .. .. .. ..@ misc                      : list()
+  ..@ project.name: chr "SeuratProject"
+  ..@ misc        : list()
+  ..@ version     :Classes 'package_version', 'numeric_version'  hidden list of 1
+  .. ..$ : int [1:3] 3 1 5
+  ..@ commands    :List of 5
+  .. ..$ NormalizeData.RNA       :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "NormalizeData.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:47:56"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr [1:2] "NormalizeData(seuratComb, normalization.method = \"LogNormalize\", " "    scale.factor = 10000)"
+  .. .. .. ..@ params     :List of 5
+  .. .. .. .. ..$ assay               : chr "RNA"
+  .. .. .. .. ..$ normalization.method: chr "LogNormalize"
+  .. .. .. .. ..$ scale.factor        : num 10000
+  .. .. .. .. ..$ margin              : num 1
+  .. .. .. .. ..$ verbose             : logi TRUE
+  .. ..$ FindVariableFeatures.RNA:Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "FindVariableFeatures.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:51:22"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "FindVariableFeatures(object = seuratComb)"
+  .. .. .. ..@ params     :List of 12
+  .. .. .. .. ..$ assay              : chr "RNA"
+  .. .. .. .. ..$ selection.method   : chr "vst"
+  .. .. .. .. ..$ loess.span         : num 0.3
+  .. .. .. .. ..$ clip.max           : chr "auto"
+  .. .. .. .. ..$ mean.function      :function (mat, display_progress)  
+  .. .. .. .. ..$ dispersion.function:function (mat, display_progress)  
+  .. .. .. .. ..$ num.bin            : num 20
+  .. .. .. .. ..$ binning.method     : chr "equal_width"
+  .. .. .. .. ..$ nfeatures          : num 2000
+  .. .. .. .. ..$ mean.cutoff        : num [1:2] 0.1 8
+  .. .. .. .. ..$ dispersion.cutoff  : num [1:2] 1 Inf
+  .. .. .. .. ..$ verbose            : logi TRUE
+  .. ..$ ScaleData.RNA           :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "ScaleData.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:52:33"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "ScaleData(seuratComb, verbose = FALSE)"
+  .. .. .. ..@ params     :List of 10
+  .. .. .. .. ..$ features          : chr [1:2000] "GRCh38.99-------------IGLC3" "GRCh38.99-------------IGHM" "GRCh38.99-------------IGHA1" "GRCh38.99-------------IGHG1" ...
+  .. .. .. .. ..$ assay             : chr "RNA"
+  .. .. .. .. ..$ model.use         : chr "linear"
+  .. .. .. .. ..$ use.umi           : logi FALSE
+  .. .. .. .. ..$ do.scale          : logi TRUE
+  .. .. .. .. ..$ do.center         : logi TRUE
+  .. .. .. .. ..$ scale.max         : num 10
+  .. .. .. .. ..$ block.size        : num 1000
+  .. .. .. .. ..$ min.cells.to.block: num 3000
+  .. .. .. .. ..$ verbose           : logi FALSE
+  .. ..$ RunPCA.RNA              :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "RunPCA.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:55:57"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "RunPCA(seuratComb, verbose = FALSE)"
+  .. .. .. ..@ params     :List of 10
+  .. .. .. .. ..$ assay          : chr "RNA"
+  .. .. .. .. ..$ npcs           : num 50
+  .. .. .. .. ..$ rev.pca        : logi FALSE
+  .. .. .. .. ..$ weight.by.var  : logi TRUE
+  .. .. .. .. ..$ verbose        : logi FALSE
+  .. .. .. .. ..$ ndims.print    : int [1:5] 1 2 3 4 5
+  .. .. .. .. ..$ nfeatures.print: num 30
+  .. .. .. .. ..$ reduction.name : chr "pca"
+  .. .. .. .. ..$ reduction.key  : chr "PC_"
+  .. .. .. .. ..$ seed.use       : num 42
+  .. ..$ RunUMAP.RNA.pca         :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "RunUMAP.RNA.pca"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 15:01:29"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "RunUMAP(seuratComb, dims = 1:10, verbose = FALSE)"
+  .. .. .. ..@ params     :List of 20
+  .. .. .. .. ..$ dims                : int [1:10] 1 2 3 4 5 6 7 8 9 10
+  .. .. .. .. ..$ reduction           : chr "pca"
+  .. .. .. .. ..$ assay               : chr "RNA"
+  .. .. .. .. ..$ umap.method         : chr "uwot"
+  .. .. .. .. ..$ n.neighbors         : int 30
+  .. .. .. .. ..$ n.components        : int 2
+  .. .. .. .. ..$ metric              : chr "cosine"
+  .. .. .. .. ..$ learning.rate       : num 1
+  .. .. .. .. ..$ min.dist            : num 0.3
+  .. .. .. .. ..$ spread              : num 1
+  .. .. .. .. ..$ set.op.mix.ratio    : num 1
+  .. .. .. .. ..$ local.connectivity  : int 1
+  .. .. .. .. ..$ repulsion.strength  : num 1
+  .. .. .. .. ..$ negative.sample.rate: int 5
+  .. .. .. .. ..$ uwot.sgd            : logi FALSE
+  .. .. .. .. ..$ seed.use            : int 42
+  .. .. .. .. ..$ angular.rp.forest   : logi FALSE
+  .. .. .. .. ..$ verbose             : logi FALSE
+  .. .. .. .. ..$ reduction.name      : chr "umap"
+  .. .. .. .. ..$ reduction.key       : chr "UMAP_"
+  ..@ tools       : list()
+> str(seuratComb)
+Formal class 'Seurat' [package "Seurat"] with 12 slots
+  ..@ assays      :List of 2
+  .. ..$ RNA:Formal class 'Assay' [package "Seurat"] with 8 slots
+  .. .. .. ..@ counts       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:389097309] 39 62 68 88 107 109 122 138 139 140 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 3640 6872 11572 15524 21956 24812 28239 29306 30392 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 60688 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:60688] "GRCh38.99-------------DDX11L1" "GRCh38.99-------------WASH7P" "GRCh38.99-------------MIR6859-1" "GRCh38.99-------------MIR1302-2HG" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:389097309] 1 1 4 1 1 1 1 1 1 3 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:389097309] 39 62 68 88 107 109 122 138 139 140 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 3640 6872 11572 15524 21956 24812 28239 29306 30392 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 60688 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:60688] "GRCh38.99-------------DDX11L1" "GRCh38.99-------------WASH7P" "GRCh38.99-------------MIR6859-1" "GRCh38.99-------------MIR1302-2HG" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:389097309] 0.607 0.607 1.468 0.607 0.607 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ scale.data   : num [1:2000, 1:201009] -0.1503 -0.229 -0.0714 -0.2222 -0.019 ...
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:2000] "GRCh38.99-------------MTND1P23" "GRCh38.99-------------MTND2P28" "GRCh38.99-------------MTCO1P12" "GRCh38.99-------------HES4" ...
+  .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. ..@ key          : chr "rna_"
+  .. .. .. ..@ assay.orig   : NULL
+  .. .. .. ..@ var.features : chr [1:2000] "GRCh38.99-------------IGLC3" "GRCh38.99-------------IGHM" "GRCh38.99-------------IGHA1" "GRCh38.99-------------IGHG1" ...
+  .. .. .. ..@ meta.features:'data.frame':	60688 obs. of  5 variables:
+  .. .. .. .. ..$ vst.mean                 : num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variance             : num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variance.expected    : num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variance.standardized: num [1:60688] 0 0 0 0 0 ...
+  .. .. .. .. ..$ vst.variable             : logi [1:60688] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. .. .. ..@ misc         : NULL
+  .. ..$ ADT:Formal class 'Assay' [package "Seurat"] with 8 slots
+  .. .. .. ..@ counts       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:13569513] 1 5 6 14 17 19 21 23 27 31 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 0 0 0 0 0 0 0 0 0 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 300 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:300] "CD80" "CD86" "CD274" "CD273" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:13569513] 3 1 2 1 22 2 1 14 1 5 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+  .. .. .. .. .. ..@ i       : int [1:13569513] 1 5 6 14 17 19 21 23 27 31 ...
+  .. .. .. .. .. ..@ p       : int [1:201010] 0 0 0 0 0 0 0 0 0 0 ...
+  .. .. .. .. .. ..@ Dim     : int [1:2] 300 201009
+  .. .. .. .. .. ..@ Dimnames:List of 2
+  .. .. .. .. .. .. ..$ : chr [1:300] "CD80" "CD86" "CD274" "CD273" ...
+  .. .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..@ x       : num [1:13569513] 3 1 2 1 22 2 1 14 1 5 ...
+  .. .. .. .. .. ..@ factors : list()
+  .. .. .. ..@ scale.data   : num[0 , 0 ] 
+  .. .. .. ..@ key          : chr "ADT_"
+  .. .. .. ..@ assay.orig   : NULL
+  .. .. .. ..@ var.features : logi(0) 
+  .. .. .. ..@ meta.features:'data.frame':	300 obs. of  0 variables
+  .. .. .. ..@ misc         : NULL
+  ..@ meta.data   :'data.frame':	201009 obs. of  31 variables:
+  .. ..$ orig.ident               : chr [1:201009] "COV001" "COV001" "COV001" "COV001" ...
+  .. ..$ nCount_RNA               : num [1:201009] 11980 9912 17403 12512 29394 ...
+  .. ..$ nFeature_RNA             : int [1:201009] 3640 3232 4700 3952 6432 2856 3427 1067 1086 3791 ...
+  .. ..$ nCount_ADT               : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ nFeature_ADT             : int [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ nCount_HTO               : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ nFeature_HTO             : int [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ HTO_maxID                : chr [1:201009] NA NA NA NA ...
+  .. ..$ HTO_secondID             : chr [1:201009] NA NA NA NA ...
+  .. ..$ HTO_margin               : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ HTO_classification       : chr [1:201009] NA NA NA NA ...
+  .. ..$ HTO_classification.global: chr [1:201009] NA NA NA NA ...
+  .. ..$ hash.ID                  : chr [1:201009] NA NA NA NA ...
+  .. ..$ Library.ID               : chr [1:201009] "COV001" "COV001" "COV001" "COV001" ...
+  .. ..$ Patient.number           : chr [1:201009] "COVIM54" "COVIM54" "COVIM54" "COVIM54" ...
+  .. ..$ Sample..type             : chr [1:201009] "BAL" "BAL" "BAL" "BAL" ...
+  .. ..$ COVID19.status           : chr [1:201009] "POS" "POS" "POS" "POS" ...
+  .. ..$ Sampling                 : POSIXct[1:201009], format: "2020-04-08" "2020-04-08" "2020-04-08" "2020-04-08" ...
+  .. ..$ RBC.contamination        : chr [1:201009] "Hi" "Hi" "Hi" "Hi" ...
+  .. ..$ Remarks                  : chr [1:201009] "Red pellet upon arrival" "Red pellet upon arrival" "Red pellet upon arrival" "Red pellet upon arrival" ...
+  .. ..$ Granulocyte..            : num [1:201009] NA NA NA NA NA NA NA NA NA NA ...
+  .. ..$ Alternative.diagnosis    : chr [1:201009] NA NA NA NA ...
+  .. ..$ Comorbidities            : chr [1:201009] "multiple sclerosis" "multiple sclerosis" "multiple sclerosis" "multiple sclerosis" ...
+  .. ..$ CITEseq                  : chr [1:201009] "No" "No" "No" "No" ...
+  .. ..$ Sort                     : chr [1:201009] "Yes" "Yes" "Yes" "Yes" ...
+  .. ..$ CD45.enrichment          : chr [1:201009] "No" "No" "No" "No" ...
+  .. ..$ Fresh.Frozen             : chr [1:201009] "Fresh" "Fresh" "Fresh" "Fresh" ...
+  .. ..$ HTO                      : chr [1:201009] "/" "/" "/" "/" ...
+  .. ..$ singler.subset           : chr [1:201009] "Macrophage" "T_cells" "Macrophage" "Macrophage" ...
+  .. ..$ singler.subset2          : chr [1:201009] "Macrophage:monocyte-derived:M-CSF/IFNg" "T_cell:gamma-delta" "Macrophage:monocyte-derived:M-CSF/IFNg" "Macrophage:monocyte-derived:M-CSF/IFNg" ...
+  .. ..$ Severity.Score.worse     : chr [1:201009] "Severe" "Severe" "Severe" "Severe" ...
+  ..@ active.assay: chr "RNA"
+  ..@ active.ident: Factor w/ 20 levels "COV001","COV002",..: 1 1 1 1 1 1 1 1 1 1 ...
+  .. ..- attr(*, "names")= chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  ..@ graphs      : list()
+  ..@ neighbors   : list()
+  ..@ reductions  :List of 2
+  .. ..$ pca :Formal class 'DimReduc' [package "Seurat"] with 9 slots
+  .. .. .. ..@ cell.embeddings           : num [1:201009, 1:50] 1.1851 0.0496 0.7136 1.2482 1.2421 ...
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..$ : chr [1:50] "PC_1" "PC_2" "PC_3" "PC_4" ...
+  .. .. .. ..@ feature.loadings          : num [1:2000, 1:50] 0.002682 0.002627 0.002984 0.000752 0.003792 ...
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:2000] "GRCh38.99-------------IGLC3" "GRCh38.99-------------IGHM" "GRCh38.99-------------IGHA1" "GRCh38.99-------------IGHG1" ...
+  .. .. .. .. .. ..$ : chr [1:50] "PC_1" "PC_2" "PC_3" "PC_4" ...
+  .. .. .. ..@ feature.loadings.projected: num[0 , 0 ] 
+  .. .. .. ..@ assay.used                : chr "RNA"
+  .. .. .. ..@ global                    : logi FALSE
+  .. .. .. ..@ stdev                     : num [1:50] 12.57 7.81 5.7 5.31 4.81 ...
+  .. .. .. ..@ key                       : chr "PC_"
+  .. .. .. ..@ jackstraw                 :Formal class 'JackStrawData' [package "Seurat"] with 4 slots
+  .. .. .. .. .. ..@ empirical.p.values     : num[0 , 0 ] 
+  .. .. .. .. .. ..@ fake.reduction.scores  : num[0 , 0 ] 
+  .. .. .. .. .. ..@ empirical.p.values.full: num[0 , 0 ] 
+  .. .. .. .. .. ..@ overall.p.values       : num[0 , 0 ] 
+  .. .. .. ..@ misc                      :List of 1
+  .. .. .. .. ..$ total.variance: num 1056
+  .. ..$ umap:Formal class 'DimReduc' [package "Seurat"] with 9 slots
+  .. .. .. ..@ cell.embeddings           : num [1:201009, 1:2] -12.1 4.8 -12.1 -10.7 -10.8 ...
+  .. .. .. .. ..- attr(*, "scaled:center")= num [1:2] -0.0125 -0.2442
+  .. .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. .. ..$ : chr [1:201009] "COV001_AAACCCAAGACATCCT-1" "COV001_AAACCCAAGACCTCCG-1" "COV001_AAACCCAAGCACTCGC-1" "COV001_AAACCCACACAAGCCC-1" ...
+  .. .. .. .. .. ..$ : chr [1:2] "UMAP_1" "UMAP_2"
+  .. .. .. ..@ feature.loadings          : num[0 , 0 ] 
+  .. .. .. ..@ feature.loadings.projected: num[0 , 0 ] 
+  .. .. .. ..@ assay.used                : chr "RNA"
+  .. .. .. ..@ global                    : logi TRUE
+  .. .. .. ..@ stdev                     : num(0) 
+  .. .. .. ..@ key                       : chr "UMAP_"
+  .. .. .. ..@ jackstraw                 :Formal class 'JackStrawData' [package "Seurat"] with 4 slots
+  .. .. .. .. .. ..@ empirical.p.values     : num[0 , 0 ] 
+  .. .. .. .. .. ..@ fake.reduction.scores  : num[0 , 0 ] 
+  .. .. .. .. .. ..@ empirical.p.values.full: num[0 , 0 ] 
+  .. .. .. .. .. ..@ overall.p.values       : num[0 , 0 ] 
+  .. .. .. ..@ misc                      : list()
+  ..@ project.name: chr "SeuratProject"
+  ..@ misc        : list()
+  ..@ version     :Classes 'package_version', 'numeric_version'  hidden list of 1
+  .. ..$ : int [1:3] 3 1 5
+  ..@ commands    :List of 5
+  .. ..$ NormalizeData.RNA       :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "NormalizeData.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:47:56"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr [1:2] "NormalizeData(seuratComb, normalization.method = \"LogNormalize\", " "    scale.factor = 10000)"
+  .. .. .. ..@ params     :List of 5
+  .. .. .. .. ..$ assay               : chr "RNA"
+  .. .. .. .. ..$ normalization.method: chr "LogNormalize"
+  .. .. .. .. ..$ scale.factor        : num 10000
+  .. .. .. .. ..$ margin              : num 1
+  .. .. .. .. ..$ verbose             : logi TRUE
+  .. ..$ FindVariableFeatures.RNA:Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "FindVariableFeatures.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:51:22"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "FindVariableFeatures(object = seuratComb)"
+  .. .. .. ..@ params     :List of 12
+  .. .. .. .. ..$ assay              : chr "RNA"
+  .. .. .. .. ..$ selection.method   : chr "vst"
+  .. .. .. .. ..$ loess.span         : num 0.3
+  .. .. .. .. ..$ clip.max           : chr "auto"
+  .. .. .. .. ..$ mean.function      :function (mat, display_progress)  
+  .. .. .. .. ..$ dispersion.function:function (mat, display_progress)  
+  .. .. .. .. ..$ num.bin            : num 20
+  .. .. .. .. ..$ binning.method     : chr "equal_width"
+  .. .. .. .. ..$ nfeatures          : num 2000
+  .. .. .. .. ..$ mean.cutoff        : num [1:2] 0.1 8
+  .. .. .. .. ..$ dispersion.cutoff  : num [1:2] 1 Inf
+  .. .. .. .. ..$ verbose            : logi TRUE
+  .. ..$ ScaleData.RNA           :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "ScaleData.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:52:33"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "ScaleData(seuratComb, verbose = FALSE)"
+  .. .. .. ..@ params     :List of 10
+  .. .. .. .. ..$ features          : chr [1:2000] "GRCh38.99-------------IGLC3" "GRCh38.99-------------IGHM" "GRCh38.99-------------IGHA1" "GRCh38.99-------------IGHG1" ...
+  .. .. .. .. ..$ assay             : chr "RNA"
+  .. .. .. .. ..$ model.use         : chr "linear"
+  .. .. .. .. ..$ use.umi           : logi FALSE
+  .. .. .. .. ..$ do.scale          : logi TRUE
+  .. .. .. .. ..$ do.center         : logi TRUE
+  .. .. .. .. ..$ scale.max         : num 10
+  .. .. .. .. ..$ block.size        : num 1000
+  .. .. .. .. ..$ min.cells.to.block: num 3000
+  .. .. .. .. ..$ verbose           : logi FALSE
+  .. ..$ RunPCA.RNA              :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "RunPCA.RNA"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 14:55:57"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "RunPCA(seuratComb, verbose = FALSE)"
+  .. .. .. ..@ params     :List of 10
+  .. .. .. .. ..$ assay          : chr "RNA"
+  .. .. .. .. ..$ npcs           : num 50
+  .. .. .. .. ..$ rev.pca        : logi FALSE
+  .. .. .. .. ..$ weight.by.var  : logi TRUE
+  .. .. .. .. ..$ verbose        : logi FALSE
+  .. .. .. .. ..$ ndims.print    : int [1:5] 1 2 3 4 5
+  .. .. .. .. ..$ nfeatures.print: num 30
+  .. .. .. .. ..$ reduction.name : chr "pca"
+  .. .. .. .. ..$ reduction.key  : chr "PC_"
+  .. .. .. .. ..$ seed.use       : num 42
+  .. ..$ RunUMAP.RNA.pca         :Formal class 'SeuratCommand' [package "Seurat"] with 5 slots
+  .. .. .. ..@ name       : chr "RunUMAP.RNA.pca"
+  .. .. .. ..@ time.stamp : POSIXct[1:1], format: "2020-06-03 15:01:29"
+  .. .. .. ..@ assay.used : chr "RNA"
+  .. .. .. ..@ call.string: chr "RunUMAP(seuratComb, dims = 1:10, verbose = FALSE)"
+  .. .. .. ..@ params     :List of 20
+  .. .. .. .. ..$ dims                : int [1:10] 1 2 3 4 5 6 7 8 9 10
+  .. .. .. .. ..$ reduction           : chr "pca"
+  .. .. .. .. ..$ assay               : chr "RNA"
+  .. .. .. .. ..$ umap.method         : chr "uwot"
+  .. .. .. .. ..$ n.neighbors         : int 30
+  .. .. .. .. ..$ n.components        : int 2
+  .. .. .. .. ..$ metric              : chr "cosine"
+  .. .. .. .. ..$ learning.rate       : num 1
+  .. .. .. .. ..$ min.dist            : num 0.3
+  .. .. .. .. ..$ spread              : num 1
+  .. .. .. .. ..$ set.op.mix.ratio    : num 1
+  .. .. .. .. ..$ local.connectivity  : int 1
+  .. .. .. .. ..$ repulsion.strength  : num 1
+  .. .. .. .. ..$ negative.sample.rate: int 5
+  .. .. .. .. ..$ uwot.sgd            : logi FALSE
+  .. .. .. .. ..$ seed.use            : int 42
+  .. .. .. .. ..$ angular.rp.forest   : logi FALSE
+  .. .. .. .. ..$ verbose             : logi FALSE
+  .. .. .. .. ..$ reduction.name      : chr "umap"
+  .. .. .. .. ..$ reduction.key       : chr "UMAP_"
+  ..@ tools       : list()
+
+Coefficients orig.identCOV029_3 are never estimible and will be dropped.
+# A tibble: 10 x 5
+   primerid   contrast          `Pr(>Chisq)`  logFC     adjp
+   <chr>      <fct>                    <dbl>  <dbl>    <dbl>
+ 1 AL450405.1 COVID19.statusPOS     1.09e-16 -1.08  6.21e-12
+ 2 HLA-DRB1   COVID19.statusPOS     1.42e-15 -1.88  2.88e-11
+ 3 LTB        COVID19.statusPOS     2.20e-14 -1.61  2.23e-10
+ 4 OXR1       COVID19.statusPOS     3.72e-13 -0.434 2.43e- 9
+ 5 RPL11      COVID19.statusPOS     1.15e-13 -1.08  9.93e-10
+ 6 RPL13      COVID19.statusPOS     4.00e-13 -1.15  2.43e- 9
+ 7 RPL13A     COVID19.statusPOS     2.29e-13 -1.12  1.74e- 9
+ 8 RPS14      COVID19.statusPOS     1.76e-14 -1.14  2.13e-10
+ 9 RPS4Y1     COVID19.statusPOS     2.05e-16 -1.50  6.21e-12
+10 XIST       COVID19.statusPOS     5.37e-15  0.925 8.14e-11
+
+> write.table(bComb@meta.data, "bComb-meta.data.xls", sep="\t")
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "BAL" &
+                        ( seuratComb$COVID19.status == "POS" | seuratComb$COVID19.status == "NEG")]
+
+> dim(bComb)
+[1] 60688  3677
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "BAL" &
+                      seuratComb$COVID19.status == "POS" &
+                      (seuratComb$Severity.Score.worse == "Critical" | seuratComb$Severity.Score.worse == "Moderate")]
+> dim(bComb)
+[1] 60688  1565
+
+fit <- zlm(formula  = ~Severity.Score.worse+orig.ident,
+	   sca      = bAssay,
+	   parallel = FALSE)
+###  Coefficients orig.identCOV024 are never estimible and will be dropped.
+summaryCond <- MAST::summary(fit, doLRT = "Severity.Score.worseModerate")
+top <- summaryCond$datatable %>%
+  filter(contrast %in% "Severity.Score.worseModerate" &
+	   # hurdle test
+	   component %in% c("H", "logFC")) %>% 
+  pivot_longer(cols = c("Pr(>Chisq)", "coef")) %>%
+  filter(!is.na(value)) %>%
+  select(primerid, contrast, name, value) %>%
+  pivot_wider(names_from = name, values_from = value) %>%
+  dplyr::rename(`logFC` = `coef`) %>%
+  mutate(adjp = p.adjust(`Pr(>Chisq)`, method = "BH"))
+
+top50 <- top_n(top, n = 50, wt = -adjp)
+mat <- as.matrix(bComb$RNA@data[top50$primerid, ])
+rownames(mat) <- gsub(pattern = ".+---", replacement = "", rownames(mat))
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident)
+Heatmap(matrix = mat,
+	column_split = bComb@meta.data$Severity.Score.worse,
+	top_annotation = ha,
+	row_split = c("DN", "UP")[(top50$logFC > 0) + 1],
+	show_column_names = FALSE,
+	name = "log2(counts)")
+####
+# A tibble: 10 x 5
+   primerid contrast                     `Pr(>Chisq)` logFC      adjp
+   <chr>    <fct>                               <dbl> <dbl>     <dbl>
+ 1 BST2     Severity.Score.worseModerate    2.20e-153  1.68 2.23e-149
+ 2 IRF7     Severity.Score.worseModerate    7.40e-147  1.89 4.99e-143
+ 3 ISG15    Severity.Score.worseModerate    2.54e-165  2.42 3.86e-161
+ 4 ISG20    Severity.Score.worseModerate    9.69e-139  1.92 5.88e-135
+ 5 MT-ATP6  Severity.Score.worseModerate    9.16e-177 -2.28 1.85e-172
+ 6 MT-CO3   Severity.Score.worseModerate    2.03e-156 -2.02 2.46e-152
+ 7 MT-ND2   Severity.Score.worseModerate    9.53e-153 -1.92 8.26e-149
+ 8 MT-ND3   Severity.Score.worseModerate    5.75e-245 -2.47 3.49e-240
+ 9 MT-ND4   Severity.Score.worseModerate    1.41e-150 -1.94 1.07e-146
+10 MX1      Severity.Score.worseModerate    4.86e-191  2.16 1.48e-186
+##Coefficients orig.identCOV025 are never estimible and will be dropped.
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "BAL" &
+                      seuratComb$COVID19.status == "POS" &
+                      (seuratComb$Severity.Score.worse == "Severe" | seuratComb$Severity.Score.worse == "Moderate")]
+> dim(bComb)
+[1] 60688  1455
+summaryCond <- MAST::summary(fit, doLRT = "Severity.Score.worseSevere")
+top <- summaryCond$datatable %>%
+  filter(contrast %in% "Severity.Score.worseSevere" &
+           # hurdle test
+           component %in% c("H", "logFC")) %>%
+  pivot_longer(cols = c("Pr(>Chisq)", "coef")) %>%
+  filter(!is.na(value)) %>%
+  select(primerid, contrast, name, value) %>%
+  pivot_wider(names_from = name, values_from = value) %>%
+  dplyr::rename(`logFC` = `coef`) %>%
+  mutate(adjp = p.adjust(`Pr(>Chisq)`, method = "BH"))
+
+# A tibble: 10 x 5
+   primerid contrast                   `Pr(>Chisq)`  logFC     adjp
+   <chr>    <fct>                             <dbl>  <dbl>    <dbl>
+ 1 ATP5ME   Severity.Score.worseSevere     1.19e-59  1.03  1.20e-55
+ 2 HLA-C    Severity.Score.worseSevere     1.81e-47 -0.802 1.22e-43
+ 3 HLA-DQA2 Severity.Score.worseSevere     4.48e-45  0.495 2.72e-41
+ 4 ISG15    Severity.Score.worseSevere     4.57e-66 -1.96  9.24e-62
+ 5 MT-ND3   Severity.Score.worseSevere     1.73e-57  1.40  1.50e-53
+ 6 MT-TP    Severity.Score.worseSevere     2.86e-64  0.902 4.33e-60
+ 7 MX1      Severity.Score.worseSevere     2.28e-54 -1.39  1.73e-50
+ 8 RPS29    Severity.Score.worseSevere     1.75e-77  1.09  5.31e-73
+ 9 RPS4Y1   Severity.Score.worseSevere     9.63e-60 NA     1.17e-55
+10 XIST     Severity.Score.worseSevere     7.33e-86 NA     4.45e-81
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "BAL" &
+                      seuratComb$COVID19.status == "POS" &
+                      (seuratComb$Severity.Score.worse == "Severe" | seuratComb$Severity.Score.worse == "Critical")]
+### Coefficients orig.identCOV024 are never estimible and will be dropped.
+
+# A tibble: 10 x 5
+   primerid contrast                   `Pr(>Chisq)` logFC     adjp
+   <chr>    <fct>                             <dbl> <dbl>    <dbl>
+ 1 DERL3    Severity.Score.worseSevere     3.50e-34  1.22 3.54e-30
+ 2 HSP90B1  Severity.Score.worseSevere     2.14e-35  1.93 3.25e-31
+ 3 ITM2C    Severity.Score.worseSevere     3.63e-44  1.42 1.10e-39
+ 4 JCHAIN   Severity.Score.worseSevere     2.08e-56  3.54 1.26e-51
+ 5 MT-ATP6  Severity.Score.worseSevere     5.62e-34 -1.60 4.87e-30
+ 6 MT-ND1   Severity.Score.worseSevere     2.22e-31 -1.29 1.35e-27
+ 7 MT-ND2   Severity.Score.worseSevere     1.94e-32 -1.49 1.31e-28
+ 8 MZB1     Severity.Score.worseSevere     1.24e-34  2.07 1.50e-30
+ 9 PPIB     Severity.Score.worseSevere     6.45e-34  1.60 4.89e-30
+10 SSR4     Severity.Score.worseSevere     1.42e-36  1.72 2.87e-32
+> write.table(bComb$RNA@data, file = "temp.txt", sep = "\t") ### 0.5G size
+
+###because HID people most have B_cell:Memory
+###still pos vs. neg, because HID are negatives
+bComb <- seuratComb[, seuratComb$singler.subset2 == "B_cell:Memory" &
+                        seuratComb$Sample..type %in% "BAL" &
+                        ( seuratComb$COVID19.status == "POS" | grepl(pattern = "HID", seuratComb$Patient.number))]
+
+> dim(bComb)
+[1] 60688   408
+fit <- zlm(formula  = ~Severity.Score.worse+orig.ident,
+           sca      = bAssay,
+           parallel = FALSE)
+###  Coefficients orig.identCOV012 are never estimible and will be dropped.
+
+###Coefficients orig.identCOV017 are never estimible and will be dropped
+$ cat bComb-meta.data.BAL.BcellMem.xls | cut -f 2,16,31,17,18 | sort | uniq -c
+  31 "COV001"	"COVIM54"	"BAL"	"POS"	"B_cell:Memory"
+ 157 "COV002"	"COVIM54"	"BAL"	"POS"	"B_cell:Memory"
+  54 "COV012"	"COVIM077"	"BAL"	"POS"	"B_cell:Memory"
+  37 "COV013"	"COVIM081"	"BAL"	"POS"	"B_cell:Memory"
+  67 "COV015"	"COVIM086"	"BAL"	"POS"	"B_cell:Memory"
+   6 "COV016"	"HID-0334"	"BAL"	"NEG"	"B_cell:Memory"
+  16 "COV017"	"HID-0335"	"BAL"	"NEG"	"B_cell:Memory"
+  40 "COV024"	"COVIM068"	"BAL"	"POS"	"B_cell:Memory"
+   1 "orig.ident"	"Patient.number"	"Sample..type"	"COVID19.status"	"singler.subset2"
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+			seuratComb$Sample..type %in% "PBMC" &
+			grepl(pattern = "T1", seuratComb$Patient.number) & 
+                      seuratComb$COVID19.status == "POS" &
+                      (seuratComb$Severity.Score.worse == "Critical" | seuratComb$Severity.Score.worse == "Moderate") ]
+> dim(bComb)
+[1] 60688   294
+   primerid contrast                     `Pr(>Chisq)`  logFC     adjp
+   <chr>    <fct>                               <dbl>  <dbl>    <dbl>
+ 1 EIF1AY   Severity.Score.worseModerate     1.88e- 6  0.449 1.90e- 2
+ 2 HLA-DQA2 Severity.Score.worseModerate     3.17e-11 NA     6.42e- 7
+ 3 HLA-DRB1 Severity.Score.worseModerate     3.37e- 7  0.918 5.12e- 3
+ 4 HLA-DRB6 Severity.Score.worseModerate     4.55e- 7 -0.637 5.52e- 3
+ 5 HLA-E    Severity.Score.worseModerate     2.54e- 5  0.320 1.54e- 1
+ 6 LMAN1    Severity.Score.worseModerate     2.21e- 5 -0.533 1.49e- 1
+ 7 MT-ND4   Severity.Score.worseModerate     1.67e- 5 -0.768 1.27e- 1
+ 8 RPS4X    Severity.Score.worseModerate     7.18e- 6 -0.519 6.22e- 2
+ 9 RPS4Y1   Severity.Score.worseModerate     4.03e-13  1.39  1.22e- 8
+10 XIST     Severity.Score.worseModerate     1.08e-15 NA     6.54e-11
+
+
+file:///Users/linyongmao/gsea_home/output/may05/belg-scrna-bcell-T1.LM22.GseaPreranked.1593535796028/index.html
+/Users/linyongmao/gsea_home/output/may05/
+/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19
+cat belg-scrna-bcell-T1*/gsea_report_for*.xls | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 0.05' > temp.xls
+cat b-cell-scRNA-pathways-overlap-nomP | awk 'BEGIN {FS = "\t"; OFS = "\t"} $1 > $2 && log($7) < log(0.005)' | grep -iv Ma-HALLMARK > temp.xls
+
+cat b-cell-scRNA-logCount-T1-posVsNeg-PBMC-pathways-overlap | awk 'BEGIN {FS = "\t"; OFS = "\t"} NR > 1 && $1 != $2 && $3/$4 >= 0.25 && $3/$5 >= 0.25 ' > temp
+###common / uniq pathways mod by covid-19 status
+bash tem-script-generate-chea-target-file-LEG-pathway-2 | cut -f 1-5 | sort | uniq > temp-bal-posVSneg-allPaths
+temp-bal-critVmod-allPaths
+temp-bal-servVcrit-allPaths 
+temp-bal-servVmod-allPaths
+paste temp-bal-posVSneg-allPaths temp-bal-servVmod-allPaths temp-bal-critVmod-allPaths temp-bal-servVcrit-allPaths > temp.xls
+
+Looks like a plasmablast/plasma wll signature. 
+cat temp-apop-genes | while read g; do grep -iw $g belg-scrna-bcell-Time-effect.diff2-1.txt; done | awk 'BEGIN {FS = "\t"; OFS = "\t"} log($6) < log(0.05)' | cut -f 2 | sed 's/"GRCh38.99-----*//' | sed 's/"//'
+
+$ bash script-make-gmt-IGgenes >> "/Users/linyongmao/Documents/antiIL10 monkey/anti-IL10-IL10stim-gene-signature.gmt"
+grep -iw IGHV3-30 temp.bComb@data.txt > temp
+head -1 temp.bComb@data.txt >> temp
+vi temp
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp temp.tp
+vi  temp.tp   ###:1, $ s/_.*"/"/
+sort -t '	' +1 -2 temp.tp > temp.tp.sorted
+cat bComb-meta.data.xls | cut -f 2,16,17,18 | sort | uniq > temp-samp-status
+join -t '	' -1 2  -2 1 temp.tp.sorted temp-samp-status > temp.xls
+
+####pathway level all genes 
+#####avg expression score
+vi temp-plasm-all-genes.txt
+bash script-pathway-exprAvg-scRNA-pbmc-bcell-T1 > out.xls
+cat out.xls | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF > 100' > temp.plasm.pathway.avgExp.txt
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp.plasm.pathway.avgExp.txt temp.plasm.pathway.avgExp.tp.txt
+sort temp.plasm.pathway.avgExp.tp.txt > out
+mv out temp.plasm.pathway.avgExp.tp.txt 
+sed 's/\.1"/-1"/' temp.plasm.pathway.avgExp.tp.txt > out
+mv out temp.plasm.pathway.avgExp.tp.txt
+cut -f 1-2 bComb-meta.pbmc.bcell.T1.xls | sort > temp-cell-patient
+join -t '	' -1 1 -2 1 temp-cell-patient temp.plasm.pathway.avgExp.tp.txt | cut -f 2-1234567 > out
+bash script-allCellsOfApatient-2 | sort > temp.patient-pathwayAvg
+cut -f 2,18,32 bComb-meta.pbmc.bcell.T1.xls | sort | uniq > temp-patient-status-severe
+join -t '	' -1 1 -2 1 temp-patient-status-severe temp.patient-pathwayAvg
+
+###ComplexHeatmap####
+$ head temp.txt
+"primerid"	"logFC"
+"GRCh38.99-------------ACTB"	0.523520958290465
+"GRCh38.99-------------ARHGDIB"	-0.179007969731024
+"GRCh38.99-------------ATP5MF"	-0.491569689860415
+
+genes <- read.delim("temp.txt", header = T)
+top50 = genes
+mat <- as.matrix(bComb$RNA@data[genes$primerid, ])
+rownames(mat) <- gsub(pattern = ".+---", replacement = "", rownames(mat))
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, status = bComb@meta.data$COVID19.status, tissue = bComb@meta.data$Sample..type )
+Heatmap(matrix = mat,
+        column_split = bComb@meta.data$Severity.Score.worse,
+        top_annotation = ha,
+        row_split = c("critical UP", "critical down")[(top50$logFC > 0) + 1],
+        show_column_names = FALSE,
+        name = "log2(counts)", row_names_gp = gpar(fontsize = 9))
