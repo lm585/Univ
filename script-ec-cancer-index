@@ -845,6 +845,122 @@ bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
  9 RPS4Y1   Severity.Score.worseModerate     4.03e-13  1.39  1.22e- 8
 10 XIST     Severity.Score.worseModerate     1.08e-15 NA     6.54e-11
 
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "PBMC" &
+                        grepl(pattern = "T1", seuratComb$Patient.number) &
+                      seuratComb$COVID19.status == "POS" &
+                      (seuratComb$Severity.Score.worse == "Severe" | seuratComb$Severity.Score.worse == "Moderate") ]
+> dim(bComb)
+[1] 60688   241
+##
+   primerid contrast                   `Pr(>Chisq)`  logFC     adjp
+   <chr>    <fct>                             <dbl>  <dbl>    <dbl>
+ 1 BANK1    Severity.Score.worseSevere     5.36e-33 -1.52  3.62e-29
+ 2 CD37     Severity.Score.worseSevere     7.26e-44 -1.95  4.41e-39
+ 3 CD74     Severity.Score.worseSevere     3.61e-37 -2.12  5.47e-33
+ 4 CD79B    Severity.Score.worseSevere     5.44e-36 -1.40  5.50e-32
+ 5 HLA-DQB1 Severity.Score.worseSevere     3.38e-36 -1.69  4.10e-32
+ 6 HLA-DRA  Severity.Score.worseSevere     5.84e-43 -2.99  1.77e-38
+ 7 HLA-DRB1 Severity.Score.worseSevere     1.11e-39 -2.13  2.25e-35
+ 8 P2RY10   Severity.Score.worseSevere     3.17e-32 -0.564 1.92e-28
+ 9 SNX2     Severity.Score.worseSevere     8.66e-34 -0.798 6.57e-30
+10 TXNIP    Severity.Score.worseSevere     1.63e-35 -1.89  1.42e-31
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "PBMC" &
+                        grepl(pattern = "T1", seuratComb$Patient.number) &
+                      seuratComb$COVID19.status == "POS" &
+                      (seuratComb$Severity.Score.worse == "Severe" | seuratComb$Severity.Score.worse == "Critical") ]
+> dim(bComb)
+[1] 60688   447
+   primerid contrast                   `Pr(>Chisq)` logFC     adjp
+   <chr>    <fct>                             <dbl> <dbl>    <dbl>
+ 1 CD37     Severity.Score.worseSevere     3.19e-40 -1.43 3.22e-36
+ 2 CD74     Severity.Score.worseSevere     6.50e-37 -1.51 4.93e-33
+ 3 HLA-DPB1 Severity.Score.worseSevere     8.57e-37 -1.56 5.78e-33
+ 4 HLA-DRA  Severity.Score.worseSevere     4.30e-49 -2.34 1.30e-44
+ 5 HLA-DRB1 Severity.Score.worseSevere     2.63e-45 -1.47 4.00e-41
+ 6 HLA-DRB5 Severity.Score.worseSevere     6.77e-39 -1.30 5.87e-35
+ 7 LTB      Severity.Score.worseSevere     1.36e-41 -1.57 1.65e-37
+ 8 RPS4Y1   Severity.Score.worseSevere     6.52e-47 NA    1.32e-42
+ 9 TXNIP    Severity.Score.worseSevere     3.15e-36 -1.52 1.91e-32
+10 XIST     Severity.Score.worseSevere     1.02e-64  1.02 6.19e-60
+
+##### anchor, clustering 
+load(file = file.path(workDir, "output/ugent.seurat.RData"))
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                         seuratComb$Sample..type %in% "BAL" &
+                         ( seuratComb$COVID19.status == "POS")]
+dim(bComb)
+#[1] 60688  2116
+
+bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
+                        seuratComb$Sample..type %in% "PBMC" &
+                        grepl(pattern = "T1", seuratComb$Patient.number) &
+                      seuratComb$COVID19.status == "POS" ]
+dim(bComb)
+###[1] 60688   491
+bComb <- AddMetaData(object   = bComb,
+		     metadata = colnames(bComb),
+		     col.name = "wellKey")
+bAssay <- FromMatrix(exprsArray = list(et = bComb$RNA@data),
+		     cData      = bComb@meta.data)
+bComb$RNA@counts <- rbind(bComb$RNA@counts, bComb$ADT@counts)
+bComb$RNA@data   <- rbind(bComb$RNA@data, bComb$ADT@data)
+ dim(bComb)
+####[1] 60988   491
+######pancreas.list[[i]] <- NormalizeData(pancreas.list[[i]], verbose = FALSE)
+#bComb <- NormalizeData(bComb, verbose = T)
+#######pancreas.list[[i]] <- FindVariableFeatures(pancreas.list[[i]], selection.method = "vst", 
+#######        nfeatures = 2000, verbose = FALSE)
+#bComb <- FindVariableFeatures(bComb, selection.method = "vst", nfeatures = 2000, verbose = T)
+#######seuratPBMC <- subset(seuratComb, ident = "PBMC") 
+##Idents(bComb) <- "Sample..type"
+splitLS <- SplitObject(object = bComb, split.by = "orig.ident")
+splitLS <- lapply(X = splitLS, FUN = function(x) {
+    x <- NormalizeData(x, verbose = T)
+    x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000, verbose = T)
+})
+intFeats <- SelectIntegrationFeatures(splitLS)
+intFeats <- setdiff(intFeats, row.names(bComb@assays$ADT))
+###2000 -> 1899
+splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
+                                        dims = 1:30, k.filter = 40, anchor.features = c(intFeats, row.names(bComb@assays$ADT)))
+
+#splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
+                                        dims = 1:30, k.filter = 100)
+
+#####pancreas.integrated <- IntegrateData(anchorset = pancreas.anchors, dims = 1:30)
+pancreas.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
+pancreas.integrated <- ScaleData(pancreas.integrated, verbose = T)
+pancreas.integrated <- RunPCA(pancreas.integrated, npcs = 30, verbose = T)
+pancreas.integrated <- RunUMAP(pancreas.integrated, reduction = "pca", dims = 1:30)
+ DimPlot(pancreas.integrated, reduction = "umap", group.by = "Severity.Score.worse")
+ DimPlot(pancreas.integrated, reduction = "umap", group.by = "orig.ident")
+###pbmc <- pancreas.integrated
+pancreas.integrated <- FindNeighbors(object = pancreas.integrated)
+pancreas.integrated <- FindClusters(object = pancreas.integrated)
+##pbmc <- RunTSNE(object = pbmc)
+###DimPlot(object = pbmc, reduction = "tsne")
+###DimPlot(object = pbmc, reduction = "tsne", label = TRUE, repel = T) + NoLegend()
+> DimPlot(object = pancreas.integrated, reduction = "umap", label = TRUE, repel = T ) + NoLegend()
+#pancreas.integrated.markers <- FindAllMarkers(pancreas.integrated, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+pancreas.integrated.markers <- FindAllMarkers(pancreas.integrated)
+write.table(pancreas.integrated.markers, file = "temp.xls", sep = "\t")
+> DimPlot(pancreas.integrated, reduction = "umap", split.by = "Severity.Score.worse", group.by = "seurat_clusters")
+
+intComb <- IntegrateData(anchorset = splitAnchors,
+			  dims      = 1:10,
+			  features.to.integrate = rownames(seuratObj))
+
+bComb <- ScaleData(bComb, verbose = T)
+bComb <- RunPCA(bComb, verbose = T)
+bComb <- RunUMAP(bComb, dims = 1:6, verbose = T)
+#Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
+#To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
+#This message will be shown once per session
+DimPlot(bComb, reduction = "umap", group.by = "orig.ident")
+
 
 file:///Users/linyongmao/gsea_home/output/may05/belg-scrna-bcell-T1.LM22.GseaPreranked.1593535796028/index.html
 /Users/linyongmao/gsea_home/output/may05/
@@ -889,7 +1005,35 @@ bash script-allCellsOfApatient-2 | sort > temp.patient-pathwayAvg
 cut -f 2,18,32 bComb-meta.pbmc.bcell.T1.xls | sort | uniq > temp-patient-status-severe
 join -t '	' -1 1 -2 1 temp-patient-status-severe temp.patient-pathwayAvg
 
+###############cell type freq.#####
+cat  seuratComb-meta.data.complete.8-3.xls | grep -w PBMC | grep "\"POS\"" | grep "_T1" |  cut -f 2,16,17,18,30,32 | sort | uniq -c > temp.txt
+###197 "COV003"	"COVIM54_T1"	"PBMC"	"POS"	"B_cell"	"Severe"
+cat temp.txt | sed 's/^  *//' | sed 's/  */	/' > out
+mv out temp.txt
+vi temp.txt ###rm leading space, and spaces following count #
+cat temp.txt | cut -f 2,3 | sort | uniq -c
+bash script-celltype-freq-1 > temp-celltype-freq.xls
+
+
+
+ls $dir | grep -i bal  | grep -i belg | grep -vw c7 > temp-dir
+vi temp-dir
+bash tem-script-generate-chea-target-file-LEG-pathway-2 | cut -f 1,2,4,6 > temp-bal-covidstatus-pathway.xls
+vi temp-interest-paths ###9 pathways
+cat temp-interest-paths | while read p; do grep -iw "$p" temp-bal-covidstatus-pathway.xls; done > temp-bal-covidstatus-pathway.selPaths
+wc -l temp-bal-covidstatus-pathway.selPaths
+###      27 temp-bal-covidstatus-pathway.selPaths
+cat temp-*-covidstatus-pathway.selPaths > temp.covidstatus-pathway.selPaths.54rows
+bash ./script-preRank-genes-signed-FDR temp.covidstatus-pathway.selPaths.54rows | cut -f 1,2,5 > temp.covidstatus-pathway.selPaths.54rows.signedFDR
+vi temp.covidstatus-pathway.selPaths.54rows.signedFDR #1, $ s/\./_/ (two times)   :1, $ s/_[a-zA-Z]*Pos[^^I]*//   :1, $ s/\.[a-zA-Z]*Pos[^^I]*//
+cut -f 1 temp.covidstatus-pathway.selPaths.54rows.signedFDR | sort | uniq -c
+bash ./script-make-table-path-condition-p-value | uniq > bcell-PBMC.T1.BAL.9paths.txt
+
+
+
 ###ComplexHeatmap####
+$ cat temp | while read g; do grep -i "\-\-\-$g\"" belg-scrna-bcell-PBMC.T1.diff2-1.servVmod.servPos.txt; done | cut -f 2 > temp.txt
+$ vi temp.txt
 $ head temp.txt
 "primerid"	"logFC"
 "GRCh38.99-------------ACTB"	0.523520958290465
@@ -900,6 +1044,14 @@ genes <- read.delim("temp.txt", header = T)
 top50 = genes
 mat <- as.matrix(bComb$RNA@data[genes$primerid, ])
 rownames(mat) <- gsub(pattern = ".+---", replacement = "", rownames(mat))
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, tissue = bComb@meta.data$Sample..type )
+Heatmap(matrix = mat,
+        column_split = bComb@meta.data$Severity.Score.worse,
+        top_annotation = ha,
+        show_column_names = FALSE,
+        name = "log2(counts)", row_names_gp = gpar(fontsize = 9))
+
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, tissue = bComb@meta.data$Sample..type, col = list(ident = c("COV030_2" = "red", "COV030_1" = "green", "COV032_4" = "blue", "COV032_3" = "yellow")) )
 ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, status = bComb@meta.data$COVID19.status, tissue = bComb@meta.data$Sample..type )
 Heatmap(matrix = mat,
         column_split = bComb@meta.data$Severity.Score.worse,
