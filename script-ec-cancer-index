@@ -935,18 +935,24 @@ pancreas.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
 pancreas.integrated <- ScaleData(pancreas.integrated, verbose = T)
 pancreas.integrated <- RunPCA(pancreas.integrated, npcs = 30, verbose = T)
 pancreas.integrated <- RunUMAP(pancreas.integrated, reduction = "pca", dims = 1:30)
- DimPlot(pancreas.integrated, reduction = "umap", group.by = "Severity.Score.worse")
- DimPlot(pancreas.integrated, reduction = "umap", group.by = "orig.ident")
+DimPlot(pancreas.integrated, reduction = "umap", group.by = "Severity.Score.worse")
+DimPlot(pancreas.integrated, reduction = "umap", group.by = "orig.ident")
 ###pbmc <- pancreas.integrated
 pancreas.integrated <- FindNeighbors(object = pancreas.integrated)
 pancreas.integrated <- FindClusters(object = pancreas.integrated)
 ##pbmc <- RunTSNE(object = pbmc)
 ###DimPlot(object = pbmc, reduction = "tsne")
 ###DimPlot(object = pbmc, reduction = "tsne", label = TRUE, repel = T) + NoLegend()
-> DimPlot(object = pancreas.integrated, reduction = "umap", label = TRUE, repel = T ) + NoLegend()
+DimPlot(object = pancreas.integrated, reduction = "umap", label = TRUE, repel = T ) + NoLegend()
 #pancreas.integrated.markers <- FindAllMarkers(pancreas.integrated, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 pancreas.integrated.markers <- FindAllMarkers(pancreas.integrated)
 write.table(pancreas.integrated.markers, file = "temp.xls", sep = "\t")
+write.table(pancreas.integrated@reductions$umap@cell.embeddings, file = "temp.xls", sep = "\t")
+ write.table(pancreas.integrated$seurat_clusters, file = "temp.clust.xls", sep = "\t")
+ write.table(pancreas.integrated$Severity.Score.worse, file = "temp.sev.xls", sep = "\t")
+$ paste temp.xls temp.sev.xls temp.clust.xls | awk 'BEGIN {FS = "\t"} $1 == $4 && $1 == $6'|wc -l
+$ paste temp.xls temp.sev.xls temp.clust.xls | cut -f 1,2,3,5,7 > out
+
 > DimPlot(pancreas.integrated, reduction = "umap", split.by = "Severity.Score.worse", group.by = "seurat_clusters")
 
 intComb <- IntegrateData(anchorset = splitAnchors,
