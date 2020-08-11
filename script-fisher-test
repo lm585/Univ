@@ -1,0 +1,57 @@
+##
+##temp-fisher.txt###
+##severity	Moderate	cells of Severe per cluster	cells of Critical per cluster			
+##cluster 0	244	68	18	904	551	661
+##1	147	116	52	904	551	661
+##10	23	20	10	904	551	661
+##9	3	0	56	904	551	661
+
+
+cat temp-fisher.txt | awk '
+BEGIN {FS = "\t"; 
+       OFS = "";
+       ORS = "";}
+{
+ if(NR == 1)
+ {
+  a = $2;
+  b = $3;
+  c = $4;
+ }
+ else
+ {
+  clust = $1;
+  ay = $2;
+  by = $3;
+  cy = $4;
+  an = $5 - ay;
+  bn = $6 - by;
+  cn = $7 - cy;
+  print "\"clust " clust "\"\n";
+  print "\"" a " vs " b  "\"\n";
+  print "data <- c(" ay "," an "," by "," bn ")\n";
+  print "tab <- t(matrix(data, nrow=2,ncol=2))\n"; 
+  print "fish <- fisher.test(tab) \n";
+  print "fish$p.value\n";
+  print "fish$estimate\n";
+  ##### a vs c
+  print "\"clust " clust "\"\n";
+  print "\"" a " vs " c  "\"\n";
+  print "data <- c(" ay "," an "," cy "," cn ")\n";
+  print "tab <- t(matrix(data, nrow=2,ncol=2))\n";
+  print "fish <- fisher.test(tab) \n";
+  print "fish$p.value\n";
+  print "fish$estimate\n";
+
+  ##### b vs c
+  print "\"clust " clust "\"\n";
+  print "\"" b " vs " c  "\"\n";
+  print "data <- c(" by "," bn "," cy "," cn ")\n";
+  print "tab <- t(matrix(data, nrow=2,ncol=2))\n";
+  print "fish <- fisher.test(tab) \n";
+  print "fish$p.value\n";
+  print "fish$estimate\n";
+
+ }
+}
+ '
