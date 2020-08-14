@@ -900,33 +900,50 @@ bComb <- seuratComb[, seuratComb$singler.subset %in% "B_cell" &
                       seuratComb$COVID19.status == "POS" ]
 dim(bComb)
 ###[1] 60688   491
+
+bComb <- seuratComb[, seuratComb$Sample..type %in% "BAL" &
+                         ( seuratComb$COVID19.status == "POS")]
+dim(bComb)
+## 60688 75016
+
 bComb <- AddMetaData(object   = bComb,
 		     metadata = colnames(bComb),
 		     col.name = "wellKey")
 bAssay <- FromMatrix(exprsArray = list(et = bComb$RNA@data),
 		     cData      = bComb@meta.data)
-bComb$RNA@counts <- rbind(bComb$RNA@counts, bComb$ADT@counts)
-bComb$RNA@data   <- rbind(bComb$RNA@data, bComb$ADT@data)
+cl <- read.table("BAL_barcodes_meta.subset.POS.bcellsONLY.txt", header = T, sep = "\t") ###6437 cells
+for ( i in rownames(cl)) {bComb$HTO_classification[i] = cl[i,1] }
  dim(bComb)
+# [1] 60688 75016
+unique(bComb$HTO_classification)
+## [1] NA                        "Plasma cells - terminal" "Plasma cells - active"   "Plasma cell"            
+## [5] "Plasma cells - prolif"   "B cells"     
+bCombBcell <- bComb[, grepl(pattern = "cell", bComb$HTO_classification)]
+dim(bCombBcell)
+#[1] 60688  1542 cells with b cell annot from Ruth
+
+bCombBcell$RNA@counts <- rbind(bCombBcell$RNA@counts, bCombBcell$ADT@counts)
+bCombBcell$RNA@data   <- rbind(bCombBcell$RNA@data, bCombBcell$ADT@data)
+ dim(bCombBcell)
 ####[1] 60988   491
 ######pancreas.list[[i]] <- NormalizeData(pancreas.list[[i]], verbose = FALSE)
-#bComb <- NormalizeData(bComb, verbose = T)
+#bCombBcell <- NormalizeData(bCombBcell, verbose = T)
 #######pancreas.list[[i]] <- FindVariableFeatures(pancreas.list[[i]], selection.method = "vst", 
 #######        nfeatures = 2000, verbose = FALSE)
-#bComb <- FindVariableFeatures(bComb, selection.method = "vst", nfeatures = 2000, verbose = T)
+#bCombBcell <- FindVariableFeatures(bCombBcell, selection.method = "vst", nfeatures = 2000, verbose = T)
 #######seuratPBMC <- subset(seuratComb, ident = "PBMC") 
-##Idents(bComb) <- "Sample..type"
-splitLS <- SplitObject(object = bComb, split.by = "orig.ident")
+##Idents(bCombBcell) <- "Sample..type"
+splitLS <- SplitObject(object = bCombBcell, split.by = "orig.ident")
 splitLS <- lapply(X = splitLS, FUN = function(x) {
     x <- NormalizeData(x, verbose = T)
     x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000, verbose = T)
 })
 intFeats <- SelectIntegrationFeatures(splitLS)
-intFeats <- setdiff(intFeats, row.names(bComb@assays$ADT))
+intFeats <- setdiff(intFeats, row.names(bCombBcell@assays$ADT))
 ###2000 -> 1899
 splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
-                                        dims = 1:30, k.filter = 40, anchor.features = c(intFeats, row.names(bComb@assays$ADT)))
-
+                                        dims = 1:30, k.filter = 40, anchor.features = c(intFeats, row.names(bCombBcell@assays$ADT)))
+### k.filter = 35 starting from Belgium based b cell annotations in BAL, Retained 115 anchors
 #splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
                                         dims = 1:30, k.filter = 100)
 
@@ -953,7 +970,29 @@ write.table(pancreas.integrated@reductions$umap@cell.embeddings, file = "temp.xl
 $ paste temp.xls temp.sev.xls temp.clust.xls | awk 'BEGIN {FS = "\t"} $1 == $4 && $1 == $6'|wc -l
 $ paste temp.xls temp.sev.xls temp.clust.xls | cut -f 1,2,3,5,7 > out
 
-> DimPlot(pancreas.integrated, reduction = "umap", split.by = "Severity.Score.worse", group.by = "seurat_clusters")
+DimPlot(pancreas.integrated, reduction = "umap", split.by = "Severity.Score.worse", group.by = "seurat_clusters")
+
+####singleR()
+pancreas.integrated.geneOnly <- pancreas.integrated[grepl(pattern = "GRCh38",rownames(pancreas.integrated)),  ]
+scaledMat <- as.matrix(pancreas.integrated.geneOnly$integrated@data)
+rownames(scaledMat) <- gsub(pattern = ".+---", replacement = "",
+			    rownames(scaledMat))
+hpca <- HumanPrimaryCellAtlasData()
+ hpca <- hpca[, hpca@colData$label.main %in%
+		 c("B_cell", "DC", "Monocyte", "Neutrophils",
+		   "NK_cell", "Platelets", "T_cells")]
+predSubset <- SingleR(test    = scaledMat,
+		      ref     = hpca,
+                      labels  = hpca$label.main)
+pancreas.integrated.geneOnly <- AddMetaData(object = pancreas.integrated.geneOnly,metadata = predSubset$labels,
+			col.name = "singler.subset.bcell") ###~800 / 1542 cells annot as b cells
+hpca <- HumanPrimaryCellAtlasData()
+hpca_b <- subset(hpca, select = label.main == "B_cell")
+predSubset <- SingleR(test    = scaledMat,
+                      ref     = hpca_b,
+                      labels  = hpca_b$label.fine)
+pancreas.integrated.geneOnly <- AddMetaData(object = pancreas.integrated.geneOnly,metadata = predSubset$labels,
+                        col.name = "singler.subset.bcell.fine")
 
 intComb <- IntegrateData(anchorset = splitAnchors,
 			  dims      = 1:10,
@@ -966,6 +1005,9 @@ bComb <- RunUMAP(bComb, dims = 1:6, verbose = T)
 #To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 #This message will be shown once per session
 DimPlot(bComb, reduction = "umap", group.by = "orig.ident")
+
+cl <- read.table("bal.bcell.covidPos.clust.xls", header = T, sep = "\t")
+for ( i in rownames(cl)) {bComb$HTO_classification[i] = cl[i,1] }
 
 
 file:///Users/linyongmao/gsea_home/output/may05/belg-scrna-bcell-T1.LM22.GseaPreranked.1593535796028/index.html
@@ -1035,7 +1077,27 @@ vi temp.covidstatus-pathway.selPaths.54rows.signedFDR #1, $ s/\./_/ (two times) 
 cut -f 1 temp.covidstatus-pathway.selPaths.54rows.signedFDR | sort | uniq -c
 bash ./script-make-table-path-condition-p-value | uniq > bcell-PBMC.T1.BAL.9paths.txt
 
-
+####pathways C7, covid de novo cluster
+bash tem-script-generate-chea-target-file-LEG-pathway-2 | cut -f 1 | grep -i bcell | sort | uniq   > temp-c7-uniq-paths
+##$8(FDR) < 0.05 && $6 (NES) > 1.6 , only up-reg in severe cases, 74 paths
+bash tem-script-generate-chea-target-file-LEG-pathway-3 > temp-all-paths ###extra 1st colum for the contrast (CvM)
+bash tem-scr-1 > tem-covid-c7-table-0 ### each path in temp-c7-uniq-paths, their behaviors in all contrasts
+cat  tem-covid-c7-table-0 | cut -f 2 | uniq -c | awk '$1 == 3' | wc -l ###74 paths appear in all 3 contrasts
+cat  tem-covid-c7-table-0 | grep diff2-1.CvM.Cpos > temp-1
+cat  tem-covid-c7-table-0 | grep diff2-1.SvM.Spos > temp-2
+cat  tem-covid-c7-table-0 | grep diff2-1.CvS.Cpos > temp-3
+paste temp-[123] |awk 'BEGIN {FS = "\t"; OFS = "\t"}  $2 == $8 && $2 == $14' | wc -l ###74
+paste temp-[123] |awk 'BEGIN {FS = "\t"; OFS = "\t"}  $2 == $8 && $2 == $14' > tem-covid-c7-table-1.txt
+vi tem-covid-c7-table-2.txt #### pathway	NES	NOM p-val	NES	NOM p-val	NES	NOM p-val
+bash tem-script-preRank-genes-signed-FDR tem-covid-c7-table-2.txt > tem-covid-c7-table-3.txt
+cp -i tem-covid-c7-table-3.txt tem-covid-c7-table-4.txt
+vi  tem-covid-c7-table-4.txt ###remove something like Bcell vs monocyte
+> data <- read.table(file ="tem-covid-c7-table-4.txt", header = T, sep = "\t", row.names= 1)
+> mat <- as.matrix(data)
+> Heatmap(matrix = mat,name = "signed log10 (p-value)", row_names_gp = gpar(fontsize = 7), row_names_max_width = max_text_width(
++         rownames(mat), 
++         gp = gpar(fontsize = 10)
++     ))
 
 ###ComplexHeatmap####
 $ cat temp | while read g; do grep -i "\-\-\-$g\"" belg-scrna-bcell-PBMC.T1.diff2-1.servVmod.servPos.txt; done | cut -f 2 > temp.txt
@@ -1065,3 +1127,7 @@ Heatmap(matrix = mat,
         row_split = c("critical UP", "critical down")[(top50$logFC > 0) + 1],
         show_column_names = FALSE,
         name = "log2(counts)", row_names_gp = gpar(fontsize = 9))
+
+
+bash gsea-cli.sh GSEAPreranked -gmx "/Users/linyongmao/Documents/dir-gene-set-database/c5.all.v7.1.symbols.gmt"   -collapse No_Collapse -mode Max_probe -norm meandiv  -nperm 1000 -rnk "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/bal.bcell.startBelg.cluster4.diff2-1.CvM.Cpos.rnk"  -rpt_label gseareport -create_svgs false -include_only_symbols true   -make_sets true -plot_top_x 1234567 -rnd_seed 1234 -set_max 1500 -set_min 5 -zip_report false -out "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"
+
