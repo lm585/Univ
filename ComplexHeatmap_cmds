@@ -26,6 +26,19 @@ ensembGenename <- read.delim("temp-ensgID-geneID", header = T)
 rownames(mat) <- ensembGenename$geneName
 Heatmap(matrix = mat, name = "mRNA", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 8))
 
+genes <- read.delim("temp-il6.txt", header = T)
+> genes
+              gene geneName
+1  ENSG00000027697   IFNGR1
+2  ENSG00000137193     PIM1
+3  ENSG00000177885     GRB2
+dim(genes)
+mat <- as.matrix(rna[genes$gene,])
+dim(mat)
+rownames(mat) <- genes$geneName
+Heatmap(matrix = mat, name = "mRNA", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(6, "cm"), width= unit(6, "cm"))
+
+
 $ cat temp | while read g; do grep -i "\-\-\-$g\"" belg-scrna-bcell-PBMC.T1.diff2-1.servVmod.servPos.txt; done | cut -f 2 > temp.txt
 $ vi temp.txt
 $ head temp.txt
