@@ -1,0 +1,28 @@
+###ComplexHeatmap####
+$ cat temp | while read g; do grep -i "\-\-\-$g\"" belg-scrna-bcell-PBMC.T1.diff2-1.servVmod.servPos.txt; done | cut -f 2 > temp.txt
+$ vi temp.txt
+$ head temp.txt
+"primerid"	"logFC"
+"GRCh38.99-------------ACTB"	0.523520958290465
+"GRCh38.99-------------ARHGDIB"	-0.179007969731024
+"GRCh38.99-------------ATP5MF"	-0.491569689860415
+
+genes <- read.delim("temp.txt", header = T)
+top50 = genes
+mat <- as.matrix(bComb$RNA@data[genes$primerid, ])
+rownames(mat) <- gsub(pattern = ".+---", replacement = "", rownames(mat))
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, tissue = bComb@meta.data$Sample..type )
+Heatmap(matrix = mat,
+        column_split = bComb@meta.data$Severity.Score.worse,
+        top_annotation = ha,
+        show_column_names = FALSE,
+        name = "log2(counts)", row_names_gp = gpar(fontsize = 9))
+
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, tissue = bComb@meta.data$Sample..type, col = list(ident = c("COV030_2" = "red", "COV030_1" = "green", "COV032_4" = "blue", "COV032_3" = "yellow")) )
+ha <- HeatmapAnnotation(ident = bComb@meta.data$orig.ident, status = bComb@meta.data$COVID19.status, tissue = bComb@meta.data$Sample..type )
+Heatmap(matrix = mat,
+        column_split = bComb@meta.data$Severity.Score.worse,
+        top_annotation = ha,
+        row_split = c("critical UP", "critical down")[(top50$logFC > 0) + 1],
+        show_column_names = FALSE,
+        name = "log2(counts)", row_names_gp = gpar(fontsize = 9))
