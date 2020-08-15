@@ -12,6 +12,20 @@ for(i in 1:dim(b)[1])
 }
 write.table(a,file="temp.2", sep = "\t", quote = F)
 
+#####
+a <- read.delim("star-CPM.tem.ge4zeros.starID.hiv.inorder.zscror.txt", header = T, row.names=1)
+mat <- as.matrix(a)
+column_order = order(as.numeric(mat[1,]))
+Heatmap(matrix = mat, name = "HIV DNA", column_order = order(as.numeric(mat[1,])), height = unit(0.5, "cm"), column_names_side = "top" )
+rna <- read.delim(file = "star-CPM.tem.ge4zeros.starID.zscror.txt", header = T, row.names=1)
+genes <- read.delim("star-CPM.tem.ge4zeros.topCorrHiv.genes", header = T)
+mat <- as.matrix(rna[genes$gene,])
+####cut -f 1 star-CPM.tem.ge4zeros.topCorrHiv.genes | while read g; do grep -w $g GRCh38-geneID-name ; done > temp-ensgID-geneID
+###vi temp-ensgID-geneID
+ensembGenename <- read.delim("temp-ensgID-geneID", header = T)
+rownames(mat) <- ensembGenename$geneName
+Heatmap(matrix = mat, name = "mRNA", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 8))
+
 $ cat temp | while read g; do grep -i "\-\-\-$g\"" belg-scrna-bcell-PBMC.T1.diff2-1.servVmod.servPos.txt; done | cut -f 2 > temp.txt
 $ vi temp.txt
 $ head temp.txt
