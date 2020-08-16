@@ -1,0 +1,16 @@
+#
+
+dir="/Users/linyongmao/gsea_home/output/may05"
+echo "pathway	SIZE	NES	NOM p-val	FDR q-val	LEGs"
+cat temp-dir | while read d
+do
+  cat temp-paths-p0.01 | while read p
+  do
+    res=`cat "$dir/$d"/gsea_report_for*.xls | grep "^$p	" | head -1 | cut -f  1,6,7`
+    if [ "$res" == "" ]
+    then
+      res="$p	NA	NA"
+    fi
+    echo "$d	$res"
+  done
+done
