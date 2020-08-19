@@ -6,7 +6,7 @@ suppressPackageStartupMessages(library(package = "ComplexHeatmap"))
 suppressPackageStartupMessages(library(package = "GSEABase"))
 suppressPackageStartupMessages(library(package = "tidyverse"))
 
-setwd("/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run")
+setwd("/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run2")
 workDir <- dirname(getwd())
 opts_chunk$set(tidy = FALSE, fig.path = "../figure/")
 options(stringsAsFactors       = FALSE,
@@ -18,7 +18,7 @@ if (!file.exists(gseaDir)) {
   flag <- dir.create(path = gseaDir)
 }
 
-clustNum = 4
+clustNum = 6
 load(file = file.path(workDir, "output/ugent.seurat.RData"))
 ls()
 bComb <- seuratComb[, seuratComb$Sample..type %in% "BAL" &
@@ -64,7 +64,7 @@ top %>%
   print()
 
 top50 <- top_n(top, n = 98765, wt = -adjp)
-write.table(top50, "bal.bcell.startBelg.cluster4.diff2-1.SvM.Spos.txt", sep="\t")
+write.table(top50, "bal.bcell.startBelg.cluster6.diff2-1.SvM.Spos.txt", sep="\t")
 ##################################################################################################################
 
 bCombBcell <- bComb[,  bComb$HTO_classification == clustNum & 
@@ -99,7 +99,7 @@ top %>%
   print()
 
 top50 <- top_n(top, n = 98765, wt = -adjp)
-write.table(top50, "bal.bcell.startBelg.cluster4.diff2-1.CvM.Mpos.txt", sep="\t")
+write.table(top50, "bal.bcell.startBelg.cluster6.diff2-1.CvM.Mpos.txt", sep="\t")
 
 ##################################################################################################################
 
@@ -135,5 +135,5 @@ top %>%
   print()
 
 top50 <- top_n(top, n = 98765, wt = -adjp)
-write.table(top50, "bal.bcell.startBelg.cluster4.diff2-1.CvS.Spos.txt", sep="\t")
+write.table(top50, "bal.bcell.startBelg.cluster6.diff2-1.CvS.Spos.txt", sep="\t")
 
