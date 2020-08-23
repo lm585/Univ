@@ -1,0 +1,14 @@
+###########################################
+rnkF="/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/bal.bcell.startBelg.cluster4.diff2-1.SvM.Spos.rnk"
+label0="bal.bcell.startBelg.cluster4.SvM.Spos"
+cat "$1" | while read gs
+do
+  echo "$gs"
+  la=`echo "$gs" | sed 's/\.gmt//' | sed 's/\.symbols//' `
+  label="$label0.$la"
+  op="temp-$label"
+  echo "$label"
+  echo "$op"
+  bash gsea-cli.sh GSEAPreranked -gmx "/Users/linyongmao/Documents/dir-gene-set-database/$gs"   -collapse No_Collapse -mode Max_probe -norm meandiv  -nperm 1000 -rnk "$rnkF"  -rpt_label  "$label" -create_svgs false -include_only_symbols true   -make_sets true -plot_top_x 1234567 -rnd_seed 1234 -set_max 1500 -set_min 5 -zip_report false -out "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"   > "$op" 
+done
+
