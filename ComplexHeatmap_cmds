@@ -66,3 +66,6 @@ Heatmap(matrix = mat,
         row_split = c("critical UP", "critical down")[(top50$logFC > 0) + 1],
         show_column_names = FALSE,
         name = "log2(counts)", row_names_gp = gpar(fontsize = 9))
+
+ha <- HeatmapAnnotation(sev = c("mix", "mix", "moderate", "mix", "mix", "mix", "moderate", "mix", "severe"), type=c("plasma", "plasma","plasma","plasma","plasma","plasma", "B cell", "B cell", "B cell"), col = list(sev = c("mix" = "white", "moderate" = "blue", "severe" = "orange"), type=c("plasma" = "green", "B cell" = "yellow")))
+Heatmap(matrix = mat, name = "signed logFDR", column_names_side = "top",  row_names_gp = gpar(fontsize = 8), top_annotation = ha, column_order = 1:9, clustering_distance_rows = "pearson", clustering_method_rows = "centroid")
