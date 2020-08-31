@@ -1163,3 +1163,130 @@ vi out ###rm space in the file
 cat out | cut -f 2,4,7,9,12,14 | uniq > temp.txt
 cat out | cut -f 1,3,5,8,10,13,15 >> temp.txt
 
+cat  temp.marker.clust.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 == 4 && $3 > 0' | cut -f 8 | sed 's/GRCh38.99--*/gene---/' | awk 'BEGIN {FS = "\t"; OFS = ", "; ORS = ", "} {print $1}'
+cat  temp.marker.clust.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 == 4 && $3 < 0' | cut -f 8 | sed 's/GRCh38.99--*//' | sort | uniq > temp-lead-genes.clust4.neg.markers.xls
+paste  clust4.neg.markers.overlap.genesets clust4.neg.markers.overlap.genesets.q-value  clust4.neg.markers.overlap.genesets.p-value | awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 < 0.05'  | wc -l
+      19
+bash script-TF-targets-enrich-overlapGenes > clust4.neg.markers.overlap.genesets.overlapgenes
+
+bash script-overlap-leg-freq ../advanced/m1.txt | awk '$1 > 5'  | cut -f 2  | grep -v "not exist" > temp-gene-names
+vi  temp-gene-names
+genes <- read.delim("temp-gene-names", header = T)
+top50 = genes
+mat <- as.matrix(bCombBcell$RNA@data[genes$primerid, ])
+rownames(mat) <- gsub(pattern = ".+---", replacement = "", rownames(mat))
+colorList <- list(ident = c("COV012" = "blue", "COV013" = "brown", "COV015" = "cyan", "COV024" = "green"), sev = c("Moderate" = "blue", "Critical" = "grey"))
+ha <- HeatmapAnnotation(sev = bCombBcell@meta.data$Severity.Score.worse, ident = bCombBcell@meta.data$orig.ident)
+Heatmap(matrix = mat,
+        column_split = bCombBcell@meta.data$Severity.Score.worse,
+        top_annotation = ha,
+        show_column_names = FALSE,
+column_order = 1:dim(mat)[2], row_order = 1:dim(mat)[1],
+height = unit(6, "cm"), width= unit(8, "cm"),
+col = colorList, 
+        name = "log2(counts)", row_names_gp = gpar(fontsize = 7))
+
+
+cat  temp-bComb-meta.data.xls  | awk 'BEGIN {FS = "\t"; OFS = "\t"} $12 != "NA"  {print $2, $16, $17, $18, $12, $32, $32}' | sort | uniq -c | sed 's/^ *//' | sed 's/  */	/' > temp.txt
+bash  tem-script-celltype-freq-1    > temp.xls
+
+bash script-gsea-cmds tem-gmt-list
+
+paste bal.bcell.startBelg.cluster4vs0.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs1.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs3.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs5.clust4Pos.ADT.txt  bal.bcell.startBelg.cluster4vs8.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs9.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs2.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs6.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs7.clust4Pos.ADT.txt > temp-plasm6-3bcell.txt
+cat temp-plasm6-3bcell.txt | awk '
+BEGIN {FS = "\t"; OFS = "\t"}
+{
+ for(i = 8; i <= NF; i = i+6)
+ {
+   if($2 != $i)
+     print $0;
+ }
+}'
+
+cat temp-plasm6-3bcell.txt | awk '
+BEGIN {FS = "\t"; OFS = ""; ORS =""}
+{
+ print $2 ;
+ for(i = 4; i <= NF; i = i+6)
+ {
+     print "\t" $i;
+ }
+ print "\n";
+}'
+
+awk '
+BEGIN {FS = "\t"; OFS = ""; ORS =""}
+{
+ print $2 ;
+ for(i = 5; i <= NF; i = i+6)
+ {
+     print "\t" $i;
+ }
+ print "\n";
+}'
+
+bash script-marker-clust4-compare-each-clust-signed-FDR | cut -f 2-22 > temp-clust4-compare-each-clust-signed-FDR.txt
+
+paste bal.bcell.startBelg.cluster4vs0.clust4Pos.txt bal.bcell.startBelg.cluster4vs1.clust4Pos.txt bal.bcell.startBelg.cluster4vs3.clust4Pos.txt bal.bcell.startBelg.cluster4vs5.clust4Pos.txt  bal.bcell.startBelg.cluster4vs8.clust4Pos.txt bal.bcell.startBelg.cluster4vs9.clust4Pos.txt bal.bcell.startBelg.cluster4vs2.clust4Pos.txt bal.bcell.startBelg.cluster4vs6.clust4Pos.txt bal.bcell.startBelg.cluster4vs7.clust4Pos.txt > temp-plasm6-3bcell.txt
+
+paste bal.bcell.startBelg.cluster4vs2.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs6.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs7.clust4Pos.ADT.txt > temp-3bcell.only.txt
+vi temp-3bcell.FDRs.txt
+####R cmds to calc avg of log10FDRs
+ a <- read.delim("temp-3bcell.FDRs.txt", header = T, row.names=1)
+b = a
+for(i in 1:dim(b)[1])
+{
+ a[i, ] <- mean(log10((as.numeric(b[i,]))))
+}
+write.table(a[,1],file="temp-3bcell.FDRs.logAvg.txt", sep = "\t", quote = F)
+paste  temp-3bcell.FDRs.txt  temp-3bcell.FDRs.logAvg.txt  | awk 'BEGIN {FS = "\t"; OFS = ""; ORS ="\n"} $6 < -1.301' | cut -f 1 > temp.genes
+
+####Heatmap
+a <- read.delim("bal.bcell.startBelg.clust4-compare-each-clust-signed-FDR.txt", header = T, row.names=1)
+###clust_0	clust_1	clust_3	clust_5	clust_8	clust_9	clust_2	clust_6	clust_7
+
+genes <- read.delim("temp.genes", header = T)
+mat <- as.matrix(a[genes$gene,])
+ha <- HeatmapAnnotation(sev = c("mix", "mix", "moderate", "mix", "mix", "mix", "moderate", "mix", "severe"), type=c("plasma", "plasma","plasma","plasma","plasma","plasma", "B cell", "B cell", "B cell"), col = list(sev = c("mix" = "white", "moderate" = "blue", "severe" = "orange"), type=c("plasma" = "green", "B cell" = "yellow")))
+Heatmap(matrix = mat, name = "signed logFDR", column_names_side = "top",  row_names_gp = gpar(fontsize = 8), top_annotation = ha, column_order = 1:9, clustering_distance_rows = "pearson", clustering_method_rows = "centroid")
+
+a1 <- c("CD371", "CD64", "CD33", "CD172a", "CD206", "CD305", "Mac2", "IgG", "CD123", "CD155")
+
+a2 <- c("CD11b-mh", "Folate", "CD112", "CD93")
+a3 <- c("CD45RA", "CD71", "CD27-A0191", "CD27-A0154", "CD39", "CD48")
+a4 <- c("GRCh38.99-------------MZB1", "GRCh38.99-------------TNFSF13B", "GRCh38.99-------------XBP1", "GRCh38.99-------------IGHM")
+####anchoring, integrating, find clusters first
+VlnPlot(bCombBcell.integrated, features = c(a3), slot = "data", pt.size = 0.05, group.by = "seurat_clusters", ncol=3)
+
+paste bal.bcell.startBelg.cluster4vs2.clust4Pos.txt bal.bcell.startBelg.cluster4vs6.clust4Pos.txt bal.bcell.startBelg.cluster4vs7.clust4Pos.txt > temp-3bcell.only.txt
+#### check same gene name across a line
+####temp-3bcell.FDRs.txt
+#### temp-3bcell.FDRs.logAvg.txt 
+vi  script-marker-FC-p-q
+bash script-marker-FC-p-q > temp.txt
+paste  temp-3bcell.FDRs.txt  temp-3bcell.FDRs.logAvg.txt  | awk 'BEGIN {FS = "\t"; OFS = ""; ORS ="\n"} $6 < -7' | wc -l
+     576
+ paste  temp-3bcell.FDRs.txt  temp-3bcell.FDRs.logAvg.txt  | awk 'BEGIN {FS = "\t"; OFS = ""; ORS ="\n"} $6 < -1.301' | cut -f 5,6 |sed 's/GRCh38.99-------------//' |sort > temp
+    5302 temp
+###join -t '  ' -1 1 -2 1  TF-1961genes-GO:0003700.txt.TFonly.sorted temp |  sort -t '        ' +1 -2n | head -50 | cut -f 1 > temp.TF.50genes
+   RELB	-6.53834472490422
+bash tem-script-2
+cat chea-TF-KEGG_B_CELL_RECEPTOR_SIGNALING_PATHWAY.targets.xls
+bash script-marker-clust4-compare-each-clust-signed-FDR | cut -f 2-22 > bal.bcell.startBelg.clust4-compare-each-clust-signed-FDR.allGenes.txt
+
+paste  temp-3bcell.FDRs.txt  temp-3bcell.FDRs.logAvg.txt  | awk 'BEGIN {FS = "\t"; OFS = ""; ORS ="\n"} $6 < -1.301/3' | cut -f 1,6 | sed 's/GRCh38.99-------------//' |sort > temp
+####temp with avg FDR < -1.301/3
+join -t '  ' -1 1 -2 1  temp-cyto-sorted temp | sort -t '  ' +1 -2n | head -50 | cut -f 1 > temp-Cytokines-top50.genes
+temp-Cytokines-top50.genes
+temp-Cytokines-recept-top50.genes
+temp-Chemokines-top18.genes
+temp-Chemokines-Receptors-top50.genes ####less than 50 genes
+temp-Chemokines-combined-34.genes
+
+cut -f 2 Cytokine_Receptors.txt | sort | uniq > temp-cyto-sorted
+
+> a <- read.delim("bal.bcell.startBelg.clust4-compare-each-clust-signed-FDR.allGenes.txt", row.names=1)
+> dim(a)
+[1] 60688     9
+
+
