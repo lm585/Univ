@@ -1,0 +1,32 @@
+#
+
+#dir="/Users/linyongmao/gsea_home/output/may05"
+dir="/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"
+echo "contrast	pathway	SIZE	NES	NOM p-val	FDR q-val	LEGs"
+cat temp-dir | while read d
+do
+ cat "$dir/$d"/gsea_report_for*.xls | awk 'BEGIN {FS = "\t"; OFS = "\t"}  $8 < 0.05' | awk 'BEGIN {FS = "\t";} $1 != "NAME" '  > temp-path
+ cat temp-path | while read p ####NAME	GS<br> follow link to MSigDB	GS DETAILS	SIZE	ES	NES	NOM p-val	FDR q-val	FWER p-val	RANK AT MAX	LEADING EDGE
+ do
+   t=`echo "$d" | grep Malika | wc -l`
+   path=`echo "$p" | cut -f 1`
+   if [ $t -eq 1 ]
+   then
+     p2="Ma-$path"
+   else
+     p2="$path"
+   fi
+   echo -n "$d	$p2	"
+   echo "$p" | awk '
+BEGIN {FS = "\t";
+       OFS = "\t";
+       ORS = "";}
+{
+ print $4,$6,$7,$8;
+}'
+
+ echo
+ done
+
+ rm temp-path 
+done
