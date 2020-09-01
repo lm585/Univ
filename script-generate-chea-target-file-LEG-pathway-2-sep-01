@@ -1,0 +1,17 @@
+#
+
+dir="/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"
+cat temp-dir-2 | while read d
+do
+ cat temp-allpaths-fdr-bCellclusters-uniqpaths | while read p
+ do
+  t=`cat "$dir/$d"/gsea_report_for*.xls | grep -i "^$p	" | wc -l`
+  if [ $t -eq 0 ]
+  then
+    echo "$p	NA	NA	NA"
+  else
+    cat "$dir/$d"/gsea_report_for*.xls | grep -i "^$p	" | head -1 | cut -f 1,6-8 ###NAME  GS<br> follow link to MSigDB    GS DETAILS      SIZE    ES      NES     NOM p-val       FDR q-val       FWER p-val      RANK AT MAX     LEADING EDGE
+  fi
+ done > temp-"$d"-path-nes-p-q.txt
+done
+
