@@ -1,0 +1,11 @@
+#
+
+rm chea-TF-*.targets.xls
+ls temp-lead-genes.*.xls > temp-files-629
+cat temp-files-629 | while read f #####temp-lead-genes.KEGG_OXIDATIVE_PHOSPHORYLATION.xls
+do
+  cat "$f" | sort | uniq > temp
+  mv temp "$f"
+  chea=`echo "$f" | sed 's/temp-lead-genes.//' | sed 's/.xls//' `
+  cp "$f" "chea-TF-$chea.targets.xls"
+done
