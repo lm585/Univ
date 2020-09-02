@@ -1282,6 +1282,7 @@ temp-Cytokines-recept-top50.genes
 temp-Chemokines-top18.genes
 temp-Chemokines-Receptors-top50.genes ####less than 50 genes
 temp-Chemokines-combined-34.genes
+temp-Chemokines-combined-34.genes.2 (31 genes)
 
 cut -f 2 Cytokine_Receptors.txt | sort | uniq > temp-cyto-sorted
 
@@ -1289,4 +1290,69 @@ cut -f 2 Cytokine_Receptors.txt | sort | uniq > temp-cyto-sorted
 > dim(a)
 [1] 60688     9
 
+cat bal.bcell.startBelg.cluster4vs0.clust4Pos.txt  | awk 'BEGIN {FS = "\t"; OFS = "\t"} $5 != "NA" {print $2,$5, $1, $3, $4, $6}' | awk 'NR > 1' | sed 's/"GRCh38.99-------------//' | sed 's/"//' >  temp-diff2-1
+wc -l temp-diff2-1
+bash script-preRank-genes-if-crit-pos temp-diff2-1 > bal.bcell.startBelg.cluster4vs0.clust4Pos.rnk
+wc -l  bal.bcell.startBelg.cluster4vs0.clust4Pos.rnk
+bash script-preRank-genes-batchRun
+rnkFile ##file name with space, a list of 9 rnk files
+bash script-gsea-cmds-2
+bash script-generate-chea-target-file-LEG-pathway-2-aug-31 > temp-allpaths-fdr-bCellclusters
+ cut -f 1  temp-allpaths-fdr-bCellclusters | uniq -c
+   1 contrast
+  19 bal.bcell.startBelg.cluster4vs2.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902343169
+  58 bal.bcell.startBelg.cluster4vs6.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903024942
+ 116 bal.bcell.startBelg.cluster4vs7.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903230206
+
+cut -f 2  temp-allpaths-fdr-bCellclusters | sort | uniq -c | sort -n | grep -i b | grep -i b.cell
+   1 KEGG_B_CELL_RECEPTOR_SIGNALING_PATHWAY
+   1 REACTOME_DOWNSTREAM_SIGNALING_EVENTS_OF_B_CELL_RECEPTOR_BCR
+   1 REACTOME_SIGNALING_BY_THE_B_CELL_RECEPTOR_BCR
+cut -f 2  temp-allpaths-fdr-bCellclusters | sort | uniq > temp-allpaths-fdr-bCellclusters-uniqpaths
+bash  script-generate-chea-target-file-LEG-pathway-2-sep-01
+     161 temp-bal.bcell.startBelg.cluster4vs0.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598901866356-path-nes-p-q.txt
+     161 temp-bal.bcell.startBelg.cluster4vs1.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902116116-path-nes-p-q.txt
+paste temp-bal.bcell.startBelg.cluster4vs0.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598901866356-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs1.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902116116-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs3.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902552782-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs5.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902805491-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs8.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903420198-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs9.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903631247-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs2.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902343169-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs6.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903024942-path-nes-p-q.txt temp-bal.bcell.startBelg.cluster4vs7.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903230206-path-nes-p-q.txt > temp-clust4-9compare-nes-p-q.txt
+bash script-marker-clust4-compare-each-clust-signed-FDR-sep-01 | cut -f 2-11 > bal.bcell.startBelg.clust4-compare-each-clust-signed-FDR.path.h.all.kegg.react.txt
+bash script-marker-clust4-compare-each-clust-avg-nes > bal.bcell.startBelg.clust4-compare-each-clust.path.avgAbsNES.txt
+cat bal.bcell.startBelg.clust4-compare-each-clust.path.avgAbsNES.txt | sort -t '  ' +1 -2n  | tail -n 50 | cut -f 1 > temp-50.genes
+a <- c("KEGG_B_CELL_RECEPTOR_SIGNALING_PATHWAY", "REACTOME_DOWNSTREAM_SIGNALING_EVENTS_OF_B_CELL_RECEPTOR_BCR", "REACTOME_SIGNALING_BY_THE_B_CELL_RECEPTOR_BCR")
+
+
+a <- read.delim("bal.bcell.startBelg.clust4-compare-each-clust-signed-FDR.path.h.all.kegg.react.txt", header = T, row.names=1)
+ha <- HeatmapAnnotation(sev = c("mix", "mix", "moderate", "mix", "mix", "mix", "moderate", "mix", "severe"), type=c("plasma", "plasma","plasma","plasma","plasma","plasma", "B cell", "B cell", "B cell"), col = list(sev = c("mix" = "white", "moderate" = "blue", "severe" = "orange"), type=c("plasma" = "green", "B cell" = "yellow")), show_legend = FALSE)
+
+Heatmap(matrix = mat, name = "signed logFDR", column_names_side = "top",  row_names_gp = gpar(fontsize = 7), top_annotation = ha, column_order = 1:9, clustering_distance_rows = "pearson", clustering_method_rows = "centroid", show_heatmap_legend = FALSE, row_names_max_width = max_text_width(
+        rownames(mat), 
+        gp = gpar(fontsize = 4)
+    ))
+
+###union of (pos/neg) LEGs of a pathway, contain duplicated genes
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01
+###rm dup genes, create chea-TF-$chea.targets.xls file
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step2
+###compute overlap genes 
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step3 > bal.bcell.startBelg.clust4-compare-each-clust.pathway.net.0
+####compute jaccard index, create network
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step4 bal.bcell.startBelg.clust4-compare-each-clust.pathway.net.0 > bal.bcell.startBelg.clust4-compare-each-clust.pathway.net.1
+####clustering network into modules; 15 clusters found
+../local_mcl/bin/mcl bal.bcell.startBelg.clust4-compare-each-clust.pathway.net.1  -I 2.0  --abc  -scheme 7
+paste temp-bal.bcell.startBelg.cluster4vs2.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902343169-path-nes-p-q.txt      temp-bal.bcell.startBelg.cluster4vs6.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903024942-path-nes-p-q.txt   temp-bal.bcell.startBelg.cluster4vs7.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903230206-path-nes-p-q.txt > temp-3bcell-nes-p-q.txt
+###calc avg NES for each pathway
+bash script-marker-clust4-compare-each-clust-avg-nes-sep-1 > bal.bcell.startBelg.clust4-compare-each-clust.path.avgNES.txt
+vi temp-node-degree.txt
+cat bal.bcell.startBelg.clust4-compare-each-clust.pathway.net.1.I20s7 |  awk 'BEGIN {FS = "\t"; OFS = "\t"} 
+{
+ for(i = 1; i <= NF; i++)
+   print $i, NR;
+}'
+	clust#	Degree
+REACTOME_HEDGEHOG_ON_STATE	1	61
+REACTOME_REGULATION_OF_RUNX3_EXPRESSION_AND_ACTIVITY	1	61
+REACTOME_STABILIZATION_OF_P53	1	61
+
+head -3 temp-mod-assign.txt
+node	moduleName
+KEGG_PROTEASOME	KEGG_PROTEASOME
+KEGG_RIBOSOME	KEGG_RIBOSOME
 
