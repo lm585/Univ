@@ -1,0 +1,10 @@
+#
+###HALLMARK_ALLOGRAFT_REJECTION	KEGG_ALLOGRAFT_REJECTION	6	47	11
+
+cat "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+{
+ jacc= $3 / ($4 + $5 - $3)
+ if($1 < $2 && jacc > 0.25) 
+  print $1, $2, jacc;
+}'
+
