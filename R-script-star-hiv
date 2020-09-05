@@ -210,3 +210,36 @@ group <- factor(c(1,1,1,1,1,1,1,1,2,2,2,2,2,2,2))
  3rd Qu.:      0.0   3rd Qu.:      0.0   3rd Qu.:      0.0   3rd Qu.:      0.0   3rd Qu.:      0.0   3rd Qu.:     0.0  
  Max.   :1164949.0   Max.   :1114382.0   Max.   :1066267.0   Max.   :1180572.0   Max.   :1975911.0   Max.   :985456.0  
 > 
+
+cat star-HIV-samp-info-two28.txt | grep -w Tem | cut -f 1 > sampID-tem
+cat temp-col-samp
+1	probe
+2	"samp_10"
+3	"samp_11"
+4	"samp_12"
+cat temp1-238-915 ###samples column#
+59
+9
+15
+cat t1
+1,59,9,15,20,30,44,46,
+star-CPM.tem.txt
+star-CPM.tcm.txt
+bash  script-rm-rows-with-many-0  star-CPM.tem.txt > star-CPM.tem.ge4zeros.txt ###8888 
+cat temp-r-out | awk 'NR % 4 == 1 {print $2} ' > temp-1
+cat temp-r-out | awk 'NR % 4 == 0 {print $1} ' > temp-2
+cat temp-r-out | awk 'NR % 4 == 2  {print $2} ' > temp-3
+paste temp-[123] > star-CPM.tem.ge4zeros.spearman.r.pvalue.txt
+vi star-CPM.tem.ge4zeros.spearman.r.pvalue.txt
+sort GRCh38-geneID-name > temp-1
+sort star-CPM.tem.ge4zeros.spearman.r.pvalue.rnk > temp-2
+join -t '	' -1 1 -2 1 temp-1 temp-2 | cut -f 2,3 > star-CPM.tem.ge4zeros.spearman.r.pvalue.2.rnk
+
+bash ./tem-script-preRank-genes-signed-FDR temp-tcm-tem-path-res.txt > temp-heatmap
+cp -i star-CPM.tcm.tem.pathway.heatmap.txt star-CPM.tcm.tem.pathway.heatmap.filt.txt
+Heatmap(matrix = mat, name = "signed logP", column_order = 1:2, column_names_side = "top",  row_names_gp = gpar(fontsize = 7), width= unit(4, "cm"))
+
+bash gsea-cli.sh GSEAPreranked -gmx "/Users/linyongmao/Documents/dir-gene-set-database/c5.all.v7.1.symbols.gmt"   -collapse No_Collapse -mode Max_probe -norm meandiv  -nperm 1000 -rnk "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/bal.bcell.startBelg.cluster4.diff2-1.CvM.Cpos.rnk"  -rpt_label gseareport -create_svgs false -include_only_symbols true   -make_sets true -plot_top_x 1234567 -rnd_seed 1234 -set_max 1500 -set_min 5 -zip_report false -out "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"
+
+Heatmap(matrix = mat, name = "signed logP", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(10, "cm"), width= unit(2, "cm"))
+
