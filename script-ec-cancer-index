@@ -1356,3 +1356,22 @@ node	moduleName
 KEGG_PROTEASOME	KEGG_PROTEASOME
 KEGG_RIBOSOME	KEGG_RIBOSOME
 
+######TF target enrich analysis
+temp-pax5-bach2.gmt (Chea_TF + transfac)
+bash tem-script-generate-chea-target-file
+cat bal.bcell.startBelg.cluster4vs[267].clust4Pos.rnk | cut -f 1 |  awk '{print toupper($0)}' |sort | uniq > genome-cl267
+###12360 genome-cl267
+bash script-TF-targets-enrich > bal.bcell.startBelg.cluster4vs267.TF.net.0
+bash "/Users/linyongmao/Documents//antiIL10 monkey/dir-TF-db/script-hyperG-test-2-R" bal.bcell.startBelg.cluster4vs267.TF.net.0 > temp-r-input
+cat temp-r-res | awk '{print $2}' > bal.bcell.startBelg.cluster4vs267.TF.net.0.p-value
+bal.bcell.startBelg.cluster4vs267.TF.net.0.q
+paste bal.bcell.startBelg.cluster4vs267.TF.net.0  bal.bcell.startBelg.cluster4vs267.TF.net.0.p-value  bal.bcell.startBelg.cluster4vs267.TF.net.0.q | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 5e-2' | sed 's/       Chea_/  /' | cut -f 1-2 | sort | uniq > bal.bcell.startBelg.cluster4vs267.TF.net.FDR0d05
+cut -f 2 bal.bcell.startBelg.cluster4vs267.TF.net.FDR0d05 | sort | uniq -c | sort -n | tail -n 25 | awk '{print $2}' > temp-top25.TFs
+bal.bcell.startBelg.cluster4vs267.25TF.net
+
+cat neutralAntibody.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $6 == "BAL" ' | cut -f 3,6,22 | sort > temp-COVIM001-bal-ab
+cat seuratComb-meta.data.complete.8-3.xls |cut -f 2,16,17,18,32 | sort | uniq > temp
+join -t '	' -1 1 -2 2 temp-COVIM001-bal-ab temp-sorted > temp.txt
+temp-T1-pbmc.sorted    
+cat neutralAntibody.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $6 ~ /lasma/ ' | grep -w T1 | cut -f 3,4,6,22 | sort > temp-COVIM001-plasma-ab
+join -t '	' -1 1 -2 2  temp-COVIM001-plasma-ab temp-T1-pbmc.sorted > temp.txt
