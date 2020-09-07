@@ -1,0 +1,16 @@
+#
+cat  temp-clust4-9compare-nes-p-q.txt | awk '
+BEGIN {FS = "\t"; OFS = ""; ORS =""}
+{
+ s=0;
+ for(i = 4*6+2; i <= NF; i = i+4)
+ {
+  if($i < 0)
+    nes = -$i;
+  else
+    nes = $i;
+
+  s += nes;
+ }
+ print $1 "\t" s/3 "\n";
+}'
