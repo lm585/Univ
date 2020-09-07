@@ -1,0 +1,22 @@
+#
+cat  temp-clust4-9compare-nes-p-q.txt | awk '
+BEGIN {FS = "\t"; OFS = ""; ORS =""}
+{
+ print "signedFDR" "\t";
+ print $1 ;
+ for(i = 4; i <= NF; i = i+4)
+ {
+  lg = log($i + 1e-6) /log(10) ;
+  if(lg < -3) lg = -3;
+  if($(i-2) == "NA")
+    lg = 0;
+  else if($(i-2) > 0) ####logFC > 0
+    lg = -lg;
+  else
+    temp = 1
+  print "\t" lg;
+ }
+ print "\n";
+}'
+
+
