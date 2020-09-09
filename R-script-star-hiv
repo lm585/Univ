@@ -243,3 +243,67 @@ bash gsea-cli.sh GSEAPreranked -gmx "/Users/linyongmao/Documents/dir-gene-set-da
 
 Heatmap(matrix = mat, name = "signed logP", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(10, "cm"), width= unit(2, "cm"))
 
+####KG pearson corr
+bash  script-rm-rows-with-many-0 star-CPM.tcm.txt > star-CPM.tcm.le1zero.txt #### 5697 
+bash script-2-R-correlation.date3-6.pearson.R > temp-r-ip
+bash ../script-preRank-genes star-CPM.tcm.le1zero.cor.p.txt > star-CPM.tcm.le1zero.cor.p.rnk.txt
+star-CPM.tcm.le1zero.cor.p.rnk
+
+rnkF="/Users/linyongmao/Documents/dir-star-hiv/dir-pearson-cor-pathways/star-CPM.tcm.le1zero.cor.p.rnk"
+label0="star-CPM.tcm.le1zero.cor"
+gs="h.all.v7.1.symbols.gmt" 
+la=`echo "$gs" | sed 's/\.gmt//' | sed 's/\.symbols//' `
+label="$label0.$la"
+op="temp-$label"
+  echo "$label"
+  echo "$op"
+bash gsea-cli.sh GSEAPreranked -gmx "/Users/linyongmao/Documents/dir-gene-set-database/$gs"   -collapse No_Collapse -mode Max_probe -norm meandiv  -nperm 1000 -rnk "$rnkF"  -rpt_label  "$label" -create_svgs false -include_only_symbols true   -make_sets true -plot_top_x 1234567 -rnd_seed 1234 -set_max 1500 -set_min 5 -zip_report false -out "/Users/linyongmao/gsea_home/output/may05"
+
+####KG pearson corr
+###all pathways (+/-) with p < 0.05, TEM, 125 pathways
+bash script-generate-chea-target-file-LEG-pathway-2-aug-31-temp | cut -f 2 |awk 'NR > 1' |sort | uniq > temp-tem-p0.05-all-paths.txt
+### get nes, p, q for each pathway
+bash script-generate-chea-target-file-LEG-pathway-2-sep-01-temp
+temp-star-CPM.tem.le1zero.cor.h.all.kegg.reactome.v7.1.GseaPreranked.1599504534797-path-nes-p-q.txt
+###get LEGs for each pathway
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01
+###rm dup. LEGs in a pathway, create chea files
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step2
+####overlap between LEGs of pathways
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step3 > tem-p0.05-all-paths.net.0
+###create networt based on jaccard coeff
+bash  script-generate-chea-target-file-LEG-pathway-3-sep-01-step4  tem-p0.05-all-paths.net.0 | sort | uniq > tem-p0.05-all-paths.net.1
+###24 clusters
+../local_mcl/bin/mcl tem-p0.05-all-paths.net.1  -I 2.0  --abc  -scheme 7
+bash script-pathway-clustNum > tem-clust-pathway-degree
+bash script-clust-clust-interaction | grep module | awk '$2 != $3'
+module	7	11
+module	7	12
+module	2	5
+tem-clust-pathway-degree-2.xls
+tem.le1zero.cor.h.all.kegg.reactome.clust.nes.p.q
+cat tem.le1zero.cor.h.all.kegg.reactome.clust.nes.p.q | awk 'BEGIN {FS = "\t"; OFS = "\t"} 
+{
+ nes[$2] += $3;
+}
+END {
+  for (i in nes)
+    print i, nes[i];
+    }'
+tem-net-node-property-module-name
+tem-net-node-property-module-size
+tem-net-node-property-module-nes-sum
+
+head tem-module.net
+7	11
+7	12
+2	5
+anchor	1
+anchor	2
+
+f=`awk '$1 == 1' tem-clust-pathway-degree | cut -f 2 | while read ll; do echo -n "temp-lead-genes.$ll.xls  "; done`
+cat $f | sort | uniq -c | sort -nr | awk '$1 > 1' |head -50 | awk '{print $2}' > temp-geneName
+cat temp-geneName | while read g; do grep "	$g$" ../GRCh38-geneID-name; done > temp-geneName-ID
+vi temp-geneName-ID
+Heatmap(matrix = mat, name = "mRNA", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(11, "cm"), width= unit(5, "cm"))
+
