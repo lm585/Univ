@@ -307,3 +307,25 @@ cat temp-geneName | while read g; do grep "	$g$" ../GRCh38-geneID-name; done > t
 vi temp-geneName-ID
 Heatmap(matrix = mat, name = "mRNA", column_order = column_order, column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(11, "cm"), width= unit(5, "cm"))
 
+###GLM corr gene expr with HIV
+x <- read.delim("gene-count-Tem-7samp.txt", row.names=1)
+y <- DGEList(counts=x)
+y <- calcNormFactors(y)
+d <- cpm(y)
+write.table(d, "star-CPM-tem.txt", sep="\t")
+keep <-rowSums(cpm(y)>0) >= 6
+y<-y[keep,]
+dim(y)
+####[1] 5659    7
+h <- read.delim("../star-CPM.tem.ge4zeros.starID.hiv.inorder.txt", header = F)
+hiv <- log10(h$V3)
+design<-model.matrix(~hiv) 
+y <- estimateGLMCommonDisp(y,design) 
+ y <- estimateGLMTrendedDisp(y,design) 
+ y <- estimateGLMTagwiseDisp(y,design) 
+ fit<-glmFit(y,design) 
+
+lrt.2vs1 <- glmLRT(fit, coef = "hiv")
+top2v1 <- topTags(lrt.2vs1, n=50000) 
+write.table(top2v1, "diff2-1.txt", sep="\t")
+
