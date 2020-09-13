@@ -1193,6 +1193,11 @@ bash  tem-script-celltype-freq-1    > temp.xls
 bash script-gsea-cmds tem-gmt-list
 
 paste bal.bcell.startBelg.cluster4vs0.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs1.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs3.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs5.clust4Pos.ADT.txt  bal.bcell.startBelg.cluster4vs8.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs9.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs2.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs6.clust4Pos.ADT.txt bal.bcell.startBelg.cluster4vs7.clust4Pos.ADT.txt > temp-plasm6-3bcell.txt
+
+paste bal.bcell.startBelg.cluster6vs[013589].clust6Pos.ADT.txt bal.bcell.startBelg.cluster6vs[2467].clust6Pos.ADT.txt  > temp-plasm6-3bcell.txt ###no 6vs6 file
+paste bal.bcell.startBelg.cluster6vs[013589].clust6Pos.txt bal.bcell.startBelg.cluster6vs[2467].clust6Pos.txt  > temp-plasm6-3bcell.txt ###no 6vs6 file
+
+
 cat temp-plasm6-3bcell.txt | awk '
 BEGIN {FS = "\t"; OFS = "\t"}
 {
@@ -1226,6 +1231,9 @@ BEGIN {FS = "\t"; OFS = ""; ORS =""}
 }'
 
 bash script-marker-clust4-compare-each-clust-signed-FDR | cut -f 2-22 > temp-clust4-compare-each-clust-signed-FDR.txt
+bash script-marker-clust4-compare-each-clust-signed-FDR | cut -f 2-22 > temp-clust6-compare-each-clust-signed-FDR.txt
+
+bash script-marker-clust4-compare-each-clust-avg-signedFDR | sort -t '	' +1 -2nr | head -51 | sort | cut -f 1 > temp-top-50-SP-clust6
 
 paste bal.bcell.startBelg.cluster4vs0.clust4Pos.txt bal.bcell.startBelg.cluster4vs1.clust4Pos.txt bal.bcell.startBelg.cluster4vs3.clust4Pos.txt bal.bcell.startBelg.cluster4vs5.clust4Pos.txt  bal.bcell.startBelg.cluster4vs8.clust4Pos.txt bal.bcell.startBelg.cluster4vs9.clust4Pos.txt bal.bcell.startBelg.cluster4vs2.clust4Pos.txt bal.bcell.startBelg.cluster4vs6.clust4Pos.txt bal.bcell.startBelg.cluster4vs7.clust4Pos.txt > temp-plasm6-3bcell.txt
 
@@ -1244,6 +1252,7 @@ paste  temp-3bcell.FDRs.txt  temp-3bcell.FDRs.logAvg.txt  | awk 'BEGIN {FS = "\t
 ####Heatmap
 a <- read.delim("bal.bcell.startBelg.clust4-compare-each-clust-signed-FDR.txt", header = T, row.names=1)
 ###clust_0	clust_1	clust_3	clust_5	clust_8	clust_9	clust_2	clust_6	clust_7
+###clust_0      clust_1 clust_3 clust_5 clust_8 clust_9 clust_2 clust_4 clust_7
 
 genes <- read.delim("temp.genes", header = T)
 mat <- as.matrix(a[genes$gene,])
