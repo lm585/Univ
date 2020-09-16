@@ -1,0 +1,16 @@
+#
+tt=0
+cat out.bal.bcell.startBelg.cluster4-7-3.pathway.net.1.I20s7 | while read path
+do
+  tt=`expr $tt + 1`
+  echo "$path" | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+  {for(i = 1; i <= NF; i++) 
+     print "temp-lead-genes." $i ".xls";
+  }' > temp-files
+  rm temp-431pm
+  cat temp-files | while read f
+  do
+    cat "$f" | sort | uniq >> temp-431pm 
+  done
+  cat temp-431pm | sort | uniq -c | sort -nr | awk '$1 > 1 && NR <= 50' > bal.bcell.startBelg.cluster4-7-3.module-$tt-recur-genes
+done
