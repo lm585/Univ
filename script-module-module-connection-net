@@ -1,0 +1,18 @@
+#
+cat bal.bcell.startBelg.cluster4-7-3.pathway.net.1 | while read ll
+do
+ p1=`echo "$ll" | cut -f 1`
+ p2=`echo "$ll" | cut -f 2`
+ echo "$ll"
+ m1=`grep "^$p1	" bal.bcell.startBelg.cluster4-7-3.pathway.net.1.node-prop | head -1 | cut -f 3`
+ m2=`grep "^$p2	" bal.bcell.startBelg.cluster4-7-3.pathway.net.1.node-prop | head -1 | cut -f 3`
+ if [[ "$m1" < "$m2" ]]
+ then 
+   echo "$m1	$m2"
+ elif [[ "$m1" == "$m2" ]]
+ then
+   echo "$m1	anchor"
+ else
+   echo "$m2	$m1"
+ fi
+done
