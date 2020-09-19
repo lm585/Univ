@@ -1,0 +1,29 @@
+#
+
+#genome="CPM-pbmc-date-2-3-4-5.10594.genes.symbol"
+#gc=`cat "$genome" |  wc -l |awk '{print $1}'`
+echo "pathway	TF	path-LEG-upreg-targets	path-LEG-upreg	genome-targets	genome"
+
+start="$1"
+end="$2"
+ls temp-lead-genes.*.xls | awk 'NR >= '$start' && NR < '$end' ' | while read p
+do
+  ls chea-TF-*.targets.xls | while read tf
+  do
+   ##genome background, this TF how many targets
+   cat "$tf" |  awk '{print toupper($0)}' |sort | uniq > temp-tf-$start-$end
+   gtc=`cat temp-tf-$start-$end | wc -l |awk '{print $1}'`
+   ### LEG, up-reg genes, overlaps with genome background, should be the # of genes in the temp-lead-genes.*.xls
+   cat "$p" |  awk '{print toupper($0)}' |sort | uniq > temp-pathway-$start-$end
+   pc=`cat temp-pathway-$start-$end | wc -l |awk '{print $1}'`
+   # # of (LEG && up-reg && in genome bg)  are targets
+   #temp-tf-$start-$end , CAP, uniq
+   #temp-pathway-$start-$end, CAP, uniq
+   ptc=`cat temp-tf-$start-$end temp-pathway-$start-$end | sort | uniq -d | wc -l |awk '{print $1}'`
+   p2=`echo "$p" | sed 's/temp-lead-genes.//' | sed 's/.xls$//'`
+   tf2=`echo "$tf" | sed 's/chea-TF-//' | sed 's/.targets.xls//' `
+   echo "$p2	$tf2	$ptc	$pc	$gtc"
+  done
+done
+
+#rm temp-tf-$start-$end temp-pathway-$start-$end
