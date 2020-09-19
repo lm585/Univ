@@ -1286,6 +1286,9 @@ bash script-marker-clust4-compare-each-clust-signed-FDR | cut -f 2-22 > bal.bcel
 paste  temp-3bcell.FDRs.txt  temp-3bcell.FDRs.logAvg.txt  | awk 'BEGIN {FS = "\t"; OFS = ""; ORS ="\n"} $6 < -1.301/3' | cut -f 1,6 | sed 's/GRCh38.99-------------//' |sort > temp
 ####temp with avg FDR < -1.301/3
 join -t '  ' -1 1 -2 1  temp-cyto-sorted temp | sort -t '  ' +1 -2n | head -50 | cut -f 1 > temp-Cytokines-top50.genes
+cat Cytokine_Receptors.txt Cytokines.txt | cut -f 2 | sort | uniq > temp-cytokine-and-recept-sorted
+cat Chemokines.txt  Chemokine_Receptors.txt | cut -f 2 | sort | uniq 
+
 temp-Cytokines-top50.genes
 temp-Cytokines-recept-top50.genes
 temp-Chemokines-top18.genes
@@ -1349,6 +1352,14 @@ bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step4 bal.bcell.start
 paste temp-bal.bcell.startBelg.cluster4vs2.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598902343169-path-nes-p-q.txt      temp-bal.bcell.startBelg.cluster4vs6.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903024942-path-nes-p-q.txt   temp-bal.bcell.startBelg.cluster4vs7.clust4Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1598903230206-path-nes-p-q.txt > temp-3bcell-nes-p-q.txt
 ###calc avg NES for each pathway
 bash script-marker-clust4-compare-each-clust-avg-nes-sep-1 > bal.bcell.startBelg.clust4-compare-each-clust.path.avgNES.txt
+####module level network
+script-module-module-connection-net
+script-recur-genes-in-a-module
+bal.bcell.startBelg.cluster4-7-3.combNES.moduleN.txt
+bash script-module-level-NES > bal.bcell.startBelg.cluster4-7-3.combNES-module
+
+ls | grep cluster.vs..*ADT.txt
+
 vi temp-node-degree.txt
 cat bal.bcell.startBelg.clust4-compare-each-clust.pathway.net.1.I20s7 |  awk 'BEGIN {FS = "\t"; OFS = "\t"} 
 {
