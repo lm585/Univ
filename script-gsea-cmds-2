@@ -1,0 +1,17 @@
+###########################################
+
+gs="h.all.kegg.reactome.v7.1.symbols.gmt"
+#gs="LM22.gmt"
+
+cat "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/rnkFile" | while read rnkF
+do
+  label0=`echo "$rnkF" | sed 's#.*ugent.covid-master/run/##' | sed 's/.rnk$//' `
+  echo "$label0"
+  ls -lh "$rnkF"
+  la=`echo "$gs" | sed 's/\.gmt//' | sed 's/\.symbols//' `
+  label="$label0.$la"
+  op="temp-$label"
+  echo "$label"
+  bash gsea-cli.sh GSEAPreranked -gmx "/Users/linyongmao/Documents/dir-gene-set-database/$gs"   -collapse No_Collapse -mode Max_probe -norm meandiv  -nperm 1000 -rnk "$rnkF"  -rpt_label  "$label" -create_svgs false -include_only_symbols true   -make_sets true -plot_top_x 1234567 -rnd_seed 1234 -set_max 1500 -set_min 5 -zip_report false -out "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"   ### > "$op"
+
+done
