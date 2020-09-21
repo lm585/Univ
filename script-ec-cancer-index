@@ -1376,6 +1376,59 @@ node	moduleName
 KEGG_PROTEASOME	KEGG_PROTEASOME
 KEGG_RIBOSOME	KEGG_RIBOSOME
 
+####10 BAL b cell clusters, pathway module network
+bash script-generate-chea-target-file-LEG-pathway-2-aug-31 > temp-90compares
+cat temp-90compares | cut -f 1 | sed 's/vs.*//' | sort | uniq -c | sort -n
+ 870 bal.bcell.startBelg.cluster2
+ 882 bal.bcell.startBelg.cluster9
+ 920 bal.bcell.startBelg.cluster3
+ 926 bal.bcell.startBelg.cluster4
+ 958 bal.bcell.startBelg.cluster7
+ 980 bal.bcell.startBelg.cluster6
+1026 bal.bcell.startBelg.cluster5
+1228 bal.bcell.startBelg.cluster0
+1298 bal.bcell.startBelg.cluster8
+2146 bal.bcell.startBelg.cluster1
+
+##a cluster comapre with each of the 9 clusters, 90 comparisons, 1vs2 and 2vs1 
+ls "$dir" | grep cluster | grep Pos.h.all.kegg.reactome > temp-dir
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01  > out-4420919
+cat out-4420919 | cut -f 1 | sort | uniq -c | sort -nr > temp
+###a pathway appear six times (FDR < 0.05) will be included
+cat out-4420919 | cut -f 1 | sort | uniq -c | awk '$1 >= 6' | wc -l
+###     547 pathways, pathway appear >= 6 times (FDR < 0.05)
+###cluster4 of interest, a path in c4 at least higher (or lower) than 3 out of 9 other clusters
+###3 * 2 = 6 (1vs2 and 2vs1);  >= 6 comparisons with FDR < 0.05; cluster4 vs 0/1/2;  
+bal.bcell.startBelg.10clusters-compare-each-clust.547paths ##sorted
+
+cat out-4420919 | cut -f 1 | sort | uniq -d | while read p; do mv -i "temp-lead-genes.$p.xls" temp-dir/; done
+###800 pathways
+mv -i temp-dir/* ./
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01-step2
+###parallel,overlap genes between pathways 
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3 1 100 > net-1 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3  100 200 > net-2 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3   200  300 > net-3 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3     300 400 > net-4 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3   400 500 > net-5 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3  500 600 > net-6 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3  600 700  > net-7 &
+bash tem-script-generate-chea-target-file-LEG-pathway-3-sep-01-step3  700 8000 > net-8 &
+
+640000 bal.bcell.startBelg.10clusters-compare-each-clust.pathway.net.0
+5306 bal.bcell.startBelg.10clusters-compare-each-clust.pathway.net.1
+bash script-sel-node-network > bal.bcell.startBelg.10clusters-compare-each-clust.547paths.net
+### 3880 edges; 459 nodes; for the selected 547-path-net
+../local_mcl/bin/mcl bal.bcell.startBelg.10clusters-compare-each-clust.pathway.net.1    -I 2.0  --abc  -scheme 7
+###[mcl] 120 clusters found
+out.bal.bcell.startBelg.10clusters-compare-each-clust.547paths.net.I20s7
+###[mcl] 81 clusters found
+bal.bcell.startBelg.10clusters-compare-each-clust.547paths.cys
+bal.bcell.startBelg.10clusters-compare-each-clust.547paths.path-module-degree
+bal.bcell.startBelg.10clusters.81clust-path
+bash script-module-module-connection-net | awk 'NF == 2' | sort | uniq > bal.bcell.startBelg.10clusters.547paths.mod-mod.net
+bal.bcell.startBelg.10clusters.547paths.mod.recur.genes
+
 ######TF target enrich analysis
 temp-pax5-bach2.gmt (Chea_TF + transfac)
 bash tem-script-generate-chea-target-file
