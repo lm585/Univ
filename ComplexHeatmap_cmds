@@ -75,3 +75,17 @@ Heatmap(..., row_names_max_width = max_text_width(
         gp = gpar(fontsize = 4)
     ))
     
+####Heatmap of different clusters from dChip
+rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
+col_fun = colorRamp2(c(-10, -0.76, 0.76, 10), c("blue", "white", "white", "red")) ##FDR 0.25 for p-value , then log10(P)
+mat <- as.matrix(rna)
+c1 <- read.delim("clust1.xls")
+mat1 <- mat[c1$probe.set, ]
+##mat1 = matrix(mat1, nrow=1) ##for single pathwat
+rownames(mat1) <- c1$NAME
+ord_a <- c(5, 3, 9, 1, 8, 4, 7, 10, 2, 6)
+Heatmap(matrix = mat1, name = " ", column_order = order(ord_a) ,  row_order= 1:dim(mat1)[1], column_names_side = "top",  row_names_gp = gpar(fontsize = 6), clustering_distance_rows = "pearson", clustering_method_rows = "centroid", width= unit(5, "cm") , height = unit(12, "cm"),col=col_fun, row_names_max_width = max_text_width(
+        rownames(mat1),
+        gp = gpar(fontsize = 5)
+    ))  ###50 pathways X 10 clusters
+
