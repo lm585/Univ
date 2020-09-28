@@ -70,10 +70,9 @@ Heatmap(matrix = mat,
 ha <- HeatmapAnnotation(sev = c("mix", "mix", "moderate", "mix", "mix", "mix", "moderate", "mix", "severe"), type=c("plasma", "plasma","plasma","plasma","plasma","plasma", "B cell", "B cell", "B cell"), col = list(sev = c("mix" = "white", "moderate" = "blue", "severe" = "orange"), type=c("plasma" = "green", "B cell" = "yellow")))
 ha <- HeatmapAnnotation(..., show_legend = FALSE)
 Heatmap(matrix = mat, name = "signed logFDR", column_names_side = "top",  row_names_gp = gpar(fontsize = 8), top_annotation = ha, column_order = 1:9, clustering_distance_rows = "pearson", clustering_method_rows = "centroid")
-Heatmap(..., row_names_max_width = max_text_width(
-        rownames(mat),
-        gp = gpar(fontsize = 4)
-    ))
+Heatmap(matrix = mat, column_order = 1:dim(mat)[2] , width=unit(6, "cm"), height = unit(6, "cm"), column_names_gp = gpar(fontsize = 6), show_row_names = T, column_names_side = "top", top_annotation = ha, show_heatmap_legend=T, row_names_max_width = max_text_width(
+        rownames(mat)
+    ), row_names_gp = gpar(fontsize = 6))
     
 ####Heatmap of different clusters from dChip
 rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
