@@ -1400,6 +1400,7 @@ cat out-4420919 | cut -f 1 | sort | uniq -c | awk '$1 >= 6' | wc -l
 ###cluster4 of interest, a path in c4 at least higher (or lower) than 3 out of 9 other clusters
 ###3 * 2 = 6 (1vs2 and 2vs1);  >= 6 comparisons with FDR < 0.05; cluster4 vs 0/1/2;  
 bal.bcell.startBelg.10clusters-compare-each-clust.547paths ##sorted
+bal.bcell.startBelg.10clusters-comp-each.88paths-not-in-net
 
 cat out-4420919 | cut -f 1 | sort | uniq -d | while read p; do mv -i "temp-lead-genes.$p.xls" temp-dir/; done
 ###800 pathways
@@ -1428,6 +1429,35 @@ bal.bcell.startBelg.10clusters-compare-each-clust.547paths.path-module-degree
 bal.bcell.startBelg.10clusters.81clust-path
 bash script-module-module-connection-net | awk 'NF == 2' | sort | uniq > bal.bcell.startBelg.10clusters.547paths.mod-mod.net
 bal.bcell.startBelg.10clusters.547paths.mod.recur.genes
+
+bash script-generate-chea-target-file-LEG-pathway-2-sep-01
+     547 temp-bal.bcell.startBelg.cluster0vs1.clust0Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1600492261275-path-nes-p-q.txt
+     547 temp-bal.bcell.startBelg.cluster0vs2.clust0Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1600492527222-path-nes-p-q.txt
+     547 temp-bal.bcell.startBelg.cluster0vs3.clust0Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1600492719572-path-nes-p-q.txt
+     547 ......
+paste all nes-p-q.txt files into one file
+bal.bcell.startBelg.10clusters.547paths.nes-p-q
+###cluster0vs1.	cluster0vs2.	cluster0vs3.	cluster0vs4.	cluster0vs5.	cluster0vs6.	cluster0vs7.	cluster0vs8.	cluster0vs9.	cluster1vs0.	cluster1vs2.	cluster1vs3.	cluster1vs4.	cluster1vs5.	cluster1vs6.	cluster1vs7.	cluster1vs8.	cluster1vs9.	cluster2vs0.	cluster2vs1.	cluster2vs3.	cluster2vs4.	cluster2vs5.	cluster2vs6.	cluster2vs7.	cluster2vs8.	cluster2vs9.	cluster3vs0.	cluster3vs1.	cluster3vs2.	cluster3vs4.	cluster3vs5.	cluster3vs6.	cluster3vs7.	cluster3vs8.	cluster3vs9.	cluster4vs0.	cluster4vs1.	cluster4vs2.	cluster4vs3.	cluster4vs5.	cluster4vs6.	cluster4vs7.	cluster4vs8.	cluster4vs9.	cluster5vs0.	cluster5vs1.	cluster5vs2.	cluster5vs3.	cluster5vs4.	cluster5vs6.	cluster5vs7.	cluster5vs8.	cluster5vs9.	cluster6vs0.	cluster6vs1.	cluster6vs2.	cluster6vs3.	cluster6vs4.	cluster6vs5.	cluster6vs7.	cluster6vs8.	cluster6vs9.	cluster7vs0.	cluster7vs1.	cluster7vs2.	cluster7vs3.	cluster7vs4.	cluster7vs5.	cluster7vs6.	cluster7vs8.	cluster7vs9.	cluster8vs0.	cluster8vs1.	cluster8vs2.	cluster8vs3.	cluster8vs4.	cluster8vs5.	cluster8vs6.	cluster8vs7.	cluster8vs9.	cluster9vs0.	cluster9vs1.	cluster9vs2.	cluster9vs3.	cluster9vs4.	cluster9vs5.	cluster9vs6.	cluster9vs7.	cluster9vs8.
+bash script-pathways-in-a-module-nes-p-q  ###create temp-wilcox-nes-p-q-M1
+bash script-module-level-NES-wilcox-p  > temp-module-level-NES-wilcox-p-res
+bash script-module-level-NES-wilcox-p-step2 > temp-NES-wilcox-p-step2
+bash script-module-level-NES-wilcox-p-step3 temp-NES-wilcox-p-step2 > temp-NES-wilcox-p-step3
+vi  temp-NES-wilcox-p-step3
+paste bal.bcell.startBelg.10clusters.81clust-mod_path bal.bcell.startBelg.10clusters.547paths.mod-mod.net.mod-size temp-NES-wilcox-p-step3 > temp.xls
+
+####Heatmap of different clusters from dChip
+rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
+col_fun = colorRamp2(c(-10, -0.76, 0.76, 10), c("blue", "white", "white", "red")) ##FDR 0.25 for p-value , then log10(P)
+mat <- as.matrix(rna)
+c1 <- read.delim("clust1.xls")
+mat1 <- mat[c1$probe.set, ]
+##mat1 = matrix(mat1, nrow=1) ##for single pathwat
+rownames(mat1) <- c1$NAME
+ord_a <- c(5, 3, 9, 1, 8, 4, 7, 10, 2, 6)
+Heatmap(matrix = mat1, name = " ", column_order = order(ord_a) ,  row_order= 1:dim(mat1)[1], column_names_side = "top",  row_names_gp = gpar(fontsize = 6), clustering_distance_rows = "pearson", clustering_method_rows = "centroid", width= unit(5, "cm") , height = unit(12, "cm"),col=col_fun, row_names_max_width = max_text_width(
+        rownames(mat1),
+        gp = gpar(fontsize = 5)
+    ))  ###50 pathways X 10 clusters
 
 ######TF target enrich analysis
 temp-pax5-bach2.gmt (Chea_TF + transfac)
