@@ -1,0 +1,27 @@
+#
+#"298"	"VSIG4"	"HTO_classificationtargetClust"	0.249404041093797	NA	0.664309326159294	"298"
+# bal.bcell.startBelg.10clusters.gene.ADT.diff2-1.txt
+
+cat bcell.plasma.cell.markers.txt | while read g
+do
+ grep "\"$g\"" bal.bcell.startBelg.10clusters.gene.ADT.diff2-1.txt | awk '
+BEGIN {FS = "\t"; OFS = ""; ORS =""}
+ {
+  print $2; 
+  for(i = 4; i <= NF; i = i+6) 
+  {
+   if($(i+1) == "NA")
+     lg = "NA";
+   else if ($(i+1) > 0)
+     lg = -log($i) / log(10);
+   else if ($(i+1) < 0)
+     lg = log($i) / log(10); ### lg negative
+   else
+     temp = 0;
+
+   print "\t" lg;
+  }
+  print "\n";
+ }'
+done 
+
