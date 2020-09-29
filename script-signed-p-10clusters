@@ -4,7 +4,7 @@
 
 cat bcell.plasma.cell.markers.txt | while read g
 do
- grep "\"$g\"" bal.bcell.startBelg.10clusters.gene.ADT.diff2-1.txt | awk '
+ grep -i "\"$g\"" bal.bcell.startBelg.10clusters.gene.ADT.diff2-1.txt | awk '
 BEGIN {FS = "\t"; OFS = ""; ORS =""}
  {
   print $2; 
