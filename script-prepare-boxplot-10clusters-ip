@@ -1,0 +1,16 @@
+#
+for c in `echo 0 	9	18	27	36	45	54	63	72	81`
+do
+  c2=`expr $c + 9`
+  echo "$c	$c2"
+  cat temp.2.xls | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} 
+  {
+   if(NR == 1)
+     print "cluster" '$c2'/9 "\n";
+   for(i = '$c' + 1; i <= '$c2' ; i++)
+   {
+    print $i "\n";
+   }
+  }' > temp-box-plot-$c2
+ 
+done
