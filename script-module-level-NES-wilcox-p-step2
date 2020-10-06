@@ -1,0 +1,26 @@
+##
+
+grep wilcox-nes-p-q temp-module-level-NES-wilcox-p-res > temp-mod
+grep -v wilcox-nes-p-q temp-module-level-NES-wilcox-p-res > temp-p-diff
+awk 'NR % 3 == 1 {print $2}' temp-p-diff | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+{
+ print $1;
+ if(NR % 10 == 0)
+   print "\n";
+ else
+   print "\t";
+}' > temp-10-Ps
+
+awk 'NR % 3 == 0 {print $1}' temp-p-diff | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+{
+ print $1;
+ if(NR % 10 == 0)
+   print "\n";
+ else
+   print "\t";
+}' > temp-10-DIFFs
+
+paste temp-mod temp-10-Ps temp-10-DIFFs
+
+
+
