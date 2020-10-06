@@ -1,0 +1,17 @@
+# #
+# head temp-files
+# temp-wilcox-nes-p-q-M1
+# temp-wilcox-nes-p-q-M10
+# temp-wilcox-nes-p-q-M11
+# temp-wilcox-nes-p-q-M12
+# temp-wilcox-nes-p-q-M13
+# temp-wilcox-nes-p-q-M14
+# 
+
+cat temp-files | while read f
+do
+ echo "$f"
+ ./module-nes-test-wilcox "$f" 10 9 > temp-940pm924
+ Rscript temp-940pm924 
+ 
+done
