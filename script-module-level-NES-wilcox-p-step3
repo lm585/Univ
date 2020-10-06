@@ -1,0 +1,22 @@
+##
+
+cat "$1" | awk '
+ BEGIN{FS = "\t";
+        OFS = "";
+        ORS = "";
+      }
+{
+ print $1;
+ for(i = 2; i <= 11; i++)
+ {
+  if($(i+10) > 0)
+    c = -1;
+  else if($(i+10) < 0)
+    c = 1;
+  else
+    c = 0;
+
+  print "\t" c * log($i) / log(10);
+ }
+ print "\n"
+}'
