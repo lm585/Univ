@@ -1,0 +1,27 @@
+# probe	C0	C1	C2	C3	C4	C5	C6	C7	C8	C9
+# CD19	-0.748038	0.0152956	-3.29913	-0.0200746	0.877567	0.268578	3.35563	-2.58026	0.478124	0.468972
+# CD20	-2.77985	-0.897552	inf	0.167911	0.356903	-0.315732	3.28138	0.315732	inf	inf
+# CD21
+
+c=2
+
+while [ $c -lt 12 ]
+do
+ ##echo $c
+ cut -f 1,$c bal.bcell.startBelg.10clusters.gene.ADT.markers.wilcoxP.txt  > temp-2colums
+ cat temp-2colums | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+ {
+  if(NR == 1)
+    print $2;
+  else if ($2 != "inf")
+  {
+   if($2  > -log(0.05)/log(10) )
+     print " " $1 "+";
+   if($2  < log(0.05)/log(10) )
+     print " " $1 "-";
+  }
+  else;
+ }'
+ echo
+ c=`expr $c + 1`
+done
