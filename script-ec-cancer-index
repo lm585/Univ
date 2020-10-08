@@ -1501,9 +1501,13 @@ pbmc$Ethnicity.num <- addAnot$notApplicable.18 ###Monaco fine label
 for(i in seq(100000,300000,20000)) {print(colnames(pbmc)[i] == pbmc$Age[i])}
 pbmc.bcell.pos <- pbmc[, pbmc$Age.num == "POS" & pbmc$Ethnicity == "B cells" & pbmc$orig.ident != "COV029"]  ###24 cells in COV029
 dim(pbmc.bcell.pos)
-###[1] 23077 11048
-pbmc.bcell.pos$RNA@counts <- rbind(pbmc.bcell.pos$RNA@counts, pbmc.bcell.pos$ADT@counts)
-pbmc.bcell.pos$RNA@data   <- rbind(pbmc.bcell.pos$RNA@data, pbmc.bcell.pos$ADT@data) 
+###[1] 23077 11048-24 = 11024
+df <- as.data.frame(pbmc.bcell.pos$ADT@counts)
+rownames(df) <- paste("adt--", rownames(df), sep = "")
+pbmc.bcell.pos[["newADT"]] <- CreateAssayObject(df)
+
+pbmc.bcell.pos$RNA@counts <- rbind(pbmc.bcell.pos$RNA@counts, pbmc.bcell.pos$newADT@counts)
+pbmc.bcell.pos$RNA@data   <- rbind(pbmc.bcell.pos$RNA@data, pbmc.bcell.pos$newADT@data) 
 dim(pbmc.bcell.pos)
 ### 23373 11048
 splitLS <- SplitObject(object = pbmc.bcell.pos, split.by = "orig.ident")
@@ -1512,15 +1516,15 @@ splitLS <- lapply(X = splitLS, FUN = function(x) {
     x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000, verbose = T)
 })
 intFeats <- SelectIntegrationFeatures(splitLS)
-intFeats <- setdiff(intFeats, row.names(pbmc.bcell.pos@assays$ADT))
+intFeats <- setdiff(intFeats, row.names(pbmc.bcell.pos@assays$newADT))
 splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
-                                         dims = 1:30, k.filter = 200, anchor.features = c(intFeats, row.names(pbmc.bcell.pos@assays$ADT)))
-###Retained 3558 anchors
+                                         dims = 1:30, k.filter = 200, anchor.features = c(intFeats, row.names(pbmc.bcell.pos@assays$newADT)))
+###Retained 3750 anchors
 pbmc.bcell.pos.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
 pbmc.bcell.pos.integrated <- ScaleData(pbmc.bcell.pos.integrated, verbose = T)
 pbmc.bcell.pos.integrated <- RunPCA(pbmc.bcell.pos.integrated, npcs = 30, verbose = T)
 pbmc.bcell.pos.integrated <- RunUMAP(pbmc.bcell.pos.integrated, reduction = "pca", dims = 1:30)
-pbmc.bcell.pos.integrated.fine <- pbmc.bcell.pos.integrated[, (grepl(pattern = "B cells", pbmc.bcell.pos.integrated$Ethnicity.num)) | pbmc.bcell.pos.integrated$Ethnicity.num == "Plasmablasts"]
+pbmc.bcell.pos.integrated.fine <- pbmc.bcell.pos.integrated[, (grepl(pattern = "B cells", pbmc.bcell.pos.integrated$Ethnicity.num)) | pbmc.bcell.pos.integrated$Ethnicity.num == "Plasmablasts"]  #### 2101 10734; 10734 / 11024  = 97%
 DimPlot(pbmc.bcell.pos.integrated.fine, reduction = "umap", group.by = "Ethnicity.num", cols = c("red", "yellow", "black", "blue", "green"))
 ## cols = c("purple", "yellow", "orange", "green", "black", "blue", "red", "yellow", "red", "blue")
 
@@ -1537,9 +1541,11 @@ paste temp.xls temp | awk 'BEGIN {FS = "\t"; OFS = "\t"}
   else
     print $2;
  } 
-' > temp.T-B-cell.txt
-atlasTcell.bcell <- read.table("temp.T-B-cell.txt", header = T, sep = "\t")
+' > monaco-atlas-T-B-cell.txt 
+atlasTcell.bcell <- read.table("monaco-atlas-T-B-cell.txt", header = T, sep = "\t")
 pbmc.bcell.pos.integrated.fine$BMI <- atlasTcell.bcell$x
+> fea = c( "adt--CD19", "adt--CD20", "adt--CD27-A0154", "adt--CD27-A0191", "adt--CD38-A0389","adt--CD38-A0410" )
+> VlnPlot(pbmc.bcell.pos.integrated.fine, features=fea, slot = "data", pt.size=0, group.by="BMI")
 
 ####Heatmap of different clusters from dChip
 rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
