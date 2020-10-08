@@ -1445,6 +1445,12 @@ bash script-module-level-NES-wilcox-p-step3 temp-NES-wilcox-p-step2 > temp-NES-w
 vi  temp-NES-wilcox-p-step3
 paste bal.bcell.startBelg.10clusters.81clust-mod_path bal.bcell.startBelg.10clusters.547paths.mod-mod.net.mod-size temp-NES-wilcox-p-step3 > temp.xls
 
+#####gene, each gene 9 comparisons, 10 clusters, compute gene wilcoxon 
+bash script-gene-10clusters-each-clust-wilcox ###produce temp-gene-90compare-GRCh38.99-------------XBP1.txt, one gene/one file / one line
+bash script-module-level-NES-wilcox-p  > temp-module-level-NES-wilcox-p-res #### run module-nes-test-wilcox & Rscript
+bash script-module-level-NES-wilcox-p-step2-02 > temp-NES-wilcox-p-step2  ####paste temp-module-name temp-10-Ps temp-10-DIFFs
+bash script-module-level-NES-wilcox-p-step3 temp-NES-wilcox-p-step2 > temp-NES-wilcox-p-step3 ###signed log10(P)
+
 paste bal.bcell.startBelg.cluster[0-9]vs[0-9].clust[0-9]Pos.txt > temp.1.txt
 paste bal.bcell.startBelg.cluster[0-9]vs[0-9].clust[0-9]Pos.ADT.txt > temp.2.txt
 cat temp.[12].txt > bal.bcell.startBelg.10clusters.gene.ADT.diff2-1.txt
@@ -1532,6 +1538,8 @@ paste temp.xls temp | awk 'BEGIN {FS = "\t"; OFS = "\t"}
     print $2;
  } 
 ' > temp.T-B-cell.txt
+atlasTcell.bcell <- read.table("temp.T-B-cell.txt", header = T, sep = "\t")
+pbmc.bcell.pos.integrated.fine$BMI <- atlasTcell.bcell$x
 
 ####Heatmap of different clusters from dChip
 rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
