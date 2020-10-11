@@ -1,0 +1,38 @@
+cat Florida-cohort-samp-info.txt | grep -w EM  | cut -f 1 > temp-samp-ID-EM
+cat Florida-cohort-samp-info.txt | grep -w CM  | cut -f 1 > temp-samp-ID-CM
+vi script-sel-colum-with-samp-ids
+bash -x ./script-sel-colum-with-samp-ids temp-samp-ID-CM temp-samp-ID-EM
+mv -i out raw.modify.CM-EM-ordered.txt
+
+x <- read.delim("raw.modify.CM-EM-ordered.txt", header = T, row.names=1)
+group <- factor(c(rep(1, 16), rep(2, 16)))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+keep <-rowSums(cpm(y)>=1) >= 8
+y<-y[keep,]
+dim(y)
+[1] 15436    32
+design<-model.matrix(~0+group) 
+ y <- estimateGLMCommonDisp(y,design) 
+ y <- estimateGLMTrendedDisp(y,design) 
+ y <- estimateGLMTagwiseDisp(y,design) 
+ fit<-glmFit(y,design) 
+ lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+ top2v1 <- topTags(lrt.2vs1, n=50000) 
+write.table(top2v1, "diff2-1.txt", sep="\t")
+
+ mv -i diff2-1.txt  diff-CM-EM-p-value.txt
+
+> x <- read.delim("raw.modify.EM-4-12-ordered.txt", header = T, row.names=1)
+> group <- factor(c(rep(1, 4), rep(2, 12)))
+> summary(group)
+ 1  2 
+ 4 12 
+> y <- DGEList(counts=x,group=group)
+> y <- calcNormFactors(y)
+> keep <-rowSums(cpm(y)>=1) >= 4
+> y<-y[keep,]
+> dim(y)
+[1] 15010    16
+
+  mv -i diff2-1.txt  diff-EM-4-12-p-value.txt
