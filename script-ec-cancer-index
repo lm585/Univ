@@ -1463,6 +1463,10 @@ for(i = 2; i <= NF; i = i+6)
 bcell.plasma.cell.markers.txt
 bal.bcell.startBelg.10clusters.gene.ADT.markers.signed-P.txt ###script-signed-p-10clusters 
 
+#####plasmablast severity comparison
+paste bal.bcell.startBelg.plasmablastSevModeratevsSevere.Moderate-Pos.txt	bal.bcell.startBelg.plasmablastSevModeratevsCritical.Moderate-Pos.txt	bal.bcell.startBelg.plasmablastSevSeverevsModerate.Severe-Pos.txt	bal.bcell.startBelg.plasmablastSevSeverevsCritical.Severe-Pos.txt	bal.bcell.startBelg.plasmablastSevCriticalvsModerate.Critical-Pos.txt	bal.bcell.startBelg.plasmablastSevCriticalvsSevere.Critical-Pos.txt > temp-plasmablastSev-6comp.txt
+bash  tem-script-sel-DEGs | cut -f 6,12,18,24,30,36 | head
+
 ####10-01-2020 PBMC B cells
 cat  PBMC_barcodes_meta.subset.annot.Ruth.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $19 == "\"B cells\""' | cut -f 1 > temp-monaco.15274
 cat  PBMC_barcodes_meta.subset.annot.Ruth.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $17 ~ /B_cell/ ' |  cut -f 1 > temp-CellAtlas.20345
@@ -1498,10 +1502,12 @@ pbmc$Sex <- addAnot$notApplicable.3 ####time point, T1
 pbmc$Sex.num <- addAnot$notApplicable.21 ####Critical Moderate Severe
 pbmc$Ethnicity <- addAnot$notApplicable.17 ####Monaco main label
 pbmc$Ethnicity.num <- addAnot$notApplicable.18 ###Monaco fine label
+pbmc$atlas.main <- addAnot$notApplicable.15 ###cell atlas main
 for(i in seq(100000,300000,20000)) {print(colnames(pbmc)[i] == pbmc$Age[i])}
-pbmc.bcell.pos <- pbmc[, pbmc$Age.num == "POS" & pbmc$Ethnicity == "B cells" & pbmc$orig.ident != "COV029"]  ###24 cells in COV029
+###pbmc.bcell.pos <- pbmc[, pbmc$Age.num == "POS" & pbmc$Ethnicity == "B cells" & pbmc$orig.ident != "COV029"]  ###24 cells in COV029
+pbmc.bcell.pos <- pbmc[, pbmc$Age.num == "POS" & pbmc$Ethnicity == "B cells" & pbmc$orig.ident != "COV029" & grepl(pattern = "B_cell", pbmc$atlas.main) ]  ###24 cells in COV029
 dim(pbmc.bcell.pos)
-###[1] 23077 11048-24 = 11024
+###[1] 23077 10132
 df <- as.data.frame(pbmc.bcell.pos$ADT@counts)
 rownames(df) <- paste("adt--", rownames(df), sep = "")
 pbmc.bcell.pos[["newADT"]] <- CreateAssayObject(df)
@@ -1509,7 +1515,7 @@ pbmc.bcell.pos[["newADT"]] <- CreateAssayObject(df)
 pbmc.bcell.pos$RNA@counts <- rbind(pbmc.bcell.pos$RNA@counts, pbmc.bcell.pos$newADT@counts)
 pbmc.bcell.pos$RNA@data   <- rbind(pbmc.bcell.pos$RNA@data, pbmc.bcell.pos$newADT@data) 
 dim(pbmc.bcell.pos)
-### 23373 11048
+### 23373 10132
 splitLS <- SplitObject(object = pbmc.bcell.pos, split.by = "orig.ident")
 splitLS <- lapply(X = splitLS, FUN = function(x) {
     x <- NormalizeData(x, verbose = T)
@@ -1519,14 +1525,17 @@ intFeats <- SelectIntegrationFeatures(splitLS)
 intFeats <- setdiff(intFeats, row.names(pbmc.bcell.pos@assays$newADT))
 splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
                                          dims = 1:30, k.filter = 200, anchor.features = c(intFeats, row.names(pbmc.bcell.pos@assays$newADT)))
-###Retained 3750 anchors
+###Retained 3371 anchors
 pbmc.bcell.pos.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
 pbmc.bcell.pos.integrated <- ScaleData(pbmc.bcell.pos.integrated, verbose = T)
 pbmc.bcell.pos.integrated <- RunPCA(pbmc.bcell.pos.integrated, npcs = 30, verbose = T)
 pbmc.bcell.pos.integrated <- RunUMAP(pbmc.bcell.pos.integrated, reduction = "pca", dims = 1:30)
-pbmc.bcell.pos.integrated.fine <- pbmc.bcell.pos.integrated[, (grepl(pattern = "B cells", pbmc.bcell.pos.integrated$Ethnicity.num)) | pbmc.bcell.pos.integrated$Ethnicity.num == "Plasmablasts"]  #### 2101 10734; 10734 / 11024  = 97%
-DimPlot(pbmc.bcell.pos.integrated.fine, reduction = "umap", group.by = "Ethnicity.num", cols = c("red", "yellow", "black", "blue", "green"))
+###pbmc.bcell.pos.integrated.fine <- pbmc.bcell.pos.integrated[, (grepl(pattern = "B cells", pbmc.bcell.pos.integrated$Ethnicity.num)) | pbmc.bcell.pos.integrated$Ethnicity.num == "Plasmablasts"]  #### 2101 10734; 10734 / 11024  = 97%
+###DimPlot(pbmc.bcell.pos.integrated.fine, reduction = "umap", group.by = "Ethnicity.num", cols = c("red", "yellow", "black", "blue", "green"))
 ## cols = c("purple", "yellow", "orange", "green", "black", "blue", "red", "yellow", "red", "blue")
+unique(pbmc.bcell.pos.integrated$atlas.main)
+unique(pbmc.bcell.pos.integrated$Ethnicity)
+DimPlot(pbmc.bcell.pos.integrated, reduction = "umap", group.by = "Ethnicity.num", cols = c("grey", "grey", "red","grey", "grey","grey", "yellow", "grey", "grey","black","grey", "blue", "grey","grey","green", "grey", "grey","grey") )
 
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
