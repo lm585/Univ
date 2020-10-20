@@ -1463,9 +1463,67 @@ for(i = 2; i <= NF; i = i+6)
 bcell.plasma.cell.markers.txt
 bal.bcell.startBelg.10clusters.gene.ADT.markers.signed-P.txt ###script-signed-p-10clusters 
 
+#############################################################################################
 #####plasmablast severity comparison
 paste bal.bcell.startBelg.plasmablastSevModeratevsSevere.Moderate-Pos.txt	bal.bcell.startBelg.plasmablastSevModeratevsCritical.Moderate-Pos.txt	bal.bcell.startBelg.plasmablastSevSeverevsModerate.Severe-Pos.txt	bal.bcell.startBelg.plasmablastSevSeverevsCritical.Severe-Pos.txt	bal.bcell.startBelg.plasmablastSevCriticalvsModerate.Critical-Pos.txt	bal.bcell.startBelg.plasmablastSevCriticalvsSevere.Critical-Pos.txt > temp-plasmablastSev-6comp.txt
 bash  tem-script-sel-DEGs | cut -f 6,12,18,24,30,36 | head
+bash tem-script-sel-DEGs > temp-plasm6-3bcell.ADT.txt
+bash temp-script-marker-clust4-compare-each-clust-signed-FDR > temp-pb-6compare.txt
+Month300
+pb.integrated <- bCombBcell.integrated[, bCombBcell.integrated$seurat_clusters == 1 | bCombBcell.integrated$seurat_clusters == 3 | bCombBcell.integrated$seurat_clusters == 5 | bCombBcell.integrated$seurat_clusters == 8]
+dim(pb.integrated)
+[1] 2160  629
+
+bash script-generate-chea-target-file-LEG-pathway-3-sep-01 > out-plasmablastSev.FDR0d05.paths
+##M-S	M-C	S-M	S-C	C-M	C-S; 6 comparisons; at least 2 compare with FDR < 0.05
+cat out-plasmablastSev.FDR0d05.paths |awk 'NR > 1' | cut -f 1 | sort | uniq -d > bal.bcell.startBelg.plasmablastSev.106paths
+bash script-generate-chea-target-file-LEG-pathway-2-sep-01
+###     106 temp-bal.bcell.startBelg.plasmablastSevCriticalvsModerate.Critical-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905038116-path-nes-p-q.txt
+###     106 temp-bal.bcell.startBelg.plasmablastSevCriticalvsSevere.Critical-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905252263-path-nes-p-q.txt
+###     106
+paste temp-bal.bcell.startBelg.plasmablastSevModeratevsSevere.Moderate-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905661852-path-nes-p-q.txt  temp-bal.bcell.startBelg.plasmablastSevModeratevsCritical.Moderate-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905456769-path-nes-p-q.txt  temp-bal.bcell.startBelg.plasmablastSevSeverevsModerate.Severe-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602906103114-path-nes-p-q.txt temp-bal.bcell.startBelg.plasmablastSevSeverevsCritical.Severe-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905896257-path-nes-p-q.txt temp-bal.bcell.startBelg.plasmablastSevCriticalvsModerate.Critical-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905038116-path-nes-p-q.txt temp-bal.bcell.startBelg.plasmablastSevCriticalvsSevere.Critical-Pos.h.all.kegg.reactome.v7.1.GseaPreranked.1602905252263-path-nes-p-q.txt > bal.bcell.startBelg.plasmablastSev.106paths.nes-p-q
+cat bal.bcell.startBelg.plasmablastSev.106paths.nes-p-q | cut -f 1,2,6,10,14,18,22 > bal.bcell.startBelg.plasmablastSev.106paths.nes.txt
+###change empty cell in .nes.txt into NA
+a <- read.delim("bal.bcell.startBelg.plasmablastSev.106paths.nes.txt", row.names = 1)
+mat <- as.matrix(a)
+Heatmap(matrix = mat, name = "NES", column_order = 1:6, column_names_side = "top",  row_names_gp = gpar(fontsize = 4), row_names_max_width = max_text_width(
+        rownames(mat)
+    ), col = col_fun) ###106 pathways, 6 columns
+cat out-plasmablastSev.FDR0d05.paths |awk 'NR > 1' | cut -f 1 | sort | uniq -c | awk '$1 > 2' | awk '{print $2}' > temp-2fdrs
+two.fdrs <- read.delim("temp-2fdrs", header = F)
+mat <- as.matrix(rna[two.fdrs$V1,])
+Heatmap(matrix = mat, name = "NES", column_order = 1:6, column_names_side = "top",  row_names_gp = gpar(fontsize = 6),  col = col_fun, height = unit(4, "cm"), width = unit(3, "cm"), show_heatmap_legend=F) ###15r (pathway name)  X 6c 
+selrows <- read.delim("bal.bcell.startBelg.plasmablastSev.106paths.selRows.txt")
+ha = rowAnnotation(foo = anno_mark(at = selrows$index, labels = selrows$pathway,labels_gp = gpar(fontsize = 7)))
+Heatmap(matrix = mat, name = "NES", column_order = 1:6, column_names_side = "top",   col = col_fun, right_annotation = ha, show_row_names=F)
+
+
+### visualize genes scaled in heatmap
+$ head temp.txt
+"primerid"	"logFC"
+"GRCh38.99-------------ACTB"	0.523520958290465
+
+genes <- read.delim("temp.txt", header = T)
+top50 = genes
+splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
+                                         dims = 1:30, k.filter = 35, anchor.features = unique(c(intFeats, row.names(bCombBcell@assays$ADT), genes$primerid)))
+bCombBcell.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
+bCombBcell.integrated <- ScaleData(bCombBcell.integrated, verbose = T)
+bCombBcell.integrated <- RunPCA(bCombBcell.integrated, npcs = 30, verbose = T)
+bCombBcell.integrated <- RunUMAP(bCombBcell.integrated, reduction = "pca", dims = 1:30)
+cl <- read.table("bal.bcell.covidPos.clust.startBelg.xls", header = T, sep = "\t") ### cells
+for ( i in rownames(cl)) {bCombBcell.integrated$HTO_classification[i] = cl[i,1] }
+dim(bCombBcell.integrated)
+pb.integrated <- bCombBcell.integrated[, bCombBcell.integrated$HTO_classification == 1 | bCombBcell.integrated$HTO_classification == 3 | bCombBcell.integrated$HTO_classification == 5 | bCombBcell.integrated$HTO_classification == 8]
+dim(pb.integrated)
+mat <- as.matrix(pb.integrated$integrated@scale.data[genes$primerid,])
+rownames(mat) <- gsub(pattern = ".+---", replacement = "g-", rownames(mat))
+ha <- HeatmapAnnotation(sev = pb.integrated@meta.data$Severity.Score.worse )
+Heatmap(matrix = mat,
+        column_split = pb.integrated@meta.data$Severity.Score.worse,
+        top_annotation = ha,
+        show_column_names = FALSE,
+        name = "scale.data", row_names_gp = gpar(fontsize = 9))
 
 ####10-01-2020 PBMC B cells
 cat  PBMC_barcodes_meta.subset.annot.Ruth.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $19 == "\"B cells\""' | cut -f 1 > temp-monaco.15274
