@@ -1,0 +1,22 @@
+#
+
+rm temp-lead-genes.*.xls
+dir="/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/advanced"
+d="bal.bcell.startBelg.plasmablastSevModeratevsSevere.Moderate-Pos.c7.all.v7.1.GseaPreranked.1603152409607"
+
+cat "$1" | while read path
+do
+ t=`ls "$dir/$d/$path.xls" | wc -l`
+ if [ $t -ne 1 ]
+ then
+   echo "$path.xls -ne 1 in the directory"
+ else
+   cat "$dir/$d/$path.xls" | grep -w Yes | cut -f 2 | grep -v PROBE | awk '
+   BEGIN {FS = "\t";
+         OFS = "";
+         }
+    {
+     print  $1;
+    }' > temp-lead-genes.$path.xls
+ fi
+done
