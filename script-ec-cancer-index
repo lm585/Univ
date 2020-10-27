@@ -1497,6 +1497,27 @@ selrows <- read.delim("bal.bcell.startBelg.plasmablastSev.106paths.selRows.txt")
 ha = rowAnnotation(foo = anno_mark(at = selrows$index, labels = selrows$pathway,labels_gp = gpar(fontsize = 7)))
 Heatmap(matrix = mat, name = "NES", column_order = 1:6, column_names_side = "top",   col = col_fun, right_annotation = ha, show_row_names=F)
 
+#############################################################################################
+#####SNP: bam -> snps in VDJ regions of genes per person per BAL b cells
+14	ensembl_havana	gene	105668113	106538344	.	-	.	gene_id "ENSG00000211896"; gene_version "6"; gene_name "IGHG1"; gene_source "ensembl_havana"; gene_biotype "IG_C_gene"; havana_gene "OTTHUMG00000152495"; havana_gene_version "2";
+IGG1 gene coord
+samtools view   COV012.possorted_genome_bam.bam  GRCh38___14 | grep "IGHV1"  > temp.sam
+###5176 temp.sam
+bash script-put-cell-barcode-1st-field temp.sam | wc -l
+###2721 reads with CB:Z:[A-Z][A-Z]*-[0-9] tag
+bash script-put-cell-barcode-1st-field temp.sam | sed 's/CB:Z:/COV012_/' | sort -t '	' +0 -1 > temp.CB.sam
+sort temp-COVIM077-moderate-1037-bal-bcells.cellID.txt > temp-COVIM077-moderate-1037-bal-bcells.cellID.txt.sorted
+join -t '	' -1 1 temp-COVIM077-moderate-1037-bal-bcells.cellID.txt.sorted -2 1 temp.CB.sam | cut -f 2-1234 | sort | uniq > temp.CB.patient.celltype.sam
+###2112 reads temp.CB.patient.celltype.sam
+cat sam.header.lines temp.CB.patient.celltype.sam > temp
+mv temp temp.CB.patient.celltype.sam 
+samtools view -b -S -o  temp.CB.patient.celltype.bam  temp.CB.patient.celltype.sam
+###[samopen] SAM header is present: 195 sequences.
+samtools sort  temp.CB.patient.celltype.bam temp.CB.patient.celltype.sorted
+samtools index temp.CB.patient.celltype.sorted.bam
+
+
+
 
 ### visualize genes scaled in heatmap
 $ head temp.txt
