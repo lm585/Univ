@@ -1615,6 +1615,28 @@ pbmc.bcell.pos.integrated <- RunUMAP(pbmc.bcell.pos.integrated, reduction = "pca
 unique(pbmc.bcell.pos.integrated$atlas.main)
 unique(pbmc.bcell.pos.integrated$Ethnicity)
 DimPlot(pbmc.bcell.pos.integrated, reduction = "umap", group.by = "Ethnicity.num", cols = c("grey", "grey", "red","grey", "grey","grey", "yellow", "grey", "grey","black","grey", "blue", "grey","grey","green", "grey", "grey","grey") )
+temp_cells <- pbmc.bcell.pos.integrated[, grepl(pattern = "B cells", pbmc.bcell.pos.integrated$Ethnicity.num) | grepl(pattern = "Plasmablasts", pbmc.bcell.pos.integrated$Ethnicity.num)] ###10074 cells
+DimPlot(temp_cells, reduction = "umap", group.by = "Ethnicity.num", cols = c("red","yellow", "black","blue", "green"))
+
+scaledMat <- as.matrix(pbmc.bcell.pos.integrated$integrated@data)
+
+hpca <- HumanPrimaryCellAtlasData()
+hpcaB <- hpca[, hpca@colData$label.fine %in% c("B_cell", "B_cell:CXCR4+_centroblast", "B_cell:CXCR4-_centrocyte", "B_cell:Germinal_center", "B_cell:Memory", "B_cell:Naive", "B_cell:Plasma_cell", "B_cell:immature", "Pre-B_cell_CD34-", "Pro-B_cell_CD34+")]
+
+predSubsetB <- SingleR(test    = scaledMat,
+		       ref     = hpcaB,
+		       labels  = hpcaB$label.fine,
+		       )
+pbmc.bcell.pos.integrated <- AddMetaData(object = pbmc.bcell.pos.integrated,
+			 metadata = predSubsetB$labels,
+			 col.name = "singleRcellAtlasFine")
+DimPlot(pbmc.bcell.pos.integrated, reduction = "umap", group.by = "singleRcellAtlasFine", cols = c("purple", "gold2", "orange",  "black", "green","blue", "red", "yellow", "salmon", "deepskyblue4"))
+
+pbmc.bcell.pos.integrated <- FindNeighbors(object = pbmc.bcell.pos.integrated)
+pbmc.bcell.pos.integrated <- FindClusters(object = pbmc.bcell.pos.integrated)
+##Number of nodes: 10132
+##Number of edges: 339017
+##Number of communities: 14
 
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
