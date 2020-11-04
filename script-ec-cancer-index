@@ -1618,8 +1618,11 @@ DimPlot(pbmc.bcell.pos.integrated, reduction = "umap", group.by = "Ethnicity.num
 temp_cells <- pbmc.bcell.pos.integrated[, grepl(pattern = "B cells", pbmc.bcell.pos.integrated$Ethnicity.num) | grepl(pattern = "Plasmablasts", pbmc.bcell.pos.integrated$Ethnicity.num)] ###10074 cells
 DimPlot(temp_cells, reduction = "umap", group.by = "Ethnicity.num", cols = c("red","yellow", "black","blue", "green"))
 
+library(SingleR)
 scaledMat <- as.matrix(pbmc.bcell.pos.integrated$integrated@data)
-
+##rownames(scaledMat) <- gsub(pattern = ".+---", replacement = "",
+                            rownames(scaledMat))
+##we want to use gene expr for the SingleR annotation, not CITE-seq data
 hpca <- HumanPrimaryCellAtlasData()
 hpcaB <- hpca[, hpca@colData$label.fine %in% c("B_cell", "B_cell:CXCR4+_centroblast", "B_cell:CXCR4-_centrocyte", "B_cell:Germinal_center", "B_cell:Memory", "B_cell:Naive", "B_cell:Plasma_cell", "B_cell:immature", "Pre-B_cell_CD34-", "Pro-B_cell_CD34+")]
 
@@ -1631,12 +1634,24 @@ pbmc.bcell.pos.integrated <- AddMetaData(object = pbmc.bcell.pos.integrated,
 			 metadata = predSubsetB$labels,
 			 col.name = "singleRcellAtlasFine")
 DimPlot(pbmc.bcell.pos.integrated, reduction = "umap", group.by = "singleRcellAtlasFine", cols = c("purple", "gold2", "orange",  "black", "green","blue", "red", "yellow", "salmon", "deepskyblue4"))
+hpca <- MonacoImmuneData()
+hpcaB <- hpca[, hpca$label.main == "B cells"]
+
 
 pbmc.bcell.pos.integrated <- FindNeighbors(object = pbmc.bcell.pos.integrated)
 pbmc.bcell.pos.integrated <- FindClusters(object = pbmc.bcell.pos.integrated)
 ##Number of nodes: 10132
 ##Number of edges: 339017
 ##Number of communities: 14
+pbmc.bcell.pos.integrated <- readRDS("pbmc.bcell.pos.integ.10132cells.clust.singleR.RDS")
+a.proposal <- c("adt--CD11c", "adt--CD138-A0055", "adt--CD138-A0831", "adt--CD19", "adt--CD21", "adt--CD27-A0154", "adt--CD27-A0191", "adt--CD38-A0389", "adt--CD38-A0410", "adt--CD24", "adt--IgA", "adt--IgD", "adt--IgG", "adt--IgM")
+a.TF <- c("PRDM1", "IRF4", "XBP1", "PAX5", "BCL6", "BACH2")
+
+cat temp-meta.data.txt | cut -f 2,56,5,40,39 | sort | uniq -c > pbmc.bcell.pos.patient.cluster
+
+######pbmc neut antibody
+cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
+#COVIM086	T2	Blood	Plasma	positive	306.2
 
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
