@@ -1652,6 +1652,26 @@ cat temp-meta.data.txt | cut -f 2,56,5,40,39 | sort | uniq -c > pbmc.bcell.pos.p
 ######pbmc neut antibody
 cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
 #COVIM086	T2	Blood	Plasma	positive	306.2
+./scrnaseq-metaannot-combine temp-blood-pos-Ab.sorted.txt patient.sev.death.txt out
+paste temp-blood-pos-Ab.sorted.txt out > temp-blood-pos-Ab.sorted.sevInfo.txt
+
+x <- read.delim("temp-cor.txt")
+for ( i in 1:14)
+{
+ res <- cor.test(x[,i], x$log10.Ab.)
+ print(paste("C",i - 1, sep = ""))
+ print(res$p.value)
+ print(res$estimate)
+}
+cat temp.txt | awk 'NR % 4 == 1 {print $2}' > temp-1
+cat temp.txt | awk 'NR % 4 == 2 {print $2}' > temp-2
+cat temp.txt | awk 'NR % 4 == 0 {print $1}' > temp-3
+paste temp-1 temp-2 temp-3
+
+cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -vw Blood | sort > temp-bal-pos-Ab.sorted.txt
+./scrnaseq-metaannot-combine temp-bal-pos-Ab.sorted.txt temp-urea out
+paste temp-bal-pos-Ab.sorted.txt out > temp-bal-pos-Ab.sorted.urea.txt
+
 
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
