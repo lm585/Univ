@@ -1672,6 +1672,30 @@ cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -vw Blood 
 ./scrnaseq-metaannot-combine temp-bal-pos-Ab.sorted.txt temp-urea out
 paste temp-bal-pos-Ab.sorted.txt out > temp-bal-pos-Ab.sorted.urea.txt
 
+./scrnaseq-metaannot-combine  bComb.meta.data.bal.pos.75016cells.txt BAL_barcodes_meta.subset.annot.Ruth.txt out
+paste  bComb.meta.data.bal.pos.75016cells.txt  out  |  grep -v "notApplicable.*notApplicable.*notApplicable.*notApplicable.*notApplicable.*notApplicable" > temp-bal.pos.cells.annot.txt #57325 lines
+cat temp-bal.pos.cells.annot.txt | head -1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print i, $i}'
+cat temp-bal.pos.cells.annot.txt | cut -f 30,31,35 | sort | uniq -c | sort -n > temp.xls ###slim two annot, Ruth annot
+cat temp-bal.pos.cells.annot.txt | grep -v "\"Epi " | cut -f 16 | sort | uniq -c > temp.txt
+bal.freq <- read.delim("temp.txt", row.names=1)
+nAb<-scan()
+for ( i in 1:10)
+{
+ res <- cor.test(bal.freq[,i], nAb)
+ print(colnames(bal.freq)[i])
+ print(res$p.value)
+ print(res$estimate)
+}
+
+rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
+cor.r <- scan()
+for(i in 150:dim(rna)[1])
+{
+ res <- cor.test(as.numeric(rna[i,]), cor.r, method="spearman", exact=F)
+ print(rownames(rna)[i]);
+ print(res$p.value)
+ print(res$estimate)
+}
 
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
