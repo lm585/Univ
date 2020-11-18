@@ -1697,6 +1697,37 @@ for(i in 150:dim(rna)[1])
  print(res$estimate)
 }
 
+bal.clust.freq <- read.delim("scrna-bcell-cluster-freq.zscore.txt", row.names = 1)
+mat <- as.matrix(bal.clust.freq)
+a <- scan()
+1.14570315
+0.966892429
+1.99302481
+0.790716384
+1.14570315
+
+b = a
+nab <- (b-mean(a))/var(a)^(1/2)
+col_fun = colorRamp2(c(-2, 0,2), c("blue", "white", "red"))
+col_fun2 = colorRamp2(c(-1, 0,1), c("green", "white", "yellow"))
+r <- c(0.6881697, 0.1122944, -0.4713595, -0.2313009, -0.4882667, 0.7517922, 0.9033097, 0.2242604, -0.204411, 0.03688181)
+ha <- HeatmapAnnotation( sev = c("Critical", "Moderate", "Critical", "Critical", "Severe"), col = list(nAb = col_fun, sev =  c("Critical" = "grey", "Moderate" = "blue", "Severe" = "orange")), nAb = nab)
+row_ha = rowAnnotation(r = r, col = list(r = col_fun2))
+Heatmap(matrix = mat, name = "BAL Bcell clust freq", column_order = order(c(3,1,4,5,2)), column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(6, "cm"), width= unit(6, "cm"), top_annotation = ha, right_annotation = row_ha, row_order=order(-r))
+
+(LL)PC_C0
+plasmablast_C1  
+Bcell_C2
+plasmablast_C3  
+Bcell_C4
+plasmablast_C5  
+switchMem_C6    
+switchMem_C7    
+plasmablast_C8  
+(LL)PC_C9
+cn <- scan(what="")
+rownames(mat) <- cn
+
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
 cut -f 1 temp.xls > temp.cellID.xls
