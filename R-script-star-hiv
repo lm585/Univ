@@ -329,3 +329,26 @@ lrt.2vs1 <- glmLRT(fit, coef = "hiv")
 top2v1 <- topTags(lrt.2vs1, n=50000) 
 write.table(top2v1, "diff2-1.txt", sep="\t")
 
+####TCM corr with infection freq#######
+cut -f 1-7 ./dir-map-stat/gene-count-Tcm-CD127-CD25+.6-10.txt > gene-count-Tcm.6samp.txt
+> keep <-rowSums(cpm(y)>0) >= 5
+> y<-y[keep,]
+> dim(y)
+[1] 5696    6
+h <- read.delim("star-CPM.tcm.hiv.inorder.txt", header = F)
+star-CPM.tcm.GLM.hiv.diff2-1.txt ###GLM DEGs
+cat star-CPM.tcm.GLM.hiv.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 > 0 && $6 < 0.25' | cut -f 1 > star-CPM.tcm.GLM.hiv.diff2-1.45pos.corr.genes ##p = 0.019885072360234	0.24948
+cat star-CPM.tcm.GLM.hiv.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 < 0 && $5 < 0.00125' | cut -f 1 > star-CPM.tcm.GLM.hiv.diff2-1.50neg.corr.genes
+a <- read.delim(file = "star-CPM-tcm.11-15.txt", header = T, row.names=1)
+mv -i temp.2 star-CPM-tcm.11-15.zscore.txt
+rna <- read.delim(file = "star-CPM-tcm.11-15.zscore.txt", header = T, row.names=1)
+cut -f 1 star-CPM.tcm.GLM.hiv.diff2-1.45pos.corr.genes | sed 's/"//g' |while read g; do grep -w $g GRCh38-geneID-name ; done > star-CPM.tcm.GLM.hiv.diff2-1.45pos.corr.genes.name
+star-CPM.tcm.GLM.hiv.diff2-1.50neg.corr.genes.name
+bash ./script-preRank-genes star-CPM.tcm.GLM.hiv.diff2-1.txt > star-CPM.tcm.GLM.hiv.diff2-1.rnk
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" star-CPM.tcm.GLM.hiv.diff2-1.rnk GRCh38-geneID-name out
+paste star-CPM.tcm.GLM.hiv.diff2-1.rnk out > temp
+paste star-CPM.tcm.GLM.hiv.diff2-1.rnk out | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $2}' > star-CPM.tcm.GLM.hiv.diff2-1.name.rnk
+bash ./script-gsea-cmds-2-oct-2020
+###CD4 memory or TCM, CM
+cat "$f" | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 0.05' | grep -i mem   |grep -iv cd8  | grep -iv bcell | sort > temp.xls
+
