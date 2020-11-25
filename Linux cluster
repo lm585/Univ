@@ -38,6 +38,20 @@ samtools mpileup -Q 0 -q 20 -d 1000000 -f /home/lxm416/hg19/hg19.fa 583267_2-TEM
 ######################### submit batch job###################
 $ sbatch batchPileup
 
+
+########################cat batch-script-DEG-clust4-vs-clustPairwise
+#!/bin/bash
+#SBATCH -o test.clust4.o%j
+#SBATCH --time=50:30:00      # 50h of wall time
+#SBATCH -N 1                 # 1 Node
+#SBATCH -c 4                 # 4 processor
+#SBATCH --mem=50gb             # Assign 50gb memory; default in 1gb
+
+module load gcc
+module load R
+module load R/4.0.2
+Rscript script-DEG-clust4-vs-clustPairwise.genesAndADT.pbmc.R
+
 ########################check job status ######################
 $ sacct -j 12428287 -o jobid,jobname,state,exitcode,derivedexitcode
        JobID    JobName      State ExitCode DerivedExitCode 
