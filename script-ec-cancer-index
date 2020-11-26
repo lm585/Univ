@@ -1649,6 +1649,10 @@ a.TF <- c("PRDM1", "IRF4", "XBP1", "PAX5", "BCL6", "BACH2")
 
 cat temp-meta.data.txt | cut -f 2,56,5,40,39 | sort | uniq -c > pbmc.bcell.pos.patient.cluster
 
+cat  "PBMC_CZI.meta-annot.comb.txt" | cut -f 42,45,46,58,60,64,65 > temp
+./scrnaseq-metaannot-combine temp-cellID-clust temp out
+paste  temp-cellID-clust out | cut -f 1,2,4-20 > temp.xls
+
 ######pbmc neut antibody
 cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
 #COVIM086	T2	Blood	Plasma	positive	306.2
@@ -1728,6 +1732,39 @@ plasmablast_C8
 cn <- scan(what="")
 rownames(mat) <- cn
 
+#pbmc cluster freq ~ nab
+a <- scan()
+1.413299764
+3.00134423
+1.840106094
+3.050882211
+1.176091259
+2.923244019
+2.378942699
+2.975615598
+2.486005186
+
+b = a
+nab <- (b-mean(a))/var(a)^(1/2)
+bal.clust.freq <- read.delim("scrna-bcell-cluster-freq.PBMC.T1.T2.zscore.txt", row.names = 1)
+col_fun = colorRamp2(c(-3, 0,3), c("blue", "white", "red"))
+ha <- HeatmapAnnotation( sev = c("Severe", "Critical", "Moderate", "Critical", "Critical", "Critical", "Moderate", "Critical", "Critical"), col = list(nAb = col_fun, sev =  c("Critical" = "grey", "Moderate" = "blue", "Severe" = "orange")), nAb = nab)
+Heatmap(matrix = mat, name = "PBMC Bcell clust freq", column_order = order(c(2,3,1,4,5,7,6,8,9)), column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(6, "cm"), width= unit(6, "cm"), top_annotation = ha, right_annotation = row_ha, row_order=order(-r))
+
+##C7 related to B cell
+cat temp-c7-geneset-names | grep -i Bcell > temp
+cat temp-c7-geneset-names | grep -i plasma_cell >> temp
+cat temp-c7-geneset-names | grep -i plasmablast >> temp
+sort temp | uniq > temp-Bcell-plasma
+##_ converted to new line in vi mode
+556 temp-Bcell-plasma-01
+518 temp-Bcell-plasma-02 (removed CD4, CD8, e.g. GSE27786-BCELL-VS-CD4-TCELL-DN)
+####
+502 temp-Bcell-plasma-03
+cat temp-Bcell-plasma-02 | grep -iv "\-nk" > temp-Bcell-plasma-03 ####GSE27786-BCELL-VS-NKTCELL-UP
+476 temp-Bcell-plasma-04
+cat temp-Bcell-plasma-03 | grep -iwv MONOCYTE |  grep -iwv MYELOID | grep -iwv NEUTROPHIL | grep -iwv TCELL |  grep -iwv TH[12] > temp-Bcell-plasma-04
+###GSE22886-NAIVE-BCELL-VS-MONOCYTE-UP, GSE10325-BCELL-VS-MYELOID-UP, GSE27786-BCELL-VS-NEUTROPHIL-DN
 ####get ~1000 B cells by Monaco, but T cell by Atlas
 write.table(pbmc.bcell.pos.integrated.fine$"Ethnicity.num", file = "temp.xls", sep = "\t")
 cut -f 1 temp.xls > temp.cellID.xls
@@ -1746,6 +1783,29 @@ atlasTcell.bcell <- read.table("monaco-atlas-T-B-cell.txt", header = T, sep = "\
 pbmc.bcell.pos.integrated.fine$BMI <- atlasTcell.bcell$x
 > fea = c( "adt--CD19", "adt--CD20", "adt--CD27-A0154", "adt--CD27-A0191", "adt--CD38-A0389","adt--CD38-A0410" )
 > VlnPlot(pbmc.bcell.pos.integrated.fine, features=fea, slot = "data", pt.size=0, group.by="BMI")
+
+################new BAL annot. new cells, 11-23-2020
+> a <- readRDS("../output/seuratObj_BAL_CZI_meta.rds")
+> write.table(a@meta.data, file = "temp-seuratObj_BAL_CZI_meta.meta.data", quote=F, sep = "\t")
+ grep -iw COV002_AAACCCAAGATAGGGA-1 temp-seuratObj_BAL_CZI_meta.meta.data | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print i, $i}'  | grep -i COVIM 
+39	COVIM054
+cut -f 1,39  temp-seuratObj_BAL_CZI_meta.meta.data > temp-cell-patient
+./scrnaseq-metaannot-combine  temp-cellID-annot temp-cell-patient out
+paste  temp-cellID-annot  out > temp-cellID-annot-patient
+cut -f 1,2,155,159,182,183 temp-cellID-annot-patient > temp-cellID-annot-patient-atlas-monaco
+temp-seuratObj_BAL_CZI_harmony_diet_fixed.meta.data ###BAL cellID gene-expr
+cut -f 1 temp-seuratObj_BAL_CZI_harmony_diet_fixed.meta.data > temp-bal-gene-expr-cellID ###
+paste temp-cellID-annot-patient-atlas-monaco temp-bal-gene-expr-cellID  |awk 'BEGIN {FS = "\t"; OFS = "\t"} $1 != $7' | wc -l
+       0 ###metadata and seuratObj have same order of cellID
+cat temp-cellID-annot-patient-atlas-monaco |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $4 == "B cells" && $3 ~ /B_cell/' > temp-cellID-annot-patient-atlas-monaco.main.cell ###1489 b cells for all people (pos & negatives)
+cut -f 1,2,156,160,182,183 temp-cellID-annot-patient > temp-cellID-annot-patient-atlas-monaco.main.cluster
+cat temp-cellID-annot-patient-atlas-monaco.main.cluster |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 == "B_cell" && $4 == "B cells"' ###0 cells, two main.cluster annot donot agree with each other or something wrong
+cat bCombBcell.integrated.BAL.10clusters-meta.data.txt | cut -f 1,16 > temp-bCombBcell.integrated.BAL.10clusters-meta.data.cellID.patient
+
+cat temp-cellID-annot-patient-atlas-monaco | cut -f 6 | sort | uniq > temp-covims
+./scrnaseq-metaannot-combine  temp-covims covim-pos-or-neg-from-nAb-excel out
+paste  temp-covims  out | grep notApp | cut -f 1-6
+
 
 ####Heatmap of different clusters from dChip
 rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
