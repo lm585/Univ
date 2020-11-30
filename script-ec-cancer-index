@@ -1463,6 +1463,19 @@ for(i = 2; i <= NF; i = i+6)
 bcell.plasma.cell.markers.txt
 bal.bcell.startBelg.10clusters.gene.ADT.markers.signed-P.txt ###script-signed-p-10clusters 
 
+#####pbmc, 14 clusters, 5 donors, gene, ADT, compute gene wilcoxon
+ls *Pos.txt | sort  > temp.xls
+bash script-paste-clusterXvsY.pos.txt ###contails the order or XvsY files, header
+cat  temp.1.txt  temp.2.txt > pbmc.bcell.startBelg.14clusts.5donors.gene.ADT.diff2-1.txt
+###temp.1.txt & temp.2.txt 1092 fields
+cat  pbmc.bcell.startBelg.14clusts.5donors.gene.ADT.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {
+for(i = 2; i <= NF; i = i+6)
+{
+ if($2 != $i)
+   print $0;
+} }' | cut -f 1-10 | uniq -c
+###all gene, ADT IDs are same
+
 #############################################################################################
 #####plasmablast severity comparison
 paste bal.bcell.startBelg.plasmablastSevModeratevsSevere.Moderate-Pos.txt	bal.bcell.startBelg.plasmablastSevModeratevsCritical.Moderate-Pos.txt	bal.bcell.startBelg.plasmablastSevSeverevsModerate.Severe-Pos.txt	bal.bcell.startBelg.plasmablastSevSeverevsCritical.Severe-Pos.txt	bal.bcell.startBelg.plasmablastSevCriticalvsModerate.Critical-Pos.txt	bal.bcell.startBelg.plasmablastSevCriticalvsSevere.Critical-Pos.txt > temp-plasmablastSev-6comp.txt
@@ -1805,6 +1818,11 @@ cat bCombBcell.integrated.BAL.10clusters-meta.data.txt | cut -f 1,16 > temp-bCom
 cat temp-cellID-annot-patient-atlas-monaco | cut -f 6 | sort | uniq > temp-covims
 ./scrnaseq-metaannot-combine  temp-covims covim-pos-or-neg-from-nAb-excel out
 paste  temp-covims  out | grep notApp | cut -f 1-6
+cat  temp-cellID-annot-patient-atlas-monaco.main.cell | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $6, $1, $3, $4, $6}'  > temp-covim-cell-annot
+./scrnaseq-metaannot-combine temp-covim-cell-annot covim-pos-or-neg-from-nAb-excel out
+paste  temp-covim-cell-annot out | grep -w positive   > temp-covim-cell-annot-covidPositive
+./scrnaseq-metaannot-combine temp-covim-cell-annot-covidPositive temp-covim-sev out
+paste  temp-covim-cell-annot-covidPositive out > temp.xls
 
 
 ####Heatmap of different clusters from dChip
