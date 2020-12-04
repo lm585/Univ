@@ -1824,6 +1824,54 @@ paste  temp-covim-cell-annot out | grep -w positive   > temp-covim-cell-annot-co
 ./scrnaseq-metaannot-combine temp-covim-cell-annot-covidPositive temp-covim-sev out
 paste  temp-covim-cell-annot-covidPositive out > temp.xls
 
+newbal <- readRDS("../output/seuratObj_BAL_CZI_harmony_diet_fixed.rds")
+bcell.961 <- read.delim("11-26-20-BAL-bcell-cellBarcode-donor-info.txt", header=T, row.names=1, sep ="\t")
+for ( i in rownames(bcell.961)) {
+ newbal$DF.classifications_0.25_0.06_134[i] = bcell.961[i, 3] } ###"COVIM054"
+unique(newbal$DF.classifications_0.25_0.06_134)
+newbal.bcell <- newbal[, grepl(pattern = "COVIM", newbal$DF.classifications_0.25_0.06_134) & newbal$orig.ident != "COV015"]  ###950 cells
+###11 cells COV015 (COVIM086)
+
+df <- as.data.frame(newbal.bcell$ADT@counts)
+rownames(df) <- paste("adt--", rownames(df), sep = "")
+newbal.bcell[["newADT"]] <- CreateAssayObject(df)
+
+newbal.bcell$RNA@counts <- rbind(newbal.bcell$RNA@counts, newbal.bcell$newADT@counts)
+newbal.bcell$RNA@data   <- rbind(newbal.bcell$RNA@data, newbal.bcell$newADT@data) 
+dim(newbal.bcell)
+### 24740   950
+splitLS <- SplitObject(object = newbal.bcell, split.by = "orig.ident")
+splitLS <- lapply(X = splitLS, FUN = function(x) {
+    x <- NormalizeData(x, verbose = T)
+    x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000, verbose = T)
+})
+intFeats <- SelectIntegrationFeatures(splitLS)
+intFeats <- setdiff(intFeats, row.names(newbal.bcell@assays$newADT))
+splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
+dims = 1:30, k.filter = 80, anchor.features = c(intFeats, row.names(newbal.bcell@assays$newADT)))
+###Retained 338 anchors
+newbal.bcell.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
+newbal.bcell.integrated <- ScaleData(newbal.bcell.integrated, verbose = T)
+newbal.bcell.integrated <- RunPCA(newbal.bcell.integrated, npcs = 30, verbose = T)
+newbal.bcell.integrated <- RunUMAP(newbal.bcell.integrated, reduction = "pca", dims = 1:30)
+###DimPlot(newbal.bcell.integrated, reduction = "umap", group.by = "orig.ident")
+newbal.bcell.integrated <- FindNeighbors(object = newbal.bcell.integrated)
+newbal.bcell.integrated <- FindClusters(object = newbal.bcell.integrated)
+##Number of nodes: 950, Number of edges: 30644, Number of communities: 7
+DimPlot(object = newbal.bcell.integrated, reduction = "umap", label = TRUE, repel = T )
+DefaultAssay(newbal.bcell.integrated) <- "RNA"
+a.TF <- c("PRDM1", "IRF4", "XBP1", "PAX5", "BCL6", "BACH2")
+a.proposal <- c("adt--CD11c", "adt--CD138-A0055", "adt--CD138-A0831", "adt--CD19", "adt--CD21", "adt--CD27-A0154", "adt--CD27-A0191", "adt--CD38-A0389", "adt--CD38-A0410", "adt--IgA", "adt--IgD", "adt--IgG", "adt--IgM")
+VlnPlot(newbal.bcell.integrated, features = c(a.proposal), slot = "data", pt.size = 0.05, group.by = "seurat_clusters", ncol = 3)
+write.table(newbal.bcell.integrated@meta.data, file = "temp", quote = F, sep = "\t")
+cat  temp | cut -f 1,2,28,50  > 11-26-20-BAL-bcell-7clusters.txt ###cellID	cluster#
+bash tem-script-cluster-patientCellCount > temp.xls
+write.table(newbal.bcell.integrated@reductions$umap@cell.embeddings, file = "temp.xls", sep = "\t", quote=F)
+./scrnaseq-metaannot-combine  temp.xls 11-26-20-BAL-bcell-7clusters.txt out
+paste temp.xls  out | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $7,$1,$2,$3,$4,$6}' > temp-coord-donor
+./scrnaseq-metaannot-combine temp-coord-donor temp-covim-sev out
+paste temp-coord-donor out > temp.2.xls
+
 
 ####Heatmap of different clusters from dChip
 rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
