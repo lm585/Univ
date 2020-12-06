@@ -1815,6 +1815,17 @@ cut -f 1,2,156,160,182,183 temp-cellID-annot-patient > temp-cellID-annot-patient
 cat temp-cellID-annot-patient-atlas-monaco.main.cluster |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 == "B_cell" && $4 == "B cells"' ###0 cells, two main.cluster annot donot agree with each other or something wrong
 cat bCombBcell.integrated.BAL.10clusters-meta.data.txt | cut -f 1,16 > temp-bCombBcell.integrated.BAL.10clusters-meta.data.cellID.patient
 
+######1.3M Dec  2 22:07 meta_annot_BALF_301120.rds ###
+# new BAL meta 11/30
+cat meta_annot_BALF_301120.txt | cut -f 6 > temp-meta_annot_BALF_301120.covim
+paste temp-cellID-annot-patient-atlas-monaco temp-meta_annot_BALF_301120.covim | awk 'BEGIN {FS = "\t"; OFS = "\t"} $6 != $7' | head ###same order of covim123
+cut -f 6,12,25 meta_annot_BALF_301120.txt > temp-meta_annot_BALF_301120.covim.pos.sev
+for covim in `echo COVIM054	COVIM057	COVIM068	COVIM077	COVIM081	COVIM086	COVIM107	COVIM108`
+do
+  grep -w $covim temp-cellID-annot-patient-atlas-monaco
+done | awk 'BEGIN {FS = "\t"; OFS = "\t"} $4 == "B cells" && $3 ~ /B_cell/' > 11-26-20-BAL-bcell-cellBarcode-donor-info.1069cells.txt
+
+
 cat temp-cellID-annot-patient-atlas-monaco | cut -f 6 | sort | uniq > temp-covims
 ./scrnaseq-metaannot-combine  temp-covims covim-pos-or-neg-from-nAb-excel out
 paste  temp-covims  out | grep notApp | cut -f 1-6
