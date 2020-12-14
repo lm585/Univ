@@ -1585,6 +1585,23 @@ mv temp PBMC_CZI.meta-annot.comb.txt
 rm out
 cat PBMC_CZI.meta-annot.comb.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $39 != $64' | wc
 
+###all cell types
+cat "PBMC_CZI.meta-annot.comb.txt" | awk 'BEGIN {FS = "\t"; OFS = "\t"} $58 != "notApplicable" && $60 != "notApplicable" ' > temp-1
+###219990 lines
+cat temp-1 | cut -f  1,39,41,45,46,58,60,64,65 > temp-2
+cat temp-2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 != $8' | wc -l
+cat temp-2 | cut -f 3,5 | sort | uniq -c
+#158462 1	"T1"
+#   6 1	"T2"
+#   9 T2 (T1 +7 days)	"T1"
+#61513 T2 (T1 +7 days)	"T2"
+cat temp-2 | cut -f 1,2,3,4,6,7,9 > temp-3
+cat temp-3 | grep -w "\"POS\"" | cut -f 1-6 > temp-4
+#128430 cells
+cat temp-4 > 12-07-20-pbmc-allcells-donor-time-annot.txt
+
+
+
 pbmc <-readRDS("/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19//dir-belg-scRNAseq/ugent.covid-master/output/seuratObj_PBMC_CZI_meta.rds")
 addAnot <- read.table("PBMC_CZI.meta-annot.comb.txt", header = T, sep = "\t")
 ####Age Age.num Sex Sex.num Race Race.num Ethnicity Ethnicity.num BMI BMI.num
@@ -1815,6 +1832,24 @@ cut -f 1,2,156,160,182,183 temp-cellID-annot-patient > temp-cellID-annot-patient
 cat temp-cellID-annot-patient-atlas-monaco.main.cluster |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 == "B_cell" && $4 == "B cells"' ###0 cells, two main.cluster annot donot agree with each other or something wrong
 cat bCombBcell.integrated.BAL.10clusters-meta.data.txt | cut -f 1,16 > temp-bCombBcell.integrated.BAL.10clusters-meta.data.cellID.patient
 
+cp -i temp-cellID-annot-patient-atlas-monaco cellID-annot-patient-atlas-monaco 
+
+./scrnaseq-metaannot-combine temp-cellID-annot-patient-atlas-monaco  annot_BALF_291020.txt out
+paste temp-cellID-annot-patient-atlas-monaco out > cellID-annot-patient-atlas-monaco-BelgAnnot
+cat cellID-annot-patient-atlas-monaco-BelgAnnot |cut -f 1,6,3 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 ~ /B_cell/' | cut -f 3 | sort | uniq -c > temp.txt
+cat cellID-annot-patient-atlas-monaco-BelgAnnot |cut -f 1,6,4 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 ~ /B cells/' | cut -f  3 | sort | uniq -c > temp.txt ###monaco
+L_B L_Plasmablast L_Plasmacell
+cat cellID-annot-patient-atlas-monaco-BelgAnnot |cut -f 1,6,9 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 ~ /L_B/ || $3 ~ /L_Plasma/' | cut -f 2 | sort | uniq -c > temp.txt ##Belg. annot
+cat cellID-annot-patient-atlas-monaco-BelgAnnot |cut -f 1,6,9 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 ~ /L_B/ || $3 ~ /L_Plasma/' | cut -f 1,2 > temp  ##Belg. annot
+for covim in `echo COVIM054     COVIM057        COVIM068        COVIM077        COVIM081        COVIM086        COVIM107        COVIM108`
+do
+ grep -w $covim temp
+done | cut -f 1  > temp-Belg.
+#grep -w $covim cellID-annot-patient-atlas-monaco-BelgAnnot  | cut -f 9 | awk '$1 == "L_B" || $1 == "L_Plasmablast" || $1 == "L_Plasmacell" ' | wc -l
+
+cat cellID-annot-patient-atlas-monaco-BelgAnnot |cut -f 6 |sort | uniq -c > temp.txt ### # of cells per donor
+
+
 ######1.3M Dec  2 22:07 meta_annot_BALF_301120.rds ###
 # new BAL meta 11/30
 cat meta_annot_BALF_301120.txt | cut -f 6 > temp-meta_annot_BALF_301120.covim
@@ -1889,6 +1924,8 @@ paste temp.xls  out | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $7,$1,$2,$3,$4,$
 ./scrnaseq-metaannot-combine temp-coord-donor temp-covim-sev out
 paste temp-coord-donor out > temp.2.xls
 
+###single cell heatmap for clusters
+bal-scrna-heatmap.R 
 
 ####Heatmap of different clusters from dChip
 rna <- read.delim("bal.bcell.startBelg.10clusters.547paths.mod.wilcox.txt", row.names=1)
