@@ -385,3 +385,29 @@ tcm.pos.corr.p0.05	ZNF263	3	163	28	5695	0.04467652
 ###CD4 memory or TCM, CM
 cat "$f" | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 0.05' | grep -i mem   |grep -iv cd8  | grep -iv bcell | sort > temp.xls
 
+###
+Tem-Tcm.diff2-1.txt.withGeneNames
+cat  dir-map-stat/Tem-Tcm.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $6 < 0.05 && $2 > 0'   ### TCM up genes
+##9 genes up in TEM with FDR < 0.05
+cat  dir-map-stat/Tem-Tcm.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"}  $2 < 0' | head -51 > Tem-Tcm.tem-up.50genes
+
+
+e = "TEM"
+c = "TCM"
+annot <- c(e,e,e,e,e,e,e,c,c,c,c,c,c)
+annot <- c(rep("TCM", 16), rep("TEM", 16))
+ha <- HeatmapAnnotation(type = annot)
+col_fun = colorRamp2(c(0, log10(2), 3), c("blue",  "white", "red"))
+ col_fun = colorRamp2(c(0, log10(2), 4), c("blue",  "white", "red"))
+Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",  column_order = 1:13, column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(14, "cm"), width= unit(6, "cm"), top_annotation = ha, col= col_fun)
+
+x <- read.delim("../Florida-cohort-RT/raw.modify.CM-EM-ordered.txt", header = T, row.names=1)
+group <- factor(c(rep(1, 16), rep(2, 16)))
+y <- DGEList(counts=x,group=group)
+y <- calcNormFactors(y)
+keep <-rowSums(cpm(y)>=1) >= 12
+y<-y[keep,]
+dim(y)
+##[1] 13962    32
+mv dir-map-stat/diff2-1.txt diff-CM-EM-p-value.florida.12-14.txt
+Dec 14 01:15 dir-map-stat/temp-12-14-2020-florida-cohort-cpm.txt
