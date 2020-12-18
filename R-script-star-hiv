@@ -399,8 +399,12 @@ annot <- c(rep("TCM", 16), rep("TEM", 16))
 ha <- HeatmapAnnotation(type = annot)
 col_fun = colorRamp2(c(0, log10(2), 3), c("blue",  "white", "red"))
  col_fun = colorRamp2(c(0, log10(2), 4), c("blue",  "white", "red"))
+col_fun = colorRamp2(c(0, log10(1+1e-9),log10(2), 4), c("green","blue",  "white", "red"))
+genes <- read.delim("../diff-CM-EM-p-value.florida.12-14.DEGs.direction", header = T)
+genes <- read.delim("../diff-CM-EM-p-value.florida.12-14.DEGs.direction.no.4.forSTAR", header = T)
 Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",  column_order = 1:13, column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(14, "cm"), width= unit(6, "cm"), top_annotation = ha, col= col_fun)
-
+Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",   column_names_side = "top",  top_annotation = ha,  show_row_names = F,   col = col_fun, row_split=genes$dir)
+Heatmap(matrix = log10(mat.star+1), name = "log10(CPM+1)",   column_names_side = "top",  top_annotation = ha.star,  show_row_names = F,   col = col_fun,  clustering_distance_columns="pearson")
 x <- read.delim("../Florida-cohort-RT/raw.modify.CM-EM-ordered.txt", header = T, row.names=1)
 group <- factor(c(rep(1, 16), rep(2, 16)))
 y <- DGEList(counts=x,group=group)
@@ -411,3 +415,5 @@ dim(y)
 ##[1] 13962    32
 mv dir-map-stat/diff2-1.txt diff-CM-EM-p-value.florida.12-14.txt
 Dec 14 01:15 dir-map-stat/temp-12-14-2020-florida-cohort-cpm.txt
+diff-CM-EM-p-value.florida.12-14.DEGs.direction
+diff-CM-EM-p-value.florida.12-14.DEGs.direction.no.4.forSTAR ###some gene IDs from FL do not appear in the STAR IDs
