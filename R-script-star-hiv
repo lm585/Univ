@@ -391,12 +391,33 @@ cat  dir-map-stat/Tem-Tcm.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $6 < 
 ##9 genes up in TEM with FDR < 0.05
 cat  dir-map-stat/Tem-Tcm.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"}  $2 < 0' | head -51 > Tem-Tcm.tem-up.50genes
 
+####5 memory subsets
+cat dir-map-stat/gene-count-Tem-RA-Tscm.7-4.txt | cut -f 1,9-12 > temp.1.txt
+paste temp.1.txt dir-map-stat/gene-count-Tem-Tcm.7-6.txt dir-map-stat/gene-count-RARO-CD127-CD25+.5-10.txt > temp.2.txt
+cat  temp.2.txt | cut -f 1-5,7-14,16-19,21-35 > gene-count-Tscm-Tem-Tcm-RARO-CD127-CD25+.noS21.txt
+
+> rawCount <- read.delim("../gene-count-Tscm-Tem-Tcm-RARO-CD127-CD25+.noS21.txt", header = T, row.names = 1)
+> group <- factor(rep(1, 31))
+y <- DGEList(counts=rawCount,group=group)
+y <- calcNormFactors(y)
+d <- cpm(y)
+> genes <- read.delim("../random-6044genes", header=F)
+mat <- as.matrix(d[genes$V1,])
+medianFilt = rawCount ###data frame
+medianFilt$med <- apply(d, 1, FUN=median) ### d is cpm,
+d.med.gt1 <- d[medianFilt$med > 1,]
+mat <- as.matrix(d.med.gt1)
+> ha <- HeatmapAnnotation(type = annot)
+Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",   column_names_side = "top",  top_annotation = ha,  show_row_names = F,   col = col_fun, clustering_distance_columns="pearson")
+> yfilt <- y[medianFilt$med > 1,]
+mds1 = plotMDS(yfilt, top = 91234)
 
 e = "TEM"
 c = "TCM"
 annot <- c(e,e,e,e,e,e,e,c,c,c,c,c,c)
 annot <- c(rep("TCM", 16), rep("TEM", 16))
-ha <- HeatmapAnnotation(type = annot)
+annot <- c(rep("TSCM", 4),rep("TEM", 7), rep("TCM", 5), rep("RARO", 5), rep("Treg", 10))
+ha <- HeatmapAnnotation(type = annot, col = list(type =c("TSCM" = "green", "TEM" = "red", "TCM" = "yellow", "RARO" =  "blue", "Treg" = "black")))
 col_fun = colorRamp2(c(0, log10(2), 3), c("blue",  "white", "red"))
  col_fun = colorRamp2(c(0, log10(2), 4), c("blue",  "white", "red"))
 col_fun = colorRamp2(c(0, log10(1+1e-9),log10(2), 4), c("green","blue",  "white", "red"))
