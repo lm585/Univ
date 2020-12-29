@@ -446,6 +446,65 @@ cat temp-pathway-exprAvg-1 | awk 'NF > 10' | awk '$1 >= 25' | grep HALLMARK | cu
 cat temp-pathway-exprAvg-1 | awk 'NF > 10' | awk '$1 >= 25' | grep T_CELLS_CD4 | cut -f 2-20 >> out
 mv -i out temp-pathway-exprAvg-2
 
+### Tem-Tcm, rm sample 12, 21 in TCM
+x <- read.delim("gene-count-Tem-Tcm.7-6.txt", header = T, row.names=1)
+rawCount <- x[,c(1:7,10:13)] ###rm sample 12, 21 in TCM
+group <- factor(c(rep(1, 7), rep(2, 4)))
+ y <- DGEList(counts=rawCount,group=group)
+ y <- calcNormFactors(y)
+ keep <-rowSums(cpm(y)>=1) >= 4
+ y<-y[keep,]
+ dim(y)
+### [1] 5994   11
+
+ design<-model.matrix(~0+group) 
+ y <- estimateGLMCommonDisp(y,design) 
+ y <- estimateGLMTrendedDisp(y,design) 
+ y <- estimateGLMTagwiseDisp(y,design) 
+ fit<-glmFit(y,design) 
+ lrt.2vs1 <- glmLRT(fit, contrast=c(-1,1))
+ top2v1 <- topTags(lrt.2vs1, n=150000) 
+ write.table(top2v1, "diff2-1.txt", sep="\t")
+mv -i dir-map-stat/diff2-1.txt Tem-Tcm.7-4.diff2-1.txt
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" Tem-Tcm.7-4.diff2-1.txt GRCh38-geneID-name out
+paste out Tem-Tcm.7-4.diff2-1.txt  | grep -v notApplicable | cut -f 2,4-100 > Tem-Tcm.7-4.diff2-1.geneName.txt 
+
+####FL cohort
+rawCount <- read.delim("../Florida-cohort-RT/raw.modify.CM-EM-ordered.txt", header = T, row.names=1)
+group <- factor(c(rep(1, 16), rep(2, 16)))
+y <- DGEList(counts=rawCount,group=group)
+y <- calcNormFactors(y)
+d <- cpm(y)
+medianFilt = rawCount ###data frame
+medianFilt$med <- apply(d, 1, FUN=median) ### d is cpm,
+d.med.gt1 <- d[medianFilt$med > 1,]
+a <- log10(d.med.gt1+1)
+b = a
+for(i in 1:dim(b)[1])
+{
+ a[i, ] <- (a[i, ] - mean(as.numeric(b[i,]))) / var(as.numeric(b[i,]))^(1/2)
+}
+write.table(a,file="temp.FL.log10.z.tscm.tem.tcm.txt", sep = "\t", quote = F)
+dim(a)
+##[1] 12733    32
+vi  dir-map-stat/temp.FL.log10.z.tscm.tem.tcm.no.version.txt 
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine"  dir-map-stat/temp.FL.log10.z.tscm.tem.tcm.no.version.txt GRCh38-geneID-name out
+paste out  dir-map-stat/temp.FL.log10.z.tscm.tem.tcm.no.version.txt | grep -v notApplicable | cut -f 2,4-100 > temp.FL.log10.z.tscm.tem.tcm.no.version.genename.txt
+grep -wv Y_RNA temp.FL.log10.z.tscm.tem.tcm.no.version.genename.txt > temp.FL.log10.z.tscm.tem.tcm.no.version.genename.2.txt
+FL.log10.z.tscm.tem.tcm.no.version.uniq.genename.2.txt ###only unique genes (uniq GRCh gene ID mapped to one gene)
+bash script-pathway-exprAvg-ln-hallmark-2 > temp-pathway-exprAvg-1-FL
+cat temp-pathway-exprAvg-1-FL | awk 'NF > 10' | awk '$1 >= 25' | grep HALLMARK | cut -f 2-34 > out
+cat temp-pathway-exprAvg-1-FL | awk 'NF > 10' | awk '$1 >= 25' | grep T_CELLS_CD4 | cut -f 2-34 >> out
+cat temp-pathway-exprAvg-1-FL | awk 'NF > 10' | awk '$1 >= 25' | grep FL_TEM | cut -f 2-34 >> out
+mv -i out temp-pathway-exprAvg-2-FL
+rna <- read.delim(file = "../temp-pathway-exprAvg-2-FL", row.names=1)
+for(i in 1:dim(rna)[1])
+{
+ res <- t.test(rna[i,1:16], rna[i,17:32]);
+ a <- paste(rownames(rna)[i], res$p.value, res$estimate[1], res$estimate[2], sep = "\t")
+ print(a)
+}
+
 ###testing the pipeline of pathway avg gene expr
 "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-lead-genes.HALLMARK_INTERFERON_GAMMA_RESPONSE.xls temp.log10.z.tscm.tem.tcm.genename.txt out
 paste temp-lead-genes.HALLMARK_INTERFERON_GAMMA_RESPONSE.xls  out | grep -v notApplicable > temp.txt ##102 genes
@@ -466,6 +525,8 @@ genes <- read.delim("../diff-CM-EM-p-value.florida.12-14.DEGs.direction.no.4.for
 Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",  column_order = 1:13, column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(14, "cm"), width= unit(6, "cm"), top_annotation = ha, col= col_fun)
 Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",   column_names_side = "top",  top_annotation = ha,  show_row_names = F,   col = col_fun, row_split=genes$dir)
 Heatmap(matrix = log10(mat.star+1), name = "log10(CPM+1)",   column_names_side = "top",  top_annotation = ha.star,  show_row_names = F,   col = col_fun,  clustering_distance_columns="pearson")
+Heatmap(matrix = mat,  column_names_side = "top",  row_names_gp = gpar(fontsize = 5.5), column_names_gp= gpar(fontsize = 8), clustering_distance_rows="pearson", top_annotation = ha, clustering_distance_columns="pearson", name = "z-score") ###92 genes, 32 samples, FL
+
 x <- read.delim("../Florida-cohort-RT/raw.modify.CM-EM-ordered.txt", header = T, row.names=1)
 group <- factor(c(rep(1, 16), rep(2, 16)))
 y <- DGEList(counts=x,group=group)
