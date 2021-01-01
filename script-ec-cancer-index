@@ -1682,6 +1682,36 @@ cat temp-meta.data.txt | cut -f 2,56,5,40,39 | sort | uniq -c > pbmc.bcell.pos.p
 cat  "PBMC_CZI.meta-annot.comb.txt" | cut -f 42,45,46,58,60,64,65 > temp
 ./scrnaseq-metaannot-combine temp-cellID-clust temp out
 paste  temp-cellID-clust out | cut -f 1,2,4-20 > temp.xls
+-rw-r--r--  1 linyongmao  staff   6.1M Dec 30 21:55 pbmc.10132.bcell.adt.count.txt
+-rw-r--r--  1 linyongmao  staff   447M Dec 30 21:54 pbmc.10132.bcell.rna.count.txt
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" pbmc.10132.bcell.rna.count.txt temp-transpose
+paste pbmc.bcell.pos.integ.10132cells.cellID-clusters.txt temp-transpose | awk '$1 != $3' | cut -f 1-20 | head ###same cell_barcode order
+cut -f 2  pbmc.bcell.pos.integ.10132cells.cellID-clusters.txt  | sort | uniq  | grep -v cluster > temp-clusters.quote ##"1"
+paste pbmc.bcell.pos.integ.10132cells.cellID-clusters.txt temp-transpose  | cut -f 2-1234567 > temp-clust-cellID-count
+bash -x script-get-clust
+wc -l temp-10132-pbmc-b-cells-clust-*.tr
+head temp-10132-pbmc-b-cells-clust-\"0\".tr | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+head temp-10132-pbmc-b-cells-clust-\"13\".tr | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+head temp-10132-pbmc-b-cells-clust-\"10\".tr | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+bash  script-exprCount-per-clust
+temp-s-paste-1231 for the following cmd
+paste 	temp-10132-pbmc-b-cells-clust-\"0\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"1\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"2\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"3\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"4\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"5\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"6\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"7\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"8\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"9\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"10\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"11\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"12\".tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"13\".tr.geneExp.sum > temp-combined
+cat temp-combined | grep '"CD27"' > temp-cd27-cd38-others
+cat temp-combined | grep '"CD38"' >> temp-cd27-cd38-others
+
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose"  pbmc.10132.bcell.adt.count.txt temp-transpose-adt
+paste pbmc.bcell.pos.integ.10132cells.cellID-clusters.txt temp-transpose-adt | awk '$1 != $3' | cut -f 1-20 | head ###same cell_barcode order
+cut -f 2  pbmc.bcell.pos.integ.10132cells.cellID-clusters.txt  | sort | uniq  | grep -v cluster > temp-clusters.quote ##"1"
+paste pbmc.bcell.pos.integ.10132cells.cellID-clusters.txt temp-transpose-adt  | cut -f 2-1234567 > temp-clust-cellID-count-adt
+bash -x script-get-clust-adt
+wc -l temp-10132-pbmc-b-cells-clust-*.tr-adt
+head temp-10132-pbmc-b-cells-clust-\"0\".tr-adt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+head temp-10132-pbmc-b-cells-clust-\"13\".tr-adt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+head temp-10132-pbmc-b-cells-clust-\"10\".tr-adt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+bash  script-exprCount-per-clust-adt
+tail temp-10132-pbmc-b-cells-clust-*.tr-adt.geneExp.sum | cut -f 1-6
+bash  temp-s-paste-1231-adt
+paste  temp-10132-pbmc-b-cells-clust-\"0\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"1\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"2\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"3\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"4\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"5\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"6\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"7\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"8\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"9\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"10\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"11\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"12\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"13\".tr-adt.geneExp.sum > temp-combined-adt
 
 ######pbmc neut antibody
 cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
