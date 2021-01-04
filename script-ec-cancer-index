@@ -1712,6 +1712,37 @@ bash  script-exprCount-per-clust-adt
 tail temp-10132-pbmc-b-cells-clust-*.tr-adt.geneExp.sum | cut -f 1-6
 bash  temp-s-paste-1231-adt
 paste  temp-10132-pbmc-b-cells-clust-\"0\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"1\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"2\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"3\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"4\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"5\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"6\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"7\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"8\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"9\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"10\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"11\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"12\".tr-adt.geneExp.sum	temp-10132-pbmc-b-cells-clust-\"13\".tr-adt.geneExp.sum > temp-combined-adt
+cat temp-combined-adt | grep '"adt--CD19"' >> temp-cd27-cd38-others
+cat temp-combined-adt | grep '"adt--IgM"' >> temp-cd27-cd38-others
+cat temp-combined-adt | grep '"adt--IgD"' >> temp-cd27-cd38-others
+cat temp-cd27-cd38-others | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
+print $1;
+for(i = 4; i <= NF; i=i+4)
+  print "\t" $i;
+print "\n"; }' > pbmc.10132.bcell.14cluters.marker.freq.txt
+col_fun = colorRamp2(c(0,0.25,0.5,(0.5+1e-9), 1), c( "blue", "white", "green",  "lightpink", "red"))
+x <- scan()
+col_fun_ab = colorRamp2(c(-0.5,0,1), c("blue", "white","red"))
+ha <- HeatmapAnnotation(corr_nAb = x, col=list(corr_nAb = col_fun_ab))
+Heatmap(matrix = mat[1:9,], name = "expr freq",  column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(4, "cm"), width= unit(6, "cm"), clustering_distance_rows = "pearson", clustering_distance_columns = "pearson" , top_annotation=ha)
+
+-rw-r--r--  1 linyongmao  staff   640K Jan  3 23:30 bal.1042.bcell.adt.count.txt
+-rw-r--r--  1 linyongmao  staff    49M Jan  3 23:29 bal.1042.bcell.rna.count.txt
+paste  11-26-20-BAL-bcell-7clusters.5donors.txt temp-transpose | awk '$1 != $5' | cut -f 1-20 | wc -l ###two files have the same order wrt cell barcode
+cut -f 3  11-26-20-BAL-bcell-7clusters.5donors.txt  | sort | uniq  | grep -v cluster > temp-clusters.quote
+vi temp-clusters.quote ###put quote; "1"
+paste  11-26-20-BAL-bcell-7clusters.5donors.txt temp-transpose | cut -f 3,5-1234567 > temp-clust-cellID-count
+vi temp-clust-cellID-count ###put quote; "1"
+bash -x script-get-clust 
+wc -l temp-10132-pbmc-b-cells-clust-*.tr
+head temp-10132-pbmc-b-cells-clust-\"0\".tr | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+head temp-10132-pbmc-b-cells-clust-\"6\".tr | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+bash script-exprCount-per-clust
+paste   temp-10132-pbmc-b-cells-clust-\"0\".tr.geneExp.sum      temp-10132-pbmc-b-cells-clust-\"1\".tr.geneExp.sum      temp-10132-pbmc-b-cells-clust-\"2\".tr.geneExp.sum      temp-10132-pbmc-b-cells-clust-\"3\".tr.geneExp.sum      temp-10132-pbmc-b-cells-clust-\"4\".tr.geneExp.sum      temp-10132-pbmc-b-cells-clust-\"5\".tr.geneExp.sum      temp-10132-pbmc-b-cells-clust-\"6\".tr.geneExp.sum   > temp-combined-bal
+temp-combined-adt-bal
+bcell.plasma.cell.markers.bal.newADT.txt.2 ###a small list of marker names
+temp-cd27-cd38-others
+bal.1042.bcell.7cluters.marker.freq.txt
 
 ######pbmc neut antibody
 cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
