@@ -1744,6 +1744,44 @@ bcell.plasma.cell.markers.bal.newADT.txt.2 ###a small list of marker names
 temp-cd27-cd38-others
 bal.1042.bcell.7cluters.marker.freq.txt
 
+cat PBMC_CZI.meta-annot.comb.txt | grep "B cells" | grep "B_cell" | grep "POS" > temp > temp-1
+cat temp-1 | cut -f 1,39,41,45,46,58,60,64,65 | grep "B_cell" | grep "B cells" |head
+#COV003_AAAGTGACATGGCCAC-1	COVIM054	1	"POS"	"T1"	"B_cell"	"B cells"	COVIM054	Severe
+#....T2 (T1 +7 days)	
+cat temp-1 | cut -f 1,45,46,58,60,64,65 |grep "B_cell" | grep "B cells" | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1, $6, $3}' > temp-cellID-patient-Time
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" pbmc.10132.bcell.adt.count.txt temp-transpose
+vi temp-cellID-patient-Time ###add header, add quote to cellID
+./scrnaseq-metaannot-combine temp-cellID-patient-Time temp-transpose out
+paste temp-cellID-patient-Time out | head | cut -f 1-20
+paste temp-cellID-patient-Time out  | grep -vw notApplicable > temp-clust-cellID-count
+cut -f 2,3 temp-cellID-patient-Time | sort | uniq > temp-clusters.quote
+bash script-get-clust-donor-time
+wc -l temp-10132-pbmc-b-cells-clust-*.tr
+head temp-10132-pbmc-b-cells-clust-COVIM081-T2.tr| awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+bash tem-script-exprCount-per-clust
+paste temp-10132-pbmc-b-cells-clust-COVIM054-T1.tr.geneExp.sum  temp-10132-pbmc-b-cells-clust-COVIM068-T1.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM068-T2.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM077-T1.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM077-T2.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM081-T1.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM081-T2.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM086-T1.tr.geneExp.sum        temp-10132-pbmc-b-cells-clust-COVIM086-T2.tr.geneExp.sum > pbmc.10132.bcell.donor.gene.freq.combined.adt
+cat  pbmc.10132.bcell.donor.gene.freq.combined.adt | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
+print $1;
+for(i = 4; i <= NF; i=i+4)
+  print "\t" $i;
+print "\n"; }' > pbmc.10132.bcell.donor.gene.freq.2.combined.adt
+> adt <- read.delim("pbmc.10132.bcell.donor.gene.freq.2.combined.adt", row.names=1)
+> nab <- scan() ### order of nab
+for(i in 2:dim(adt)[1]) {
+res <- cor.test(nab, as.numeric(adt[i,]), method = "spearman", exact = F)
+cat(paste(rownames(adt)[i], res$estimate, res$p.value, sep = "\t"), "\n")
+}
+
+
+> head(rna)
+adt--CD80        0.00928793 0.0522876 0.00757576 0.0458015 0.0000000 0.0654206 0.0000000
+> dim(rna)
+[1] 296   7
+> filt = rna
+> filt$var <- apply(rna, 1, FUN = var)
+> rna.var.gt0.05 <- rna[filt$var > 0,] ###var > 0, not 0.05
+> mat.var.gt0.05 <- as.matrix(rna.var.gt0.05)
+
 ######pbmc neut antibody
 cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
 #COVIM086	T2	Blood	Plasma	positive	306.2
