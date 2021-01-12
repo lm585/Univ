@@ -1725,6 +1725,8 @@ x <- scan()
 col_fun_ab = colorRamp2(c(-0.5,0,1), c("blue", "white","red"))
 ha <- HeatmapAnnotation(corr_nAb = x, col=list(corr_nAb = col_fun_ab))
 Heatmap(matrix = mat[1:9,], name = "expr freq",  column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(4, "cm"), width= unit(6, "cm"), clustering_distance_rows = "pearson", clustering_distance_columns = "pearson" , top_annotation=ha)
+ord_a <- c(6,10,12,11,1,2,14,13,7,9,5,3,4,8) ###pbmc 14 cluster order
+column_order = (ord_a)
 
 -rw-r--r--  1 linyongmao  staff   640K Jan  3 23:30 bal.1042.bcell.adt.count.txt
 -rw-r--r--  1 linyongmao  staff    49M Jan  3 23:29 bal.1042.bcell.rna.count.txt
@@ -1772,6 +1774,12 @@ res <- cor.test(nab, as.numeric(adt[i,]), method = "spearman", exact = F)
 cat(paste(rownames(adt)[i], res$estimate, res$p.value, sep = "\t"), "\n")
 }
 
+cat Chemokine_Receptors.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $2, $1}' > temp-chem-recept
+cat Cytokine_Receptors.txt| awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $2, $1}' > temp-cyto-recept
+./scrnaseq-metaannot-combine  temp-chem-recept temp-pbmc out
+cat out | grep -v notApplicable > temp-chem-recept-freq
+cat pbmc.10132.bcell.14cluters.marker.freq.txt temp-chem-recept-freq > temp-chem-recept-freq-2.txt
+vi temp-recept-frq-pbmc.txt ###markers with max(clusters) > 10%
 
 > head(rna)
 adt--CD80        0.00928793 0.0522876 0.00757576 0.0458015 0.0000000 0.0654206 0.0000000
