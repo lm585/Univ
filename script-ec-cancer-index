@@ -1746,13 +1746,13 @@ bcell.plasma.cell.markers.bal.newADT.txt.2 ###a small list of marker names
 temp-cd27-cd38-others
 bal.1042.bcell.7cluters.marker.freq.txt
 
-cat PBMC_CZI.meta-annot.comb.txt | grep "B cells" | grep "B_cell" | grep "POS" > temp > temp-1
+cat PBMC_CZI.meta-annot.comb.txt | grep "B cells" | grep "B_cell" | grep "POS" > temp-1
 cat temp-1 | cut -f 1,39,41,45,46,58,60,64,65 | grep "B_cell" | grep "B cells" |head
 #COV003_AAAGTGACATGGCCAC-1	COVIM054	1	"POS"	"T1"	"B_cell"	"B cells"	COVIM054	Severe
 #....T2 (T1 +7 days)	
 cat temp-1 | cut -f 1,45,46,58,60,64,65 |grep "B_cell" | grep "B cells" | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1, $6, $3}' > temp-cellID-patient-Time
 "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" pbmc.10132.bcell.adt.count.txt temp-transpose
-vi temp-cellID-patient-Time ###add header, add quote to cellID
+vi temp-cellID-patient-Time ###add gene/newADT so that the gene name row from temp-transpose can be kept; add header, add quote to cellID
 ./scrnaseq-metaannot-combine temp-cellID-patient-Time temp-transpose out
 paste temp-cellID-patient-Time out | head | cut -f 1-20
 paste temp-cellID-patient-Time out  | grep -vw notApplicable > temp-clust-cellID-count
@@ -1767,6 +1767,26 @@ print $1;
 for(i = 4; i <= NF; i=i+4)
   print "\t" $i;
 print "\n"; }' > pbmc.10132.bcell.donor.gene.freq.2.combined.adt
+cat  pbmc.10132.bcell.donor.gene.freq.combined| awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
+for(i = 5; i <= NF; i=i+4)
+{
+ if($1 != $5)
+   print $1 "\n";
+}
+}' | head 
+
+###BAL aggregate per donor
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose"  bal.1042.bcell.adt.count.txt  temp-transpose
+paste  11-26-20-BAL-bcell-7clusters.5donors.txt temp-transpose |awk '$1 != $5' | wc -l
+paste  11-26-20-BAL-bcell-7clusters.5donors.txt temp-transpose | cut -f 4-1234567 > temp-clust-cellID-count
+cut -f 1 temp-clust-cellID-count | sort | uniq > temp-clusters.quote
+bash script-get-clust-donor
+wc -l temp-10132-pbmc-b-cells-clust-*.tr
+bash tem-script-exprCount-per-clust
+paste temp-10132-pbmc-b-cells-clust-COVIM054.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM057.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM068.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM077.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM081.tr.geneExp.sum	> bal.1042.bcell.donor.gene.freq.combined.adt
+bal.1042.bcell.donor.gene.freq.2.combined.adt
+
+
 > adt <- read.delim("pbmc.10132.bcell.donor.gene.freq.2.combined.adt", row.names=1)
 > nab <- scan() ### order of nab
 for(i in 2:dim(adt)[1]) {
@@ -1774,6 +1794,11 @@ res <- cor.test(nab, as.numeric(adt[i,]), method = "spearman", exact = F)
 cat(paste(rownames(adt)[i], res$estimate, res$p.value, sep = "\t"), "\n")
 }
 
+cat pbmc.10132.bcell.14clust.gene.freq.combined | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
+print $1;
+for(i = 4; i <= NF; i=i+4)
+  print "\t" $i;
+print "\n"; }' > temp-pbmc
 cat Chemokine_Receptors.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $2, $1}' > temp-chem-recept
 cat Cytokine_Receptors.txt| awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $2, $1}' > temp-cyto-recept
 ./scrnaseq-metaannot-combine  temp-chem-recept temp-pbmc out
