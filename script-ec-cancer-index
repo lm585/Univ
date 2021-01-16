@@ -1785,6 +1785,16 @@ wc -l temp-10132-pbmc-b-cells-clust-*.tr
 bash tem-script-exprCount-per-clust
 paste temp-10132-pbmc-b-cells-clust-COVIM054.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM057.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM068.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM077.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM081.tr.geneExp.sum	> bal.1042.bcell.donor.gene.freq.combined.adt
 bal.1042.bcell.donor.gene.freq.2.combined.adt
+#BAL aggregate per donor all cells from BAL
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp.txt temp-transpose
+paste cellID-annot-patient-atlas-monaco temp-transpose | awk 'BEGIN {FS = "\t"} $1 != $7' | wc -l
+#       1
+paste cellID-annot-patient-atlas-monaco temp-transpose | cut -f 6-1234567 > temp-clust-cellID-count
+vi temp-clusters.quote #8 covid pos donors
+bash script-get-clust-donor
+wc -l temp-10132-pbmc-b-cells-clust-*.tr
+bash tem-script-exprCount-per-clust-2
+paste temp-10132-pbmc-b-cells-clust-COVIM054.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM057.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM068.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM077.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM081.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM086.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM107.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM108.tr.geneExp.sum  > bal.allcells.donor.gene.freq.combined.adt 
 
 
 > adt <- read.delim("pbmc.10132.bcell.donor.gene.freq.2.combined.adt", row.names=1)
@@ -1961,10 +1971,14 @@ paste temp-cellID-annot-patient-atlas-monaco temp-bal-gene-expr-cellID  |awk 'BE
        0 ###metadata and seuratObj have same order of cellID
 cat temp-cellID-annot-patient-atlas-monaco |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $4 == "B cells" && $3 ~ /B_cell/' > temp-cellID-annot-patient-atlas-monaco.main.cell ###1489 b cells for all people (pos & negatives)
 cut -f 1,2,156,160,182,183 temp-cellID-annot-patient > temp-cellID-annot-patient-atlas-monaco.main.cluster
-cat temp-cellID-annot-patient-atlas-monaco.main.cluster |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 == "B_cell" && $4 == "B cells"' ###0 cells, two main.cluster annot donot agree with each other or something wrong
+cat temp-cellID-annot-patient-atlas-monaco.main.cluster |  awk 'BEGIN {FS = "\t"; OFS = "\t"} $3 == "B_cell" && $4 == "B cells"' ###HumanPrimaryCellAtlasData.main.cluster	MonacoImmuneData.main.cluster; 0 cells, two main.cluster annot donot agree with each other or something wrong
 cat bCombBcell.integrated.BAL.10clusters-meta.data.txt | cut -f 1,16 > temp-bCombBcell.integrated.BAL.10clusters-meta.data.cellID.patient
 
 cp -i temp-cellID-annot-patient-atlas-monaco cellID-annot-patient-atlas-monaco 
+###
+###cellID	orig.ident	HumanPrimaryCellAtlasData.main.cell	MonacoImmuneData.main.cell	cellID	notApplicable
+###COV002_AAACCCAAGAGTCTTC-1	COV002	Macrophage	Monocytes	COV002_AAACCCAAGAGTCTTC-1	COVIM054
+
 
 ./scrnaseq-metaannot-combine temp-cellID-annot-patient-atlas-monaco  annot_BALF_291020.txt out
 paste temp-cellID-annot-patient-atlas-monaco out > cellID-annot-patient-atlas-monaco-BelgAnnot
