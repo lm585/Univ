@@ -1786,6 +1786,7 @@ bash tem-script-exprCount-per-clust
 paste temp-10132-pbmc-b-cells-clust-COVIM054.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM057.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM068.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM077.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM081.tr.geneExp.sum	> bal.1042.bcell.donor.gene.freq.combined.adt
 bal.1042.bcell.donor.gene.freq.2.combined.adt
 #BAL aggregate per donor all cells from BAL
+#temp.txt matrix of ADT x cell-bar-code; 
 "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp.txt temp-transpose
 paste cellID-annot-patient-atlas-monaco temp-transpose | awk 'BEGIN {FS = "\t"} $1 != $7' | wc -l
 #       1
@@ -1795,6 +1796,10 @@ bash script-get-clust-donor
 wc -l temp-10132-pbmc-b-cells-clust-*.tr
 bash tem-script-exprCount-per-clust-2
 paste temp-10132-pbmc-b-cells-clust-COVIM054.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM057.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM068.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM077.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM081.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM086.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM107.tr.geneExp.sum	temp-10132-pbmc-b-cells-clust-COVIM108.tr.geneExp.sum  > bal.allcells.donor.gene.freq.combined.adt 
+###BAL aggregate per donor per gene in b cell type
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" bal.1042.bcell.rna.count.txt temp-transpose
+...
+paste   temp-10132-pbmc-b-cells-clust-COVIM054.tr.geneExp.sum   temp-10132-pbmc-b-cells-clust-COVIM057.tr.geneExp.sum   temp-10132-pbmc-b-cells-clust-COVIM068.tr.geneExp.sum   temp-10132-pbmc-b-cells-clust-COVIM077.tr.geneExp.sum   temp-10132-pbmc-b-cells-clust-COVIM081.tr.geneExp.sum   > bal.1042.bcell.donor.gene.freq.combined
 
 
 > adt <- read.delim("pbmc.10132.bcell.donor.gene.freq.2.combined.adt", row.names=1)
