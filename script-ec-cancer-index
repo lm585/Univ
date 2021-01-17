@@ -1774,6 +1774,24 @@ for(i = 5; i <= NF; i=i+4)
    print $1 "\n";
 }
 }' | head 
+###BAL aggregate per cluster, 4 donors, 5 clusters
+head -1 bal.1042.bcell.*.count.txt | sed 's/newADT/gene/' | sort |uniq -d | awk '{print NF}' ##rna and adt two files have identical header
+cat bal.1042.bcell.*.count.txt | grep -v "^gene	" > temp
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp temp-transpose
+vi 11-26-20-BAL-bcell-5clusters.4donors.txt
+./scrnaseq-metaannot-combine 11-26-20-BAL-bcell-5clusters.4donors.txt temp-transpose out
+paste 11-26-20-BAL-bcell-5clusters.4donors.txt  out | head | cut -f 1-20
+paste 11-26-20-BAL-bcell-5clusters.4donors.txt  out | grep -vw notApplicable | cut -f 3,5-123456789 > temp-clust-cellID-count
+cut -f 1 temp-clust-cellID-count | sort | uniq > temp-clusters.quote
+bash script-get-clust
+wc -l temp-10132-pbmc-b-cells-clust-*.tr
+rm temp-10132-pbmc-b-cells-clust-seurat_clusters.tr 
+head  temp-10132-pbmc-b-cells-clust-0.tr  | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print NF}'
+bash script-exprCount-per-clust-adt
+tail temp-10132-pbmc-b-cells-clust*.geneExp.sum | cut -f 1-6
+ls temp-10132-pbmc-b-cells-clust*.geneExp.sum | awk 'BEGIN {ORS = ""} {print $0 "  ";}' > temp-s
+
+
 
 ###BAL aggregate per donor
 "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose"  bal.1042.bcell.adt.count.txt  temp-transpose
@@ -2026,6 +2044,7 @@ newbal <- readRDS("../output/seuratObj_BAL_CZI_harmony_diet_fixed.rds")
 #for ( i in rownames(bcell.961)) {
 # newbal$DF.classifications_0.25_0.06_134[i] = bcell.961[i, 3] } ###"COVIM054"
 bcell.1069 <- read.delim("11-26-20-BAL-bcell-cellBarcode-donor-info.1069cells.txt", header=F, row.names=1, sep ="\t")
+bcell.1069 <- read.delim("11-26-20-BAL-bcell-cellBarcode-donor-info.419cells.txt", header=F, row.names=1, sep ="\t") ###rm COVIM077 cells because its ADT expr are all 0
 ###8 covid pos donors, 1 donor has 0 b cells
 for ( i in rownames(bcell.1069)) {
    newbal$DF.classifications_0.25_0.06_134[i] = bcell.1069[i, 5] } ###"COVIM054"
@@ -2043,6 +2062,7 @@ newbal.bcell$RNA@counts <- rbind(newbal.bcell$RNA@counts, newbal.bcell$newADT@co
 newbal.bcell$RNA@data   <- rbind(newbal.bcell$RNA@data, newbal.bcell$newADT@data) 
 dim(newbal.bcell)
 ### 24740   1042
+###[1] 24740   392; rm COVIM077 cells
 splitLS <- SplitObject(object = newbal.bcell, split.by = "orig.ident")
 splitLS <- lapply(X = splitLS, FUN = function(x) {
     x <- NormalizeData(x, verbose = T)
@@ -2053,6 +2073,7 @@ intFeats <- setdiff(intFeats, row.names(newbal.bcell@assays$newADT))
 splitAnchors <- FindIntegrationAnchors(object.list = splitLS,
 dims = 1:30, k.filter = 80, anchor.features = c(intFeats, row.names(newbal.bcell@assays$newADT)))
 ###Retained 343 anchors
+###Retained 348 anchors
 newbal.bcell.integrated <- IntegrateData(anchorset = splitAnchors, dims = 1:30)
 newbal.bcell.integrated <- ScaleData(newbal.bcell.integrated, verbose = T)
 newbal.bcell.integrated <- RunPCA(newbal.bcell.integrated, npcs = 30, verbose = T)
@@ -2061,6 +2082,7 @@ newbal.bcell.integrated <- RunUMAP(newbal.bcell.integrated, reduction = "pca", d
 newbal.bcell.integrated <- FindNeighbors(object = newbal.bcell.integrated)
 newbal.bcell.integrated <- FindClusters(object = newbal.bcell.integrated)
 ##Number of nodes: 1042, Number of edges: 34060, Number of communities: 7
+##Number of nodes: 392, Number of edges: 14127, Number of communities: 5
 DimPlot(object = newbal.bcell.integrated, reduction = "umap", label = TRUE, repel = T )
 DefaultAssay(newbal.bcell.integrated) <- "RNA"
 a.TF <- c("PRDM1", "IRF4", "XBP1", "PAX5", "BCL6", "BACH2")
@@ -2068,6 +2090,7 @@ a.proposal <- c("adt--CD11c", "adt--CD138-A0055", "adt--CD138-A0831", "adt--CD19
 VlnPlot(newbal.bcell.integrated, features = c(a.proposal), slot = "data", pt.size = 0.05, group.by = "seurat_clusters", ncol = 3)
 write.table(newbal.bcell.integrated@meta.data, file = "temp", quote = F, sep = "\t")
 cat  temp | cut -f 1,2,28,50  > 11-26-20-BAL-bcell-7clusters.5donors.txt ###cellID	cluster#
+cat  temp | cut -f 1,2,28,50  > 11-26-20-BAL-bcell-5clusters.4donors.txt
 bash tem-script-cluster-patientCellCount > temp.xls
 write.table(newbal.bcell.integrated@reductions$umap@cell.embeddings, file = "temp.xls", sep = "\t", quote=F)
 ./scrnaseq-metaannot-combine  temp.xls 11-26-20-BAL-bcell-7clusters.txt out
