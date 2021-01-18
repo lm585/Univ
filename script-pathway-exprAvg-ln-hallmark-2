@@ -1,0 +1,45 @@
+#
+#head -3 temp.log10.z.tscm.tem.tcm.genename.txt
+#DPM1	0.704181355002689	0.140620670445484	1.32842289211331	-1.26729520465442	0.32889145961896	0.366382407620185	0.269230441320248	-1.29983403624995	-1.42849104285325	0.63027738149836	-1.42849104285325	0.674484054816327	0.46068093805869	0.867838510072172	-1.42849104285325	1.08159225889768
+
+
+#normExp="temp.log10.z.tscm.tem.tcm.genename.txt" ### startardized gene exp by dChip
+#normExp="temp.FL.log10.z.tscm.tem.tcm.no.version.genename.2.txt"
+normExp="pbmc.10132.bcell.14clust.gene.freq.2.combined"
+
+head -1 "$normExp"
+
+ls temp-lead-genes.*.xls |  while read file
+do
+ wc -l "$file"
+ cat "$file" | grep -w -v "PROBE"  > temp-gene-id
+ wc -l temp-gene-id
+ ###each pathway, genes' expr and avg
+ cat temp-gene-id | while read geneID
+ do
+   grep -i  "^$geneID	" "$normExp"
+ done  | cut -f 2-100000 > temp-gene-expression
+ ngexp=`wc -l temp-gene-expression | awk '{print $1}' `
+ ### avg expression
+ echo -n "$ngexp	$file"
+ awk '
+  BEGIN{FS = "\t";
+       }
+  {
+   for(i = 1; i <= NF; i++)
+   {
+     s[i] += $i;
+   }
+  }
+  END{
+   for(i = 1; i <= NF; i++)
+   {
+    printf "\t%f", s[i]/NR;
+   }
+  }
+  ' temp-gene-expression
+  echo
+done
+
+#rm temp-gene-id temp-gene-expression
+
