@@ -1790,7 +1790,20 @@ head  temp-10132-pbmc-b-cells-clust-0.tr  | awk 'BEGIN {FS = "\t"; OFS = "\t"} {
 bash script-exprCount-per-clust-adt
 tail temp-10132-pbmc-b-cells-clust*.geneExp.sum | cut -f 1-6
 ls temp-10132-pbmc-b-cells-clust*.geneExp.sum | awk 'BEGIN {ORS = ""} {print $0 "  ";}' > temp-s
-
+paste temp-10132-pbmc-b-cells-clust-0.tr.geneExp.sum  temp-10132-pbmc-b-cells-clust-1.tr.geneExp.sum  temp-10132-pbmc-b-cells-clust-2.tr.geneExp.sum  temp-10132-pbmc-b-cells-clust-3.tr.geneExp.sum  temp-10132-pbmc-b-cells-clust-4.tr.geneExp.sum >  bal.392.bcell.5clust.gene.adt.freq.combined
+cat bal.392.bcell.5clust.gene.adt.freq.combined| awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
+for(i = 5; i <= NF; i=i+4)
+{
+ if($1 != $5)
+   print $1 "\n";
+}
+}' | head 
+cat bal.392.bcell.5clust.gene.adt.freq.combined| awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
+print $1;
+for(i = 4; i <= NF; i=i+4)
+  print "\t" $i;
+print "\n"; }' > bal.392.bcell.5clust.gene.adt.freq.2.combined
+vi bal.392.bcell.5clust.gene.adt.freq.2.combined #add header
 
 
 ###BAL aggregate per donor
@@ -1827,6 +1840,13 @@ res <- cor.test(nab, as.numeric(adt[i,]), method = "spearman", exact = F)
 cat(paste(rownames(adt)[i], res$estimate, res$p.value, sep = "\t"), "\n")
 }
 
+####pathway avg using gene expr freq
+bash /Users/linyongmao/Documents/dir-star-hiv/script-generate-chea-target-file /Users/linyongmao/Documents/dir-gene-set-database/h.all.kegg.reactome.v7.1.symbols.gmt
+bash /Users/linyongmao/Documents/dir-star-hiv/script-pathway-exprAvg-ln-hallmark-2 > temp-pathway-exprAvg-1 
+awk 'BEGIN {FS = "\t"} NF >= 15' temp-pathway-exprAvg-1 > temp-pathway-exprAvg-2
+vi temp-pathway-exprAvg-2
+
+
 cat pbmc.10132.bcell.14clust.gene.freq.combined | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {
 print $1;
 for(i = 4; i <= NF; i=i+4)
@@ -1838,6 +1858,23 @@ cat Cytokine_Receptors.txt| awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $2, $1}' >
 cat out | grep -v notApplicable > temp-chem-recept-freq
 cat pbmc.10132.bcell.14cluters.marker.freq.txt temp-chem-recept-freq > temp-chem-recept-freq-2.txt
 vi temp-recept-frq-pbmc.txt ###markers with max(clusters) > 10%
+pbmc.10132.bcell.14clust-bal.392.bcell.5clust.gene.freq.combined.txt
+pbmc.10132.bcell.14clust-bal.392.bcell.5clust.annot
+> annot <- read.delim("pbmc.10132.bcell.14clust-bal.392.bcell.5clust.annot")
+> ha <- HeatmapAnnotation(tissue = annot$tissue, subtype = annot$type)
+> Heatmap(matrix = mat, name = "expr freq",  column_names_side = "top",  row_names_gp = gpar(fontsize = 2),  width= unit(9, "cm"), clustering_distance_columns = "pearson" , top_annotation=ha)
+bal <- read.delim("bal.392.bcell.5clust.gene.adt.freq.2.combined", row.names=1)
+cat pbmc.bal.markers. bal.marker.chemo-receptor > temp.txt
+ bal.chemo.marker <- read.delim("temp.txt")
+ mat <- as.matrix(bal[bal.chemo.marker$marker,])
+x <- read.delim("pbmc.10132.bcell.14cluters.marker.2.freq.txt", row.names=1) ##pbmc, cytokine receptor
+##BAL cytokine receptor, list in PPT slide
+## bal.marker.chemo-receptor
+## pbmc chemo recept; ./scrnaseq-metaannot-combine  temp-chem-recept temp-pbmc out
+ ha <- HeatmapAnnotation(type = c( "mMem", "PB","PB","PB","mMem"))
+
+ Heatmap(matrix = mat, name = "expr freq",  column_names_side = "top",  row_names_gp = gpar(fontsize = 8),  height=unit(9, "cm"), width= unit(4, "cm"), clustering_distance_columns = "pearson" , top_annotation=ha)
+
 
 > head(rna)
 adt--CD80        0.00928793 0.0522876 0.00757576 0.0458015 0.0000000 0.0654206 0.0000000
@@ -1847,6 +1884,11 @@ adt--CD80        0.00928793 0.0522876 0.00757576 0.0458015 0.0000000 0.0654206 0
 > filt$var <- apply(rna, 1, FUN = var)
 > rna.var.gt0.05 <- rna[filt$var > 0,] ###var > 0, not 0.05
 > mat.var.gt0.05 <- as.matrix(rna.var.gt0.05)
+> filt = rna
+> filt$med <- apply(rna, 1, FUN = median)
+> rna.med.gt <- rna[filt$med > 0.2,] 
+> mat <- as.matrix(rna.med.gt)
+
 
 ######pbmc neut antibody
 cat  temp-neut-ab.txt |cut -f 3,4,5,6,11,22 | grep -w positive | grep -w Blood | sort > temp-blood-pos-Ab.sorted.txt
@@ -2097,6 +2139,25 @@ write.table(newbal.bcell.integrated@reductions$umap@cell.embeddings, file = "tem
 paste temp.xls  out | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $7,$1,$2,$3,$4,$6}' > temp-coord-donor
 ./scrnaseq-metaannot-combine temp-coord-donor temp-covim-sev out
 paste temp-coord-donor out > temp.2.xls
+
+library(SingleR)
+scaledMat <- as.matrix(newbal.bcell.integrated$integrated@data)
+##rownames(scaledMat) <- gsub(pattern = ".+---", replacement = "",
+                            rownames(scaledMat))
+##we want to use gene expr for the SingleR annotation, not CITE-seq data
+hpca <- HumanPrimaryCellAtlasData()
+hpcaB <- hpca[, hpca@colData$label.fine %in% c("B_cell", "B_cell:CXCR4+_centroblast", "B_cell:CXCR4-_centrocyte", "B_cell:Germinal_center", "B_cell:Memory", "B_cell:Naive", "B_cell:Plasma_cell", "B_cell:immature", "Pre-B_cell_CD34-", "Pro-B_cell_CD34+")]
+
+predSubsetB <- SingleR(test    = scaledMat,
+		       ref     = hpcaB,
+		       labels  = hpcaB$label.fine,
+		       )
+newbal.bcell.integrated <- AddMetaData(object = newbal.bcell.integrated,
+			 metadata = predSubsetB$labels,
+			 col.name = "singleRcellAtlasFine")
+DimPlot(newbal.bcell.integrated, reduction = "umap", group.by = "singleRcellAtlasFine", cols = c("purple", "gold2", "orange",  "black", "green","blue", "red", "yellow", "salmon", "deepskyblue4"))
+hpca <- MonacoImmuneData()
+hpcaB <- hpca[, hpca$label.main == "B cells"]
 
 ###single cell heatmap for clusters
 bal-scrna-heatmap.R 
