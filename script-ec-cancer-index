@@ -1875,6 +1875,30 @@ x <- read.delim("pbmc.10132.bcell.14cluters.marker.2.freq.txt", row.names=1) ##p
 
  Heatmap(matrix = mat, name = "expr freq",  column_names_side = "top",  row_names_gp = gpar(fontsize = 8),  height=unit(9, "cm"), width= unit(4, "cm"), clustering_distance_columns = "pearson" , top_annotation=ha)
 
+###Average Expression per cluster
+Idents(pbmc.bcell.pos) <- "Smoking"
+cluster.averages <- AverageExpression(pbmc.bcell.pos, slot = "counts" )
+###Finished averaging RNA for cluster 2
+###...Finished averaging newADT for cluster 7
+###Finished averaging newADT for cluster 11
+write.table(cluster.averages[["RNA"]], file = "temp-1", quote = F, sep = "\t")
+write.table(cluster.averages[["newADT"]], file = "temp-2", quote = F, sep = "\t")
+./scrnaseq-metaannot-combine  temp.9markers  pbmc.10132.bcell.14clust.gene.adt.avg.combined out
+temp.avg.txt ###cluster count avg, 9 genes, 14 clusters,pbmc
+temp.exprFreq.txt ###freq of cells with feature expressed
+pbmc.bal.markers.2.susan #B cell substype markers
+###integration, find clusters, then run
+> cluster.averages <- AverageExpression(pbmc.bcell.pos.integrated, slot = "data" )
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging newADT for cluster 10
+Finished averaging newADT for cluster 11
+Finished averaging integrated for cluster 0
+Finished averaging integrated for cluster 13
+write.table(cluster.averages[["RNA"]], file = "temp-1", quote = F, sep = "\t")
+write.table(cluster.averages[["integrated"]], file = "temp-2", quote = F, sep = "\t")
+cat pbmc.bal.markers. | sed 's/"//g' | while read ll; do grep "^$ll        " temp-2; done > temp-2-markers.txt
+temp-1-markers.txt
 
 > head(rna)
 adt--CD80        0.00928793 0.0522876 0.00757576 0.0458015 0.0000000 0.0654206 0.0000000
