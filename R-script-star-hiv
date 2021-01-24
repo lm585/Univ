@@ -456,7 +456,6 @@ group <- factor(c(rep(1, 7), rep(2, 4)))
  y<-y[keep,]
  dim(y)
 ### [1] 5994   11
-
  design<-model.matrix(~0+group) 
  y <- estimateGLMCommonDisp(y,design) 
  y <- estimateGLMTrendedDisp(y,design) 
@@ -468,6 +467,15 @@ group <- factor(c(rep(1, 7), rep(2, 4)))
 mv -i dir-map-stat/diff2-1.txt Tem-Tcm.7-4.diff2-1.txt
 "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" Tem-Tcm.7-4.diff2-1.txt GRCh38-geneID-name out
 paste out Tem-Tcm.7-4.diff2-1.txt  | grep -v notApplicable | cut -f 2,4-100 > Tem-Tcm.7-4.diff2-1.geneName.txt 
+
+cut -f 8  diff-CM-EM-p-value.florida.12-14.withName.txt | grep -v notApplicable | sort | uniq > temp-1
+cat Tem-Tcm.diff2-1.txt.withGeneNames |  grep -v notApplicable |cut -f 8 | sort | uniq > temp-2
+cat Tem-Tcm.7-4.diff2-1.geneName.txt |  grep -v notApplicable |cut -f 1| sort | uniq > temp-2
+cat temp-1 temp-2| sort | uniq| wc -l
+cat Tem-Tcm.7-4.diff2-1.geneName.txt |  grep -v notApplicable | awk 'BEGIN {FS = "\t"; OFS = "\t"} $5 < 0.05 && $2 > 0' | cut -f 1 |sort | uniq > temp-star-tcm-up-7-4samples.txt
+cat Tem-Tcm.7-4.diff2-1.geneName.txt |  grep -v notApplicable | awk 'BEGIN {FS = "\t"; OFS = "\t"} $5 < 0.05 && $2 < 0' | cut -f 1 |sort | uniq > temp-star-tem-up-7-4samples.txt
+
+bash script-hyperG-test-2-R temp.txt > out
 
 ####FL cohort
 rawCount <- read.delim("../Florida-cohort-RT/raw.modify.CM-EM-ordered.txt", header = T, row.names=1)
@@ -539,3 +547,55 @@ mv dir-map-stat/diff2-1.txt diff-CM-EM-p-value.florida.12-14.txt
 Dec 14 01:15 dir-map-stat/temp-12-14-2020-florida-cohort-cpm.txt
 diff-CM-EM-p-value.florida.12-14.DEGs.direction
 diff-CM-EM-p-value.florida.12-14.DEGs.direction.no.4.forSTAR ###some gene IDs from FL do not appear in the STAR IDs
+
+module avail | grep -i star
+module avail  STAR
+module load STAR
+# load modules
+module load gcc/6.3.0
+module load openmpi/2.0.1
+module load python/3.7.0
+module load samtools/1.9
+module load STAR/2.7.0e
+
+wget ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+wget ftp://ftp.ensembl.org/pub/release-100/gtf/homo_sapiens/Homo_sapiens.GRCh38.100.gtf.gz
+###genome indexing
+STAR   --runMode genomeGenerate   --genomeDir dir-genome  --genomeFastaFiles dir-genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa  --genomeSAsparseD 2 --runThreadN 2 --sjdbGTFfile dir-genome/Homo_sapiens.GRCh38.100.gtf     --sjdbOverhang 99  ##99 = readLength - 1
+# number of nodes and processors, memory required
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32gb
+# time requirements
+#SBATCH --time=12:00:00
+
+java -Xmx1g \
+		-jar $bin/Trimmomatic-0.39/trimmomatic-0.39.jar PE \
+		-threads $maxProc \
+		-phred33 \
+		-trimlog ${sample}_trim.log \
+		${sample}_1.fq.gz \
+		${sample}_2.fq.gz \
+		${sample}_1.trimmed.fq.gz \
+		${sample}_1.unpaired.fq.gz \
+		${sample}_2.trimmed.fq.gz \
+		${sample}_2.unpaired.fq.gz \
+		ILLUMINACLIP:$adapterFile:2:30:10:8:TRUE \
+		LEADING:3 \
+		TRAILING:3 \
+		SLIDINGWINDOW:4:15 \
+		MINLEN:36 &> ${sample}_trim.err
+adapterFile="Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa"
+java -Xmx1g -jar Trimmomatic-0.39/trimmomatic-0.39.jar  PE  -threads 2    -phred33   -trimlog temp-trimmom.log /scratch/users/lxm416/star/tempDir12-2/temp-12_1.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_2.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_1.trimmed.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_1.unpaired.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_2.trimmed.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_2.unpaired.fq.gz  ILLUMINACLIP:$adapterFile:2:30:10:8:TRUE LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36 
+
+#Input Read Pairs: 1000000 Both Surviving: 945418 (94.54%) Forward Only Surviving: 50749 (5.07%) Reverse Only Surviving: 2981 (0.30%) Dropped: 852 (0.09%)
+
+       STAR --genomeDir $genomeDir \
+		 --readFilesIn ${sample}_1.trimmed.fq.gz \
+		 ${sample}_2.trimmed.fq.gz \
+		 --readFilesCommand zcat \
+	  	 --runThreadN $maxProc \
+ 		 --outSAMtype BAM Unsorted \
+		 --outFileNamePrefix ${sample}_star \
+		 --outReadsUnmapped Fastx &>/dev/null
+STAR --genomeDir dir-genome  --readFilesIn /scratch/users/lxm416/star/tempDir12-2/temp-12_1.trimmed.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_2.trimmed.fq.gz   --readFilesCommand zcat   --runThreadN 2   --outSAMtype BAM Unsorted   --outFileNamePrefix /scratch/users/lxm416/star/tempDir12-2/temp-12-star --outReadsUnmapped  Fastx 
