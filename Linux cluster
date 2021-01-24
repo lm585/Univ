@@ -66,6 +66,30 @@ sq
 i
 seff jobid
 
+###use python package, set PYTHONUSERBASE
+[lxm416@hpc3 mRNASeq-master]$ cat batch.temple
+#!/bin/bash
+#SBATCH -o test.batch.temple.o%j
+#SBATCH --time=100:30:00      # 20 minutes of wall time
+#SBATCH -N 1                 # 1 Node
+#SBATCH -n 8                 # 1 processor
+#SBATCH --mem=50gb             # Assign 2gb memory; default in 1gb
+
+# load modules
+module load gcc/6.3.0
+module load openmpi/2.0.1
+module load samtools/1.9
+module load STAR/2.7.0e
+module load python/3.7.0
+export PYTHONUSERBASE=$HOME/.usr/local/python/3.7.0
+echo "$PYTHONUSERBASE"
+ls $PYTHONUSERBASE/lib/python3.7/site-packages
+###HTSeq  HTSeq-0.13.5.dist-info  pysam  pysam-0.16.0.1.dist-info
+pip freeze | grep HTSeq
+
+python -m HTSeq.scripts.count --mode=union --stranded=no --idattr=exon_id --format=bam  --additional-attr=gene_name  --order=name --type=exon /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam dir-genome/Homo_sapiens.GRCh38.100.gtf > temp.exon.txt
+
+
 [lxm416@hpc3 ~]$ cat .bashrc      
 # .bashrc
 
