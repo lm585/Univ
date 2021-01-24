@@ -599,3 +599,68 @@ java -Xmx1g -jar Trimmomatic-0.39/trimmomatic-0.39.jar  PE  -threads 2    -phred
 		 --outFileNamePrefix ${sample}_star \
 		 --outReadsUnmapped Fastx &>/dev/null
 STAR --genomeDir dir-genome  --readFilesIn /scratch/users/lxm416/star/tempDir12-2/temp-12_1.trimmed.fq.gz /scratch/users/lxm416/star/tempDir12-2/temp-12_2.trimmed.fq.gz   --readFilesCommand zcat   --runThreadN 2   --outSAMtype BAM Unsorted   --outFileNamePrefix /scratch/users/lxm416/star/tempDir12-2/temp-12-star --outReadsUnmapped  Fastx 
+
+for sample in $(find $dirData -name "*_starAligned.out.bam")
+    do
+        sampleID=$(echo $sample | sed -r 's/(.?)_starAligned.out.bam$/\1/')
+        samtools sort \
+                 -n \
+                 -@ $maxProc \
+                 -o $sampleID.sorted.bam \
+                 $sample &>/dev/null
+        # delete unsorted bam
+        rm $sample
+    done
+ -@, --threads INT
+               Number of additional threads to use [0]
+samtools sort -n -@ 4 -o /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam /scratch/users/lxm416/star/tempDir12-2/temp-12-starAligned.out.bam
+samtools index /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam
+rm /scratch/users/lxm416/star/tempDir12-2/temp-12-starAligned.out.bam
+
+
+module load python/3.7.0
+export PYTHONUSERBASE=$HOME/.usr/local/python/3.7.0
+echo "$PYTHONUSERBASE"
+mkdir -p $PYTHONUSERBASE
+export PYTHONUSERBASE=$HOME/.usr/local/python/3.7.0
+pip install --user HTSeq
+
+ls $PYTHONUSERBASE/lib/python3.7/site-packages
+###HTSeq  HTSeq-0.13.5.dist-info  pysam  pysam-0.16.0.1.dist-info
+pip freeze | grep HTSeq
+
+            sampleID=$(echo $sample | sed -r 's/(.?).sorted.bam$/\1/')
+            $bin/HTSeq-0.11.2/htseq-count \
+                --mode=union \
+                --stranded=$stranded \
+                --idattr=gene_id \
+                --format=bam \
+                --quiet \
+                $sample \
+                $gtfFile \
+                > ${sampleID}_counts_gene
+            if $isoform
+            then
+                $bin/HTSeq-0.11.2/htseq-count \
+                    --mode=union \
+                    --stranded=$stranded \
+                    --idattr=transcript_id \
+                    --format=bam \
+                    --quiet \
+                    $sample \
+                    $gtfFile \
+                    > ${sampleID}_counts_transcript
+                python $bin/HTSeq-0.11.2/htseq-count \
+                    --mode=union \
+                    --stranded=$stranded \
+                    --idattr=exon_id \
+                    --format=bam \
+                    --quiet \
+                    $sample \
+                    $gtfFile \
+                    > ${sampleID}_counts_exon
+            fi
+
+python -m HTSeq.scripts.count --mode=union --stranded=no --idattr=exon_id --format=bam  --additional-attr=gene_name  --order=name --type=exon /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam dir-genome/Homo_sapiens.GRCh38.100.gtf > temp.exon.txt
+
+python -m HTSeq.scripts.count --mode=union --stranded=no --idattr=transcript_id --format=bam  --additional-attr=gene_name --order=name --type=exon /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam dir-genome/Homo_sapiens.GRCh38.100.gtf > temp.transcript.txt
