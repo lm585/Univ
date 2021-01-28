@@ -1,0 +1,42 @@
+#!/bin/bash
+#SBATCH -o test.batch.temple.o%j
+#SBATCH --time=100:30:00      # 20 minutes of wall time
+#SBATCH -N 1                 # 1 Node
+#SBATCH -n 8                 # 1 processor
+#SBATCH --mem=50gb             # Assign 2gb memory; default in 1gb
+
+# load modules
+module load gcc/6.3.0
+module load openmpi/2.0.1
+module load samtools/1.9
+module load STAR/2.7.0e
+module load python/3.7.0
+export PYTHONUSERBASE=$HOME/.usr/local/python/3.7.0
+echo "$PYTHONUSERBASE"
+ls $PYTHONUSERBASE/lib/python3.7/site-packages
+###HTSeq  HTSeq-0.13.5.dist-info  pysam  pysam-0.16.0.1.dist-info
+pip freeze | grep HTSeq
+
+fq1="/scratch/users/lxm416/star/tcm/35/FCH2MNVBBXY_L6_RDWHHUMpdqEABIAA-701506_1.fq.gz"
+fq2="/scratch/users/lxm416/star/tcm/35/FCH2MNVBBXY_L6_RDWHHUMpdqEABIAA-701506_2.fq.gz"
+outputDir="/scratch/users/lxm416/star/tcm/35/S35"
+
+tcm="/scratch/users/lxm416/star/tcm/"
+for d in `echo 43  47  57`
+do
+  cd "$tcm"$d
+  S=`ls *1.fq.gz | sed 's/_1.fq.gz//' `
+  ls -lh "$tcm"$d/"$S"_[12].fq.gz
+  fq1="$tcm"$d/"$S"_1.fq.gz
+  fq2="$tcm"$d/"$S"_2.fq.gz
+  outputDir="$tcm"$d/S"$d"
+  cd /home/lxm416/RNASeqProjects/il10_20190301/dir-clone/mRNASeq-master
+  STAR --genomeDir dir-genome  --readFilesIn $fq1 $fq2  --readFilesCommand zcat   --runThreadN 8 --outSAMtype BAM Unsorted   --outFileNamePrefix $outputDir 
+###--outReadsUnmapped  Fastx
+#
+  samtools sort  -@ 6 -o $outputDir-coord.sort.bam "$outputDir"Aligned.out.bam
+  rm "$outputDir"Aligned.out.bam 
+  samtools index $outputDir-coord.sort.bam
+  samtools view -b -o $outputDir.chr1.bam $outputDir-coord.sort.bam 1:123456789-250456789
+  samtools index $outputDir.chr1.bam 
+done  
