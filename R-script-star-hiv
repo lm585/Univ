@@ -331,11 +331,28 @@ write.table(top2v1, "diff2-1.txt", sep="\t")
 
 ####TCM corr with infection freq#######
 cut -f 1-7 ./dir-map-stat/gene-count-Tcm-CD127-CD25+.6-10.txt > gene-count-Tcm.6samp.txt
-> keep <-rowSums(cpm(y)>0) >= 5
-> y<-y[keep,]
-> dim(y)
-[1] 5696    6
-###h <- read.delim("star-CPM.tcm.hiv.inorder.txt", header = F)
+x <- read.delim("gene-count-Tcm.6samp.txt", row.names=1)
+y <- DGEList(counts=x)
+y <- calcNormFactors(y)
+keep <-rowSums(cpm(y)>0) >= 5
+y<-y[keep,]
+dim(y)
+###[1] 5696    6
+h <- read.delim("star-CPM.tcm.hiv.inorder.txt", header = F) ##log10 transformed
+hiv <- h$V3
+design<-model.matrix(~hiv) 
+y <- estimateGLMCommonDisp(y,design) 
+ y <- estimateGLMTrendedDisp(y,design) 
+ y <- estimateGLMTagwiseDisp(y,design) 
+ fit<-glmFit(y,design) 
+
+lrt.2vs1 <- glmLRT(fit, coef = "hiv")
+top2v1 <- topTags(lrt.2vs1, n=50000) 
+write.table(top2v1, "diff2-1.txt", sep="\t")
+
+##diff star-CPM.tcm.GLM.hiv.diff2-1.txt diff2-1.txt | wc -l
+       0
+
 h <- read.delim("star-CPM.tcm.hiv.inorder.transpose.txt", header = T, row.names=1)
 star-CPM.tcm.GLM.hiv.diff2-1.txt ###GLM DEGs
 cat star-CPM.tcm.GLM.hiv.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 > 0 && $6 < 0.25' | cut -f 1 > star-CPM.tcm.GLM.hiv.diff2-1.45pos.corr.genes ##p = 0.019885072360234	0.24948
@@ -664,3 +681,6 @@ pip freeze | grep HTSeq
 python -m HTSeq.scripts.count --mode=union --stranded=no --idattr=exon_id --format=bam  --additional-attr=gene_name  --order=name --type=exon /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam dir-genome/Homo_sapiens.GRCh38.100.gtf > temp.exon.txt
 
 python -m HTSeq.scripts.count --mode=union --stranded=no --idattr=transcript_id --format=bam  --additional-attr=gene_name --order=name --type=exon /scratch/users/lxm416/star/tempDir12-2/temp-12.name.sort.bam dir-genome/Homo_sapiens.GRCh38.100.gtf > temp.transcript.txt
+
+samtools view -b -o S12.chr1.bam S12-coord.sort.bam 1:123456789-250456789
+
