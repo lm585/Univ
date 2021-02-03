@@ -355,8 +355,12 @@ write.table(top2v1, "diff2-1.txt", sep="\t")
 
 h <- read.delim("star-CPM.tcm.hiv.inorder.transpose.txt", header = T, row.names=1)
 star-CPM.tcm.GLM.hiv.diff2-1.txt ###GLM DEGs
-cat star-CPM.tcm.GLM.hiv.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 > 0 && $6 < 0.25' | cut -f 1 > star-CPM.tcm.GLM.hiv.diff2-1.45pos.corr.genes ##p = 0.019885072360234	0.24948
-cat star-CPM.tcm.GLM.hiv.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $2 < 0 && $5 < 0.00125' | cut -f 1 > star-CPM.tcm.GLM.hiv.diff2-1.50neg.corr.genes
+"star-CPM-tcm.11-15.txt" ###TCM gene CPM
+star-CPM.tcm.GLM.hiv.diff2-1.50neg.corr.genes.name
+star-CPM.tcm.GLM.hiv.diff2-1.50pos.corr.genes.names ##51 genes
+star-CPM.tcm.GLM.hiv.diff2-1.p0.05.corr.genes
+star-CPM.tcm.GLM.hiv.diff2-1.p0.05.neg.corr.genes
+
 a <- read.delim(file = "star-CPM-tcm.11-15.txt", header = T, row.names=1)
 mv -i temp.2 star-CPM-tcm.11-15.zscore.txt
 mv -i "temp.2" star-CPM-tcm.11-15.log10.x+1.zscore.txt
