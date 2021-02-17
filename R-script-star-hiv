@@ -416,6 +416,7 @@ cat  dir-map-stat/Tem-Tcm.diff2-1.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"}  $2 <
 cat dir-map-stat/gene-count-Tem-RA-Tscm.7-4.txt | cut -f 1,9-12 > temp.1.txt
 paste temp.1.txt dir-map-stat/gene-count-Tem-Tcm.7-6.txt dir-map-stat/gene-count-RARO-CD127-CD25+.5-10.txt > temp.2.txt
 cat  temp.2.txt | cut -f 1-5,7-14,16-19,21-35 > gene-count-Tscm-Tem-Tcm-RARO-CD127-CD25+.noS21.txt
+# cat  temp.2.txt | cut -f 1-5,7-15,16-19,21-35 > gene-count-Tscm-Tem-Tcm-RARO-Treg.32samp.txt
 
 > rawCount <- read.delim("../gene-count-Tscm-Tem-Tcm-RARO-CD127-CD25+.noS21.txt", header = T, row.names = 1)
 > group <- factor(rep(1, 31))
@@ -432,6 +433,42 @@ mat <- as.matrix(d.med.gt1)
 Heatmap(matrix = log10(mat+1), name = "log10(CPM+1)",   column_names_side = "top",  top_annotation = ha,  show_row_names = F,   col = col_fun, clustering_distance_columns="pearson")
 > yfilt <- y[medianFilt$med > 1,]
 mds1 = plotMDS(yfilt, top = 91234)
+
+##5 memory subsets, 32 samples, PVCA
+rawCount <- read.delim("gene-count-Tscm-Tem-Tcm-RARO-Treg.32samp.txt", row.names=1)
+dim(rawCount)
+ group <- factor(rep(1, 32))
+ y <- DGEList(counts=rawCount,group=group)
+ y <- calcNormFactors(y)
+ d <- cpm(y)
+ summary(log2(d+1))
+pData <- read.delim("Tscm-Tem-Tcm-RARO-Treg.32samp.info.txt", header = T, row.names = 1)
+phenoData <- AnnotatedDataFrame(data=pData)
+eset <- ExpressionSet(log2(d+1), phenoData=phenoData)
+ ### eset <- ExpressionSet(d, phenoData=phenoData)
+ pct_threshold <- 0.6
+batch.factors <- c("genesDet", "subtypr",  "donor")
+
+pvcaObj <- pvcaBatchAssess (eset, batch.factors, pct_threshold) 
+##Error: number of levels of each grouping factor must be < number of observations (problems: subtypr:donor, genesDet:donor, genesDet:subtypr, genesDet)
+
+ bp <- barplot(pvcaObj$dat,  xlab = "Effects", 
+ 	ylab = "Weighted average proportion variance", 
+ 	ylim= c(0,1.1),col = c("blue"), las=2, 
+ 	main="PVCA estimation bar chart")
+ axis(1, at = bp, labels = pvcaObj$label, xlab = "Effects", cex.axis = 0.5, las=2)
+ values = pvcaObj$dat
+ new_values = round(values , 3)
+ text(bp,pvcaObj$dat,labels = new_values, pos=3, cex = 0.8) 
+
+
+
+###head  Tscm-Tem-Tcm-RARO-Treg.32samp.info.txt 
+	genesDet	subtypr	donor
+samp_13	15747	CD4+ RA-Tscm	STAR010
+samp_23	12719	CD4+ RA-Tscm	STAR012
+samp_28	12119	CD4+ RA-Tscm	STAR008
+
 
 rawCount <- read.delim("../gene-count-Tscm-Tem-Tcm.noS21.txt", header = T, row.names = 1)
 group <- factor(rep(1, 16))
@@ -568,6 +605,11 @@ mv dir-map-stat/diff2-1.txt diff-CM-EM-p-value.florida.12-14.txt
 Dec 14 01:15 dir-map-stat/temp-12-14-2020-florida-cohort-cpm.txt
 diff-CM-EM-p-value.florida.12-14.DEGs.direction
 diff-CM-EM-p-value.florida.12-14.DEGs.direction.no.4.forSTAR ###some gene IDs from FL do not appear in the STAR IDs
+
+vi temp-star-genes
+bash temp-scrip > temp.txt
+cat temp2 | cut -f 4,7,19,20,25,27 |head -2
+cat temp2 | cut -f 4,7,19,20,25,27 | sort -t '	' +5 -6n | head
 
 module avail | grep -i star
 module avail  STAR
