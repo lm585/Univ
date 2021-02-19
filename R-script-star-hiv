@@ -402,10 +402,20 @@ lrt.2vs1 <- glmLRT(fit, coef = "hiv")
 top2v1 <- topTags(lrt.2vs1, n=50000)
 write.table(top2v1, "diff2-1.txt", sep="\t")
 mv -i "diff2-1.txt" star-CPM.tcm.tem.GLM.hiv.diff2-1.txt
+ star-CPM.tcm.tem.GLM.hiv.diff2-1.allGenes.name.txt
+ cat  star-CPM.tcm.tem.GLM.hiv.diff2-1.allGenes.name.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $8,$1,$2,$5}' > temp-name-updown-p
+
 "tcm-tem-infect.freq.2.transpose"
 star-CPM.tcm.tem.GLM.hiv.name.rnk
 
 > Heatmap(matrix = log10(mat), name = "log10(hiv)",   column_names_side = "top",   show_row_names = T,  column_order= c(11, 1, 7, 4, 8, 5, 2, 10, 6, 3, 9), height = unit(0.6, "cm"), width= unit(6, "cm"), col=col_fun)
+
+bash script-gsea-star-hiv 
+cat "$f" | awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 < 0.05' | cut -f 1 > TFnames-neg.corr.tcm.tem.hiv
+TFnames-pos.corr.tcm.tem.hiv
+cat temp > temp-tf-tf-chea
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-tf-tf-chea star-CPM.tcm.tem.GLM.hiv.name.rnk out
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-tf-tf-chea temp-name-updown-p out
 
 ##diff star-CPM.tcm.GLM.hiv.diff2-1.txt diff2-1.txt | wc -l
        0
