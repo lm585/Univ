@@ -403,7 +403,7 @@ top2v1 <- topTags(lrt.2vs1, n=50000)
 write.table(top2v1, "diff2-1.txt", sep="\t")
 mv -i "diff2-1.txt" star-CPM.tcm.tem.GLM.hiv.diff2-1.txt
  star-CPM.tcm.tem.GLM.hiv.diff2-1.allGenes.name.txt
- cat  star-CPM.tcm.tem.GLM.hiv.diff2-1.allGenes.name.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $8,$1,$2,$5}' > temp-name-updown-p
+ cat  star-CPM.tcm.tem.GLM.hiv.diff2-1.allGenes.name.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $8,$1,$2,$3,$4,$5,$6}' > temp-name-updown-p
 
 "tcm-tem-infect.freq.2.transpose"
 star-CPM.tcm.tem.GLM.hiv.name.rnk
@@ -416,6 +416,9 @@ TFnames-pos.corr.tcm.tem.hiv
 cat temp > temp-tf-tf-chea
 "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-tf-tf-chea star-CPM.tcm.tem.GLM.hiv.name.rnk out
 "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-tf-tf-chea temp-name-updown-p out
+cat out   | awk 'BEGIN {FS = "\t"; OFS = "\t"} $6 < 0.05 && $3 < 0&& $4 > 0' | cut -f 1 > TFnames-neg.corr.tcm.tem.hiv.selected.with.expr
+TFnames-neg.corr.tcm.tem.hiv.selected.with.expr.2
+TF-target-neg.corr.tcm.tem.hiv.txt
 
 ##diff star-CPM.tcm.GLM.hiv.diff2-1.txt diff2-1.txt | wc -l
        0
@@ -673,6 +676,16 @@ Dec 14 01:15 dir-map-stat/temp-12-14-2020-florida-cohort-cpm.txt
 diff-CM-EM-p-value.florida.12-14.DEGs.direction
 diff-CM-EM-p-value.florida.12-14.DEGs.direction.no.4.forSTAR ###some gene IDs from FL do not appear in the STAR IDs
 
+#####Florida CM subset tilda
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine"   FL-CM-tilda FL-donon-sample-info  out-tildaOrder-samp
+cat  out-tildaOrder-samp | cut -f 2 > temp-samp-cm
+head ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt | head -1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print  $i, i}' | sed 's/"//g' > temp-samp-columNum
+ "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine"   temp-samp-cm temp-samp-columNum out
+cat ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt |  awk 'BEGIN {FS = "\t"; OFS = "\t"}
+{
+ print $1,     $10,    $11,    $6,     $14,    $16,    $15,    $13,    $12;
+}' > FL-genecount-CM-8samps-tilda.txt
+ 
 vi temp-star-genes
 bash temp-scrip > temp.txt
 cat temp2 | cut -f 4,7,19,20,25,27 |head -2
