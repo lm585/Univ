@@ -685,7 +685,37 @@ cat ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt |  awk 'BEGIN {FS = "\t"; O
 {
  print $1,     $10,    $11,    $6,     $14,    $16,    $15,    $13,    $12;
 }' > FL-genecount-CM-8samps-tilda.txt
+ x <- read.delim("FL-genecount-CM-8samps-tilda.txt", row.names=1)
+ group <- factor(rep(1, 8))
+ y <- DGEList(counts=x,group=group)
+ y <- calcNormFactors(y)
+ keep <-rowSums(cpm(y)>0) >= 7
+ y<-y[keep,]
+ dim(y)
+###[1] 13469     8
+ h <- read.delim("FL-CM-tilda", header = F)
+ h
+ hiv <- log10(h$V2)
+ hiv
+###[1] 0.0000000 0.0000000 0.4313638 1.0576661 1.1760913 1.2552725 1.6665180 1.9294189
+ design<-model.matrix(~hiv)
+ y <- estimateGLMCommonDisp(y,design)
+  y <- estimateGLMTrendedDisp(y,design)
+  y <- estimateGLMTagwiseDisp(y,design)
+  fit<-glmFit(y,design)
  
+ lrt.2vs1 <- glmLRT(fit, coef = "hiv")
+ top2v1 <- topTags(lrt.2vs1, n=50000)
+ write.table(top2v1, "diff2-1.txt", sep="\t")
+
+mv -i diff2-1.txt FL-CM-8samps-tilda.diff2-1.txt 
+FL-CM-8samps-tilda.diff2-1.rnk
+FL-CM-8samps-tilda.noDot.rnk
+####ENSG00000155090.12 -> ENSG00000155090
+FL-CM-8samps-tilda.noDot.name.rnk
+grep -v "notApplicable" FL-CM-8samps-tilda.noDot.name.rnk > temp
+mv temp  FL-CM-8samps-tilda.noDot.name.rnk
+
 vi temp-star-genes
 bash temp-scrip > temp.txt
 cat temp2 | cut -f 4,7,19,20,25,27 |head -2
