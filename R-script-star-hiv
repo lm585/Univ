@@ -756,8 +756,41 @@ top2v1 <- topTags(lrt.2vs1, n=50000)
 write.table(top2v1, "diff2-1.txt", sep="\t")
 mv -i "diff2-1.txt" FL-CM-EM-24samp-intDNA.diff2-1.txt
 FL-int-DNA-CM-EM-sortedHIV.transpose
-FL-CM-EM-24samp-intDNA.top50neg.50pos.corr.txt
+cat  FL-int-DNA-CM-EM-samp-donor-sortedHIV | grep -w CM |  cut -f 5 > temp-samp-sortedHIV 
+FL-genecount-CM-12samp-intDNA.txt ###print $1,$7,$8,$9,$10,$16,$6,$12,$13,$15,$14,$17,$11;
+FL-int-DNA-CM-EM-samp-donor-sortedHIV-CM
+......
+>  keep <-rowSums(cpm(y)>1) >= 4
+>  y<-y[keep,]
+>  dim(y)
+[1] 15144    12
+......
+FL-CM-12samp-intDNA.diff2-1.txt
+cat  FL-int-DNA-CM-EM-samp-donor-sortedHIV | grep -w EM |  cut -f 5 > temp-samp-sortedHIV 
+cat  FL-int-DNA-CM-EM-samp-donor-sortedHIV | grep -w EM > FL-int-DNA-CM-EM-samp-donor-sortedHIV-EM
+>  dim(y)
+[1] 14065    12
+FL-EM-12samp-intDNA.diff2-1.txt
 
+
+FL-genecount-EM-12samp-intDNA.txt
+bash ./script-preRank-genes FL-CM-EM-24samp-intDNA.diff2-1.txt |  grep -wv logFC | sed 's/\.[0-9]*	/	/' > FL-CM-EM-24samp-intDNA.rnk
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" FL-CM-EM-24samp-intDNA.rnk GRCh38-geneID-name out
+paste FL-CM-EM-24samp-intDNA.rnk  out | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $2}' | grep -v "notApplicable" > FL-CM-EM-24samp-intDNA.name.rnk
+
+FL-CM-EM-24samp-intDNA.name.rnk
+FL-CM-12samp-intDNA.name.rnk
+FL-EM-12samp-intDNA.name.rnk
+
+FL-EM-12samp-intDNA.transpose.txt
+FL-EM-12samp-intDNA.top50.pos.cor.genes
+FL-EM-12samp-intDNA.top50.neg.cor.genes
+
+bash -x script-pathway-pValue-condition-table
+cat temp-gsea_report.xls| awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 < 0.05 ' | cut -f 1 | sort | uniq > temp-sig-pathways
+bash -x script-pathway-pValue-condition-table-step2
+paste temp-sig-paths-FL-CM-12samp-intDNA.h.all.v7.1.GseaPreranked.1614066212142 temp-sig-paths-FL-CM-EM-24samp-intDNA.h.all.v7.1.GseaPreranked.1614066224282 temp-sig-paths-FL-EM-12samp-intDNA.h.all.v7.1.GseaPreranked.1614066235529 > temp.out
+bash script-pathway-pValue-condition-table-step3 > FL-intDNA.h.all.txt
 
 vi temp-star-genes
 bash temp-scrip > temp.txt
