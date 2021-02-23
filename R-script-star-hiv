@@ -689,10 +689,10 @@ cat ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt |  awk 'BEGIN {FS = "\t"; O
  group <- factor(rep(1, 8))
  y <- DGEList(counts=x,group=group)
  y <- calcNormFactors(y)
- keep <-rowSums(cpm(y)>0) >= 7
+ keep <-rowSums(cpm(y)>0) >= 6
  y<-y[keep,]
  dim(y)
-###[1] 13469     8
+###[1] 14874     8
  h <- read.delim("FL-CM-tilda", header = F)
  h
  hiv <- log10(h$V2)
@@ -709,12 +709,55 @@ cat ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt |  awk 'BEGIN {FS = "\t"; O
  write.table(top2v1, "diff2-1.txt", sep="\t")
 
 mv -i diff2-1.txt FL-CM-8samps-tilda.diff2-1.txt 
+FL-CM-8samps-tilda.diff2-1.name.txt
 FL-CM-8samps-tilda.diff2-1.rnk
 FL-CM-8samps-tilda.noDot.rnk
 ####ENSG00000155090.12 -> ENSG00000155090
 FL-CM-8samps-tilda.noDot.name.rnk
 grep -v "notApplicable" FL-CM-8samps-tilda.noDot.name.rnk > temp
 mv temp  FL-CM-8samps-tilda.noDot.name.rnk
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" "FL-CM-tilda" FL-CM-tilda-transpose.txt
+FL-CM-8samps-tilda.top50neg-top50pos-corr-genes.id.name ## ENSG00000134107.4	BHLHE40
+> Heatmap(matrix = log10(mat[51:100,]+1), name = "log10(CPM+1)",  column_order = 1:8, column_names_side = "bottom",  row_names_gp = gpar(fontsize = 6), height = unit(10, "cm"), width= unit(6, "cm"),  col= col_fun)
+
+###FL EM CM with intDNA
+head FL-donon-sample-info*  FL-int-DNA-CM-EM
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" FL-int-DNA-CM-EM FL-donon-sample-info out
+paste FL-int-DNA-CM-EM out | grep "	CM	.*	CM$" > temp1
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" FL-int-DNA-CM-EM FL-donon-sample-info-EM out
+paste FL-int-DNA-CM-EM out | grep "       EM      .*      EM$" > temp2
+cat temp1 temp2 > FL-int-DNA-CM-EM-samp-donor
+cat FL-int-DNA-CM-EM-samp-donor | sort +2 -3n > FL-int-DNA-CM-EM-samp-donor-sortedHIV
+cut -f 5 FL-int-DNA-CM-EM-samp-donor-sortedHIV > temp-samp-sortedHIV 
+head -1 ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print  $i, i}'  | sed 's/"//g' > temp1
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-samp-sortedHIV temp1 out
+paste  temp-samp-sortedHIV out | cut -f 3 | awk 'BEGIN {FS = "\t"; OFS = "\t"; ORS = ""} {print "$" $1 ","}' 
+cat ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt |  awk 'BEGIN {FS = "\t"; OFS = "\t"}
+{print $1,$7,$23,$8,$26,$9,$10,$24,$16,$22,$6,$25,$12,$13,$27,$15,$14,$17,$11,$33,$28,$30,$32,$29,$31;
+}' > FL-genecount-CM-EM-24samp-intDNA.txt
+x <- read.delim("FL-genecount-CM-EM-24samp-intDNA.txt", row.names=1)
+ temp <- read.delim("FL-int-DNA-CM-EM-samp-donor-sortedHIV", header = F)
+ group <- factor(temp$V6)
+ y <- DGEList(counts=x,group=group)
+ y <- calcNormFactors(y)
+ keep <-rowSums(cpm(y)>1) >= 7
+ y<-y[keep,]
+ dim(y)
+###[1] 14894    24
+ hiv <- log10(temp$V3)
+design<-model.matrix(~hiv)
+y <- estimateGLMCommonDisp(y,design)
+ y <- estimateGLMTrendedDisp(y,design)
+ y <- estimateGLMTagwiseDisp(y,design)
+ fit<-glmFit(y,design)
+
+lrt.2vs1 <- glmLRT(fit, coef = "hiv")
+top2v1 <- topTags(lrt.2vs1, n=50000)
+write.table(top2v1, "diff2-1.txt", sep="\t")
+mv -i "diff2-1.txt" FL-CM-EM-24samp-intDNA.diff2-1.txt
+FL-int-DNA-CM-EM-sortedHIV.transpose
+FL-CM-EM-24samp-intDNA.top50neg.50pos.corr.txt
+
 
 vi temp-star-genes
 bash temp-scrip > temp.txt
