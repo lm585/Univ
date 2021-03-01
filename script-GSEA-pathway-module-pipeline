@@ -59,3 +59,6 @@ bash ../dir-star-hiv/dir-pearson-cor-pathways/script-generate-chea-target-file-L
 
 ###create networt based on jaccard coeff
 bash  script-generate-chea-target-file-LEG-pathway-3-sep-01-step4  tem-p0.05-all-paths.net.0 | sort | uniq > tem-p0.05-all-paths.net.1
+
+#clustering 
+./mcl-14-137/src/shmcl/mcl tem-p0.05-all-paths.net.1  -I 2.0  --abc  -scheme 7
