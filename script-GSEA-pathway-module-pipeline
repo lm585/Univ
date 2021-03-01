@@ -30,3 +30,32 @@ cat temp-gsea_report.xls| awk 'BEGIN {FS = "\t"; OFS = "\t"}  $6 < -0.05 &&  $7 
 
 ###common LEGs between two compares for each pathway in temp-sig-pathways
 bash script-pathway-pValue-condition-table-sel-multi-path-LEG 2> temp-error
+
+$ cat script-pathway-pValue-condition-table-sel-multi-path-LEG 
+#
+dir="/Users/linyongmao/gsea_home/output/may05"
+#ls /Users/linyongmao/gsea_home/output/may05/ | grep FL | grep intDNA | grep h.all > temp-dir
+#ls /Users/linyongmao/gsea_home/output/may05/ | grep FL | grep intDNA | grep -i chea > temp-dir
+#ls  $dir | grep FL | grep EM | grep intDNA  | grep 12samp | grep -iv chea-tf | awk 'NR != 4' > temp-dir
+#ls  $dir | grep -i star-Tem-5samp.infect >> temp-dir
+
+rm temp-lead-genes.*.xls  chea-TF-*.targets.xls 
+cat temp-sig-pathways | while read path
+do
+ rm temp-gsea_report.xls
+ cat temp-dir | while read d
+ do
+  ####one database ($d), two comparisons, each comparison has a file $path.xls 
+  ls -lh "$dir/$d/$path.xls"
+  cat "$dir/$d/$path.xls" >> temp-gsea_report.xls
+ done
+ echo
+ cat temp-gsea_report.xls | grep -w Yes|cut -f 2 |sort | uniq -d > "temp-lead-genes.$path.xls"
+ cp "temp-lead-genes.$path.xls" "chea-TF-$path.targets.xls"
+done
+
+####overlap between LEGs of pathways
+bash ../dir-star-hiv/dir-pearson-cor-pathways/script-generate-chea-target-file-LEG-pathway-3-sep-01-step3 > tem-p0.05-all-paths.net.0
+
+###create networt based on jaccard coeff
+bash  script-generate-chea-target-file-LEG-pathway-3-sep-01-step4  tem-p0.05-all-paths.net.0 | sort | uniq > tem-p0.05-all-paths.net.1
