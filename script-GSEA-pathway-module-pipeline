@@ -62,3 +62,14 @@ bash  script-generate-chea-target-file-LEG-pathway-3-sep-01-step4  tem-p0.05-all
 
 #clustering 
 ./mcl-14-137/src/shmcl/mcl tem-p0.05-all-paths.net.1  -I 2.0  --abc  -scheme 7
+
+bash script-pathway-moduleNum  out.tem-p0.05-all-paths.net.1.I20      > FL-CM-intDNA-tilda-pathway-moduleNumb
+$ cat script-pathway-moduleNum
+#
+cat "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"; }
+{
+ for(i = 1; i <= NF; i++)
+ {
+  print $i, "C" NR;
+ }
+}'
