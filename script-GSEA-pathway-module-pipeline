@@ -1,0 +1,32 @@
+
+FL-CM-12samp-intDNA.name.rnk
+FL-CM-EM-24samp-intDNA.name.rnk
+FL-EM-12samp-intDNA.name.rnk
+FL-CM-8samps-EM-9samps-tilda.name.rnk
+FL-CM-8samps-tilda.name.rnk
+FL-EM-9samps-tilda.name.rnk
+star-CPM.tcm.GLM.hiv.diff2-1.name.rnk
+star-CPM.tcm.tem.GLM.hiv.name.rnk
+star-Tem-5samp.infect.name.rnk
+
+###get all pathways info
+$ cat script-pathway-pValue-condition-table
+#
+dir="/Users/linyongmao/gsea_home/output/may05"
+#ls /Users/linyongmao/gsea_home/output/may05/ | grep FL | grep intDNA | grep h.all > temp-dir
+#ls /Users/linyongmao/gsea_home/output/may05/ | grep FL | grep intDNA | grep -i chea > temp-dir
+#ls  $dir | grep FL | grep EM | grep intDNA  | grep 12samp | grep -iv chea-tf | awk 'NR != 4' > temp-dir
+#ls  $dir | grep -i star-Tem-5samp.infect >> temp-dir
+
+rm temp-gsea_report.xls
+cat temp-dir | while read d
+do
+  cat "$dir"/"$d"/gsea_report_for_na_*.xls >> temp-gsea_report.xls
+done
+
+####common negative pathways bwteen two comparisons
+###make sure pathway names in diff databases not identical
+cat temp-gsea_report.xls| awk 'BEGIN {FS = "\t"; OFS = "\t"}  $6 < -0.05 &&  $7 < 0.05 && $8 < 0.25 '  | cut -f 1 | sort | uniq -d > temp-sig-pathways
+
+###common LEGs between two compares for each pathway in temp-sig-pathways
+bash script-pathway-pValue-condition-table-sel-multi-path-LEG 2> temp-error
