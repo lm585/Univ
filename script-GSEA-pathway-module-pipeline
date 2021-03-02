@@ -73,3 +73,45 @@ cat "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"; }
   print $i, "C" NR;
  }
 }'
+
+bash script-get-module-common-genes-enrich-api out.tem-p0.05-all-paths.net.1.I20 4
+###string-api-enrich
+bash script-process-string-enrich > temp.txt
+###process string enrich results
+$ cat script-get-module-common-genes-enrich-api
+##
+#temp-lead-genes.$path.xls
+
+mod=`wc -l "$1" | awk '{print $1}'`
+i=1
+echo "###" > string-api-enrich
+while [ $i -le $mod ]
+do
+  awk 'NR == '$i' ' "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"; }
+{
+ for(i = 1; i <= NF; i++)
+ {
+  print $i;
+ }
+}' > temp-1
+ rm temp-2
+ cat temp-1 | while read f
+ do
+   cat "temp-lead-genes.$f.xls" >> temp-2
+ done
+ nf=`wc -l temp-1 | awk '{print $1}'`
+ echo "$nf pathways in the module"
+ np="$2"
+ cat temp-2 | sort | uniq -c | awk '$1 > 1 && $1 > '$nf'/'$np' {print $2}' > temp-module-common-genes-mod-$i 
+ wc -l temp-module-common-genes-mod-$i
+ echo -n "wget -O cluster-$i-enrich.txt " >> string-api-enrich
+ echo -n "https://string-db.org/api/tsv/enrichment?identifiers=" >> string-api-enrich
+ cat temp-module-common-genes-mod-$i | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {print $1 "%0d"}' >> string-api-enrich
+ echo "&species=9606" >> string-api-enrich
+ echo sleep 15 >> string-api-enrich
+
+ i=`expr $i + 1`
+done
+cat string-api-enrich | sed 's/%0d&species=9606/\&species=9606/' > out
+mv out string-api-enrich
+##########################################
