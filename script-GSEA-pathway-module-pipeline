@@ -115,3 +115,21 @@ done
 cat string-api-enrich | sed 's/%0d&species=9606/\&species=9606/' > out
 mv out string-api-enrich
 ##########################################
+####enrich analysis of pathways not included in the network
+$ cat script-string-db-enrich-api-singleton-path
+#
+rm string-api-enrich-singlet-path
+
+cat temp-paths-not-in-net | while read p
+do
+ echo -n "wget -O cluster-$p-enrich.txt " >> string-api-enrich-singlet-path
+  echo -n "https://string-db.org/api/tsv/enrichment?identifiers=" >> string-api-enrich-singlet-path
+ cat temp-lead-genes.$p.xls | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {print $1 "%0d"}' >> string-api-enrich-singlet-path
+ echo "&species=9606" >> string-api-enrich-singlet-path
+ echo sleep 15 >> string-api-enrich-singlet-path
+done
+
+cat string-api-enrich-singlet-path | sed 's/%0d&species=9606/\&species=9606/' > out
+mv out string-api-enrich-singlet-path
+wc -l string-api-enrich-singlet-path
+
