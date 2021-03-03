@@ -74,6 +74,7 @@ cat "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"; }
  }
 }'
 
+bash  script-get-module-common-genes out.tem-p0.05-all-paths.net.1.I20 4
 bash script-get-module-common-genes-enrich-api out.tem-p0.05-all-paths.net.1.I20 4
 ###string-api-enrich
 bash script-process-string-enrich > temp.txt
