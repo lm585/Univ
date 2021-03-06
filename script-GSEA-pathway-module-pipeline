@@ -134,3 +134,21 @@ cat string-api-enrich-singlet-path | sed 's/%0d&species=9606/\&species=9606/' > 
 mv out string-api-enrich-singlet-path
 wc -l string-api-enrich-singlet-path
 
+###process string enrich results
+$ cat dir-FL-cm-em-up-up/script-process-string-enrich
+#cluster-4-enrich.txt
+ls cluster-*-enrich.txt | while read f
+do
+ id=`echo "$f" | sed 's/cluster-\(.*\)-enrich.txt/\1/' `
+ awk 'BEGIN {FS = "\t"; OFS = "\t"} 
+ {
+  if($1 == "Process" || $1 == "KEGG" || $1 == "RCTM")
+   if($3 > 2 && $4 < 300 && $9 < 0.005)
+   {
+    print "cluster-"  "'$id'", $1,$2, $3, $6, -log($9)/log(10),$10;
+   }
+ }' $f | sort -t '	' +5 -6nr | head  -1
+ ### echo
+done
+
+################################
