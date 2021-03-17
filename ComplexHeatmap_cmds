@@ -12,6 +12,14 @@ for(i in 1:dim(b)[1])
 }
 write.table(a,file="temp.2", sep = "\t", quote = F)
 
+####z score, but first log transformed
+###d for CPM values
+a <- d
+b = log10(a+1)
+for(i in 1:dim(b)[1])
+{
+ a[i, ] <- (b[i, ] - mean(as.numeric(b[i,]))) / var(as.numeric(b[i,]))^(1/2) 
+}
 #####
 a <- read.delim("star-CPM.tem.ge4zeros.starID.hiv.inorder.zscror.txt", header = T, row.names=1)
 mat <- as.matrix(a)
