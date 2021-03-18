@@ -152,3 +152,44 @@ do
 done
 
 ################################
+$ vi tem-script-pathway-pValue-condition-table
+#
+dir="/Users/linyongmao/gsea_home/output/may05"
+#ls /Users/linyongmao/gsea_home/output/may05/ | grep FL | grep intDNA | grep h.all > temp-dir
+#ls /Users/linyongmao/gsea_home/output/may05/ | grep FL | grep intDNA | grep -i chea > temp-dir
+#ls  $dir | grep FL | grep EM | grep intDNA  | grep 12samp | grep -iv chea-tf | awk 'NR != 4' > temp-dir
+#ls  $dir | grep -i star-Tem-5samp.infect >> temp-dir
+
+rm temp-gsea_report.xls
+cat temp-dir | while read d
+do
+  cat "$dir"/"$d"/gsea_report_for_na_*.xls | awk 'BEGIN {FS = "\t"; OFS = "\t"}   $7 < 0.05 && $8 < 0.25 ' | cut -f 1,6,7,8    >>  temp-gsea_report.xls
+done
+sort -t ' tab' +1 -2n  temp-gsea_report.xls > temporary
+mv temporary temp-gsea_report.xls
+wc -l temp-gsea_report.xls
+
+rm temp-path-genes.txt
+cat temp-gsea_report.xls | while read ll
+do
+ echo  -n "$ll tab" >> temp-path-genes.txt
+ path=`echo "$ll" | cut -f 1`
+ rm temp-gsea_genes.xls
+ cat temp-dir | while read d
+ do
+  ####one database ($d), two comparisons, each comparison has a file $path.xls
+  ls -lh "$dir/$d/$path.xls"
+  cat "$dir/$d/$path.xls" >> temp-gsea_genes.xls
+ done
+ echo
+ cat temp-gsea_genes.xls | grep -w Yes|cut -f 2 |sort | uniq | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+{
+ print $1 ","
+}'  >> temp-path-genes.txt
+ echo  >> temp-path-genes.txt
+done
+
+sed 's/,$//' temp-path-genes.txt > temporary
+mv temporary temp-path-genes.txt
+wc -l temp-path-genes.txt
+##############################################
