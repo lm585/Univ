@@ -193,3 +193,30 @@ sed 's/,$//' temp-path-genes.txt > temporary
 mv temporary temp-path-genes.txt
 wc -l temp-path-genes.txt
 ##############################################
+$ cat script-signed-p-value-discrete-2 
+paste  temp-FL-CM-12samp-intDNA.temp-il1-t-cell-activation.GseaPreranked.1616298837527-paths.txt temp-FL-CM-8samps-EM-9samps-tilda.temp-il1-t-cell-activation.GseaPreranked.1616298852944-paths.txt temp-FL-CM-8samps-tilda.temp-il1-t-cell-activation.GseaPreranked.1616298867607-paths.txt temp-FL-CM-EM-24samp-intDNA.temp-il1-t-cell-activation.GseaPreranked.1616298882489-paths.txt temp-FL-EM-12samp-intDNA.temp-il1-t-cell-activation.GseaPreranked.1616298897782-paths.txt temp-FL-EM-9samps-tilda.temp-il1-t-cell-activation.GseaPreranked.1616298911824-paths.txt temp-star-CPM.tcm.GLM.hiv.diff2-1.temp-il1-t-cell-activation.GseaPreranked.1616298925946-paths.txt temp-star-CPM.tcm.tem.GLM.hiv.temp-il1-t-cell-activation.GseaPreranked.1616298935137-paths.txt temp-star-Tem-5samp.infect.temp-il1-t-cell-activation.GseaPreranked.1616298942826-paths.txt > temp.txt
+
+cat temp.txt | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+{
+ print $1;
+ for(i = 3; i <= NF; i = i+4)
+ {
+  if($(i-1) == "NA")
+    print "\t" 0.001;
+  else if($(i-1) >= 0)
+  {
+   a = -log($i+0.001)/log(10);
+   print "\t" a;
+  }
+  else
+  {
+   a = log($i+0.001)/log(10);
+   print "\t" a;
+
+  }
+ }
+ print "\n";
+}'
+
+##############################################
+
