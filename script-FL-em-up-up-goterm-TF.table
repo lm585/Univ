@@ -1,0 +1,34 @@
+#
+# pathway	TF	path-LEG-upreg-targets	path-LEG-upreg	genome-targets	genome	P	"q"
+# Calcium_signaling_pathway	CTNNB1	3	5	1088	17161	0.002306768	0.0212412415835476
+# Calcium_signaling_pathway	EZH2	3	5	945	17161	0.001530713	0.0156657541885714
+
+in="FL-em-up-up-top40gogenes-chea-p-q"
+cat "$in" | awk 'NR > 1' | cut -f 2 | sort | uniq > temp-tf
+cat "$in" | awk 'NR > 1' | cut -f 1 | sort | uniq > temp-go
+
+echo -n "go" > temp-go-tf-table.txt
+cat temp-tf | while read tf
+do
+ echo -n "	$tf" >> temp-go-tf-table.txt
+done
+echo >> temp-go-tf-table.txt
+
+cat temp-go | while read go
+do
+ echo -n "$go" >> temp-go-tf-table.txt
+ cat temp-tf | while read tf
+ do
+   t=`grep "^$go	$tf	" "$in"  | wc -l | awk '{print $1}' `
+   if [[ "$t" -gt 0 ]]
+   then
+     echo -n "	1" >> temp-go-tf-table.txt
+   else
+     echo -n "	0" >> temp-go-tf-table.txt
+   fi
+ done
+echo >> temp-go-tf-table.txt
+done
+
+wc -l temp-go-tf-table.txt
+
