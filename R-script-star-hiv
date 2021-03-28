@@ -831,6 +831,32 @@ bash script-get-module-common-genes-enrich-api out.tem-p0.05-all-paths.net.1.I20
 bash script-process-string-enrich > temp.txt
 ###process string enrich results
 
+bash tem-script-path-scores
+cp -i temps script-signed-p-value-discrete
+script-signed-p-value-discrete-2
+cut -f 1 *name.rnk | sort | uniq | awk '{print toupper($1)}' >  genes-20656.txt
+### 9 rnk files, 17161 gene names
+bash  temp-leg-genes-pathway-dir
+POSITIVE_REGULATION_OF_T_CELL_ACTIVATION.tem.rnk.values
+REGULATION_OF_INFLAMMATORY_RESPONSE.CM.rnk
+
+dir-FL-em-up-up linyongmao$ bash ../script-process-string-enrich-all-go > temp.txt
+# top 40 EM-up-up GO terms
+vi temp-em-up-go-terms
+bash script-go2genes > out
+bash ../script-generate-chea-target-file /Users/linyongmao/Documents/dir-gene-set-database/CHEA-tf.gmt
+ln ../genes-20656.txt ./
+bash ../script-TF-targets-enrich > temp-gogenes-TF.net
+bash "../../antiIL10 monkey/dir-TF-db/script-hyperG-test-2-R"  temp-gogenes-TF.net > temp-r-input
+Rscript temp-r-input > temp-r-res
+cat temp-r-res | awk '{print $2}' > temp-p
+vi temp-p
+paste temp-gogenes-TF.net temp-p > temp-net-P
+paste temp-net-P temp-q > temp-net-P-q
+cat temp-net-P-q | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 0.05' > FL-em-up-up-top40gogenes-chea-p-q
+
+
+
 temp-4-interest-paths
 bash -x script-pathway-pValue-condition-table-sel-a-path-LEG GSE17974_IL4_AND_ANTI_IL12_VS_UNTREATED_24H_ACT_CD4_TCELL_DN
 cat temp-dir
