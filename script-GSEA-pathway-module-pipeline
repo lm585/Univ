@@ -9,6 +9,16 @@ star-CPM.tcm.GLM.hiv.diff2-1.name.rnk
 star-CPM.tcm.tem.GLM.hiv.name.rnk
 star-Tem-5samp.infect.name.rnk
 
+###$ cat temp-dir
+FL-EM-12samp-intDNA.c2.cp.kegg.v7.1.GseaPreranked.1614157268183
+FL-EM-12samp-intDNA.c2.cp.reactome.v7.1.GseaPreranked.1614157296448
+FL-EM-12samp-intDNA.c7.all.v7.1.GseaPreranked.1614157515017
+FL-EM-12samp-intDNA.h.all.v7.1.GseaPreranked.1614157255576
+FL-EM-9samps-tilda.c2.cp.kegg.v7.1.GseaPreranked.1614163063502
+FL-EM-9samps-tilda.c2.cp.reactome.v7.1.GseaPreranked.1614163087981
+FL-EM-9samps-tilda.c7.all.v7.1.GseaPreranked.1614163248193
+FL-EM-9samps-tilda.h.all.v7.1.GseaPreranked.1614163052700
+
 ###get all pathways info
 $ cat script-pathway-pValue-condition-table
 #
