@@ -1,0 +1,30 @@
+##
+#temp-lead-genes.$path.xls
+
+mod=`wc -l "$1" | awk '{print $1}'`
+i=1
+rm bingo-input.txt
+while [ $i -le $mod ]
+do
+  awk 'NR == '$i' ' "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"; }
+{
+ for(i = 1; i <= NF; i++)
+ {
+  print $i;
+ }
+}' > temp-1
+ rm temp-2
+ cat temp-1 | while read f
+ do
+   cat "temp-lead-genes.$f.xls" >> temp-2
+ done
+ nf=`wc -l temp-1 | awk '{print $1}'`
+ echo "$nf pathways in the module"
+ np="$2"
+ cat temp-2 | sort | uniq -c | awk '$1 > 1 && $1 > '$nf'/'$np' {print $2}' > temp-module-common-genes-mod-$i 
+ wc -l temp-module-common-genes-mod-$i
+ echo cluster"$i" >> bingo-input.txt
+ cat temp-module-common-genes-mod-$i >> bingo-input.txt
+ echo batch >> bingo-input.txt
+ i=`expr $i + 1`
+done
