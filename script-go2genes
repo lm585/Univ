@@ -1,0 +1,14 @@
+#
+rm temp-lead-genes.*.xls
+cat temp-em-up-go-terms | sort | uniq |  while read go
+do
+ echo "$go"
+ nospace=`echo "$go" | sed 's/ /_/g' | sed 's#/#@OR#g'  `
+ grep -i "	$go$" temp.txt | wc -l
+ grep -i "	$go$" temp.txt 
+ grep -i "	$go$" temp.txt | cut -f 6 |  awk 'BEGIN {FS = ","} {for(i = 1; i <= NF; i++) {print $i}}' | sort | uniq > temp-lead-genes.$nospace.xls 
+ cat temp-lead-genes.$nospace.xls | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = "";} {print $0 "," }'
+ echo
+ wc -l temp-lead-genes.$nospace.xls 
+ echo
+done
