@@ -1,0 +1,15 @@
+#cluster-4-enrich.txt
+ls cluster-*-enrich.txt | while read f
+do
+ id=`echo "$f" | sed 's/cluster-\(.*\)-enrich.txt/\1/' `
+ ###echo -n "$id	"
+ awk 'BEGIN {FS = "\t"; OFS = "\t"} 
+ {
+  if($1 == "Process" || $1 == "KEGG" || $1 == "RCTM")
+   if($3 > 1  && $9 < 0.05 )
+   {
+    print "'$id'", $1,$2, $3, $4,$6, $8, $9,$10;
+   }
+ }' $f  
+ echo
+done
