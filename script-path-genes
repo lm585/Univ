@@ -1,0 +1,13 @@
+#
+ls temp-lead-genes.*.xls |  while read p
+do
+ p2=`echo "$p" | sed 's/temp-lead-genes.//' | sed 's/.xls$//'`
+ n=`cat "$p" | sort | uniq  | wc -l |awk '{print $1}' `
+ cat "$p"  | sort | uniq | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+  {
+   print $1  ",";
+  }' > temp-tf
+  echo >> temp-tf
+  echo -n "$p2	$n	"
+  cat temp-tf | sed 's/,$//' 
+done
