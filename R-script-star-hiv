@@ -842,7 +842,7 @@ REGULATION_OF_INFLAMMATORY_RESPONSE.CM.rnk
 
 dir-FL-em-up-up linyongmao$ bash ../script-process-string-enrich-all-go > temp.txt
 # top 40 EM-up-up GO terms
-vi temp-em-up-go-terms
+vi temp-em-up-go-terms ###cp -i  temp-em-up-go-terms FL-em-up-up-1goterm-1clust
 bash script-go2genes > out
 bash ../script-generate-chea-target-file /Users/linyongmao/Documents/dir-gene-set-database/CHEA-tf.gmt
 ln ../genes-20656.txt ./
@@ -854,7 +854,44 @@ vi temp-p
 paste temp-gogenes-TF.net temp-p > temp-net-P
 paste temp-net-P temp-q > temp-net-P-q
 cat temp-net-P-q | awk 'BEGIN {FS = "\t"; OFS = "\t"} $8 < 0.05' > FL-em-up-up-top40gogenes-chea-p-q
+FL-em-up-up-allgogenes-chea-p-q
+bash  script-FL-em-up-up-goterm-TF.table 
+bash script-path-multi-TF > temp-path-tfs
+bash script-path-genes > temp-path-genes
+vi  temp-path-genes-tf
+bash ../script-process-string-enrich-all-go-log > temp.txt
+bash script-go2genes-sel-Pvalue-per-go | grep "^pvalueperGO" | cut -f 2-3 > temp-Pvalue-per-go
+"../../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-Pvalue-per-go temp-path-genes-tf out
+paste temp-Pvalue-per-go out > FL-em-up-up-1goterm-1clust-p-genes-TF.txt
+FL-em-down-down-1goterm-1clust-p-genes-TF.txt
 
+FL-cm-down-down-topgogenes-chea-p-q
+x <- read.delim("dir-FL-cm-down-down/temp-em-cm-tf-func")
+for( i in 1:dim(x)[1]) {
+em <- x[i,2];
+cm <- x[i,3];
+data <- c(em, 36 - em, cm, 16 - cm);
+tab <- t(matrix(data, nrow=2,ncol=2))
+test <-fisher.test(tab)
+res <- c(x[i,1], test$p.value, test$estimate);
+cat(res);
+}
+
+###bash ../script-process-string-enrich-all-go > temp.2.txt
+dir-FL-em-down-down linyongmao$ bash ../script-process-string-enrich-all-go > temp.txt
+bash tem-script-go2genes > out
+......
+###131 temp-go-each-module
+### bash ../dir-FL-cm-down-down/script-process-string-enrich-top20 > temp.txt
+cat temp.txt | cut -f 9 | sort | uniq -c | sort -n  | awk '$1 > 3' > temp-dup-4
+vi temp-dup-4
+###"../../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-dup-4 temp-go-each-module out
+###paste temp-dup-4 out | cut -f 1-4 | grep -w notApplicable | cut -f 1-2
+
+dir-FL-em-up-up linyongmao$ cat temp-dir-orig | while read d; do cat "$dir"/"$d"/"$d".rpt; done | grep set_min | uniq -c
+   8 param	set_min	5
+   8 param	set_max	500
+bash  script-gsea-star-hiv FL-EM-12samp-intDNA.name.rnk
 
 
 temp-4-interest-paths
