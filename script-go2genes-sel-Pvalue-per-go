@@ -1,0 +1,12 @@
+#
+rm temp-lead-genes.*.xls
+cat temp-em-up-go-terms | sort | uniq |  while read go
+do
+ echo "$go"
+ nospace=`echo "$go" | sed 's/ /_/g' | sed 's#/#@OR#g'  `
+ grep -i "	$go$" temp.txt | wc -l
+ grep -i "	$go$" temp.txt | cut -f 7-9
+ echo -n "pvalueperGO	$nospace"
+ grep -i "	$go$" temp.txt | cut -f 8 | sort -n | head -1  | awk '{print "\t" exp($1)}' 
+ echo
+done
