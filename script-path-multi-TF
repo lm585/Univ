@@ -1,0 +1,15 @@
+#
+
+cat  FL-cm-em-up-up-1goterm-1clust-TF-p-q-FDR5 | awk 'NR > 1' | cut -f 1 | sort | uniq > temp-paths
+cat temp-paths | while read p
+do
+  grep "^$p	" FL-cm-em-up-up-1goterm-1clust-TF-p-q-FDR5 | cut -f 2 | sort | uniq | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+  {
+   print $1  ",";
+  }' > temp-tf
+  echo >> temp-tf
+  echo -n "$p	";
+  n=`grep "^$p	" FL-cm-em-up-up-1goterm-1clust-TF-p-q-FDR5 | cut -f 2 | sort | uniq | wc -l | awk '{print $1}'`
+  echo -n "$n	";
+  cat temp-tf | sed 's/,$//' 
+done
