@@ -1,0 +1,14 @@
+#
+#TGF-b1	STAR0012_a2	1301.580597	STAR0012	a2	4
+
+cut -f 1 "$1" | sort | uniq > temp-cyto
+cat temp-cyto | while read cyt
+do
+ cytNoSpace=`echo "$cyt" | sed 's/ /_/g' `
+ grep "^$cyt	" "$1" | sort -t '	' +3 -4 +5 -6n | uniq > temp-cyto
+ "/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp-cyto  temp-$cytNoSpace.cyto.txt
+ echo -n "A_sample	"
+ awk 'NR == 2' temp-$cytNoSpace.cyto.txt
+ echo -n "$cytNoSpace	"
+ awk 'NR == 3' temp-$cytNoSpace.cyto.txt  
+done
