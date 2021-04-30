@@ -1,8 +1,8 @@
 #
 #TGF-b1	STAR0012_a2	1301.580597	STAR0012	a2	4
 
-cut -f 1 "$1" | sort | uniq > temp-cyto
-cat temp-cyto | while read cyt
+cut -f 1 "$1" | sort | uniq > temp-cytonames-uniq
+cat temp-cytonames-uniq | while read cyt
 do
  cytNoSpace=`echo "$cyt" | sed 's/ /_/g' `
  grep "^$cyt	" "$1" | sort -t '	' +3 -4 +5 -6n | uniq > temp-cyto
