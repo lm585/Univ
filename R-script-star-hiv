@@ -905,6 +905,67 @@ bash temp-scrip > temp.txt
 cat temp2 | cut -f 4,7,19,20,25,27 |head -2
 cat temp2 | cut -f 4,7,19,20,25,27 | sort -t '	' +5 -6n | head
 
+###MSD 
+Hiv-infect.txt
+20200903_STAR_MSD.samp-info.txt
+20200903_STAR_MSD.txt
+grep -w IL-10 20200903_STAR_MSD.txt  | grep -i star | cut -f 2-4 > temp-il10
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine"  temp-il10 20200903_STAR_MSD.samp-info.txt out
+paste  temp-il10  out | cut -f 1-11 > temp-il10.txt
+cat temp-il10.txt | grep  "Prior *ATI" | sort | uniq > temp.2.txt
+
+cat 20200903_STAR_MSD.txt| cut -f 2-4| grep ^STAR > temp-1
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-1 20200903_STAR_MSD.samp-info-coded.a1-a2.txt out
+paste  temp-1  out > temp2.txt
+cat temp2.txt | cut -f 2,3,5,6 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1, $3 "_" $4, $2, $3, $4 }' > temp3.txt
+bash script-order-MSD   temp3.txt > temp4.txt
+bash script-MSD-table-1 temp4.txt | sort | uniq > temp5.txt
+head -1 temp5.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print  $i}'   | sort | uniq -d | wc -l ###should be zero
+vi temp5.txt ####s /	NaN/	NA/g
+cp -i temp5.txt  20200903_STAR_MSD.32cytoALLsamps.matrix.txt
+> x <- read.delim("temp5.txt", row.names=1)
+> a = log10(x)
+b = a
+> for(i in 1:dim(b)[1])
+{
+ a[i, ] <- (a[i, ] - mean(as.numeric(b[i,]), na.rm=T)) / var(as.numeric(b[i,]), na.rm=T)^(1/2) 
+}
+> ann <- read.delim("temp-IL-10.cyto.txt", header=F)
+> rownames(ann) = c("s", "n", "v","donnor", "time", "t")
+> ha <- HeatmapAnnotation(donor = t(ann[4,]), time = t(ann[5,]) )
+> Heatmap(matrix = mat, name = "Z score",  column_names_side = "top",  row_names_gp = gpar(fontsize = 8), height = unit(9, "cm"), width= unit(20, "cm"), clustering_distance_rows = "pearson", top_annotation = ha, column_order=1:52)
+####extract speific donor & cyto data matrix
+head -1 20200903_STAR_MSD.32cytoALLsamps.matrix.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print i, $i}' | grep  STAR0009
+
+####paired wilcox test to find cyto diff between two conditions
+sort temp1 | uniq -d > temp-star-28910 #donors have both p2 & a2 cyto readouts
+cat temp-star-28910 | while read star; do grep -w $star  temp4.txt | sort | uniq; done  > temp-4donors-cyto
+cat  temp-4donors-cyto | grep -w p2 > temp-4donors-p2
+cat  temp-4donors-cyto | grep -w a2 > temp-4donors-a2
+###cyto name identical
+paste temp-4donors-p2 temp-4donors-a2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $1 !=  $7' | wc -l
+###donor ID identical
+paste temp-4donors-p2 temp-4donors-a2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} $4 !=  $10' | wc -l
+####128 p2	a2
+paste temp-4donors-p2 temp-4donors-a2 |cut -f 5,11 | uniq -c
+paste temp-4donors-p2 temp-4donors-a2 |cut -f 1,3,9 | sort | grep -wv NaN > results
+bash script-wilcox-test-2-R results > temp-r-input
+Rscript temp-r-input > temp-r-result
+cat temp-r-result | awk 'NF > 2'  | awk 'BEGIN {OFS = "\t"} {print $1, $2, $3}'  | sed 's/"//g' 
+##ls -lh temp-p2-a2-p-values*  temp-a2*
+
+# make heatmap or Excel plot of 1 cytokine, many donors across time points
+cat  temp4.txt | grep -w IFNg | sort | uniq | grep -w r1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp1
+##STAR0002	r1	18.03312259
+cat  temp4.txt | grep -w IFNg | sort | uniq | grep -w a2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp2
+cat  temp4.txt | grep -w IFNg | sort | uniq | grep -w p2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp3
+###make sure temp1 has all donors needed for the plot
+ "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp1 temp2 out
+paste temp1 out  | cut -f 1-6 > temp1-out
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp1-out temp3 out
+paste temp1-out out | cut -f 1-9 > temp1-out-out.txt
+
+
 module avail | grep -i star
 module avail  STAR
 module load STAR
