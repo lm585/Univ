@@ -1,0 +1,31 @@
+#
+cat "$1" | cut -f 1 | sort | uniq > temp-cyto
+
+cat temp-cyto | while read cyt
+do
+ cytNoSpace=`echo "$cyt" | sed 's/ /_/g' `
+ grep "^$cyt	" "$1" > temp-ip
+ echo "name <- \"$cytNoSpace\""
+ echo -n "x <- c(";
+  awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+  {
+   if(NR == 1)
+     print $2;
+   else
+     print "," $2;
+  }' temp-ip 
+ echo ")"
+ 
+ echo -n "y <- c(";
+  awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""}
+  {
+   if(NR == 1)
+     print $3;
+   else
+     print "," $3;
+  }' temp-ip
+ echo ")"
+
+ echo "res <- wilcox.test(x,y, paired=T, exact=F, conf.int = T)"
+ echo "c(name, res\$p.value, res\$estimate)"
+done
