@@ -955,15 +955,30 @@ cat temp-r-result | awk 'NF > 2'  | awk 'BEGIN {OFS = "\t"} {print $1, $2, $3}' 
 ##ls -lh temp-p2-a2-p-values*  temp-a2*
 
 # make heatmap or Excel plot of 1 cytokine, many donors across time points
-cat  temp4.txt | grep -w IFNg | sort | uniq | grep -w r1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp1
-##STAR0002	r1	18.03312259
-cat  temp4.txt | grep -w IFNg | sort | uniq | grep -w a2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp2
-cat  temp4.txt | grep -w IFNg | sort | uniq | grep -w p2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp3
+cyt="TGF-b1"
+cat  temp4.txt | grep -w "$cyt" | sort | uniq | grep -w r1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp1
+##STAR0002      r1      18.03312259
+cat  temp4.txt | grep -w "$cyt" | sort | uniq | grep -w a2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp2
+cat  temp4.txt | grep -w "$cyt" | sort | uniq | grep -w p2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp3
 ###make sure temp1 has all donors needed for the plot
  "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp1 temp2 out
 paste temp1 out  | cut -f 1-6 > temp1-out
-"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp1-out temp3 out
-paste temp1-out out | cut -f 1-9 > temp1-out-out.txt
+mv temp1-out temp1
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp1 temp3 out
+paste temp1 out | cut -f 1-9 > temp1-out
+echo | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+ {
+  print "'$cyt'", "p2",	"a2",	"r1";
+ }' > temp.txt
+
+cat temp1-out | awk 'BEGIN {FS = "\t"; OFS = "\t"}
+ {
+  print $1, $9, $6, $3;
+ }' >> temp.txt
+
+cat temp.txt | sed 's/notApplicable//g' > temp-NA
+mv temp-NA temp.txt
+cat temp.txt
 
 
 module avail | grep -i star
