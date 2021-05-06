@@ -1,9 +1,10 @@
 #
 cat  temp4.txt | cut -f 1 | sort | uniq | while read cyt
 do
- cat  temp4.txt | grep -w "$cyt" | sort | uniq | grep -w p2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' | sed 's/STAR00/STAR/' > temp3
+ ###grep  "^$cyt	" same resu as grep -w "$cyt" for this data
+ cat  temp4.txt | grep  "^$cyt	" | sort | uniq | grep -w p1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' | sed 's/STAR00/STAR/' > temp3
  ###STAR02      p2      18.03312259
- cut -f 1,3 Hiv-infect.txt  > temp-tcm
+ cut -f 4,5 Hiv-infect.txt  > temp-tcm
  "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp3 temp-tcm out
  cytNoSpace=`echo "$cyt" | sed 's/ /_/g' `
  echo "name <- \"$cytNoSpace\""
