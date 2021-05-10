@@ -8,7 +8,7 @@ a <- read.delim(file = "star-CPM.tem.ge4zeros.txt", header = T, row.names=1)
 b = a
 for(i in 1:dim(b)[1])
 {
- a[i, ] <- (a[i, ] - mean(as.numeric(b[i,]))) / var(as.numeric(b[i,]))^(1/2) 
+ a[i, ] <- (a[i, ] - mean(as.numeric(b[i,]), na.rm=T)) / var(as.numeric(b[i,]), na.rm = T)^(1/2) 
 }
 write.table(a,file="temp.2", sep = "\t", quote = F)
 
