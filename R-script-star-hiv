@@ -955,6 +955,7 @@ cat temp-r-result | awk 'NF > 2'  | awk 'BEGIN {OFS = "\t"} {print $1, $2, $3}' 
 ##ls -lh temp-p2-a2-p-values*  temp-a2*
 
 # make heatmap or Excel plot of 1 cytokine, many donors across time points
+#script-1cyto-multi-time-points
 cyt="TGF-b1"
 cat  temp4.txt | grep -w "$cyt" | sort | uniq | grep -w r1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $5, $3}' > temp1
 ##STAR0002      r1      18.03312259
@@ -980,6 +981,44 @@ cat temp.txt | sed 's/notApplicable//g' > temp-NA
 mv temp-NA temp.txt
 cat temp.txt
 
+script-cyto-tcm-corr-2-R
+paste temp-p1-tcm-out temp-p1-tem-out temp-p1-total-out temp-p2-tcm-out temp-p2-tem-out temp-p2-total-out > temp.txt
+cat temp.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 4; i <= NF; i = i+5) if($i < 0.1) print $0}' > temp2.txt
+###heatmap (cyto_at_p2_timePoint + hiv) x donors
+cat  20200903_STAR_MSD.32cytoALLsamps.a1ORa2.matrix.txt  | awk 'NR == 1' | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print i, $i}'  | grep _p2 |  cut -f 1  | awk 'BEGIN {FS = "\t"; OFS = ""; ORS = ""} {print $1 ","}'
+cat  20200903_STAR_MSD.32cytoALLsamps.a1ORa2.matrix.txt  | cut -f 1,3,17,21,30,35,41 | awk '$1 ~ /A_sample/ || $1 ~ /TGF-/' > temp-1
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp-1 temp-cyto-p2-trans
+temp-cyto-p2-trans
+#A_sample	TGF-B2_p2	TGF-B3_p2	TGF-b1_p2
+#STAR0002	16.02081172	0.63647732	4777.108435
+temp-tem-from-paper
+temp-tem-hiv-tgfb-p1_p2_trans
+
+###glmfit cyto ~ RNA-seq
+cat gene-count-Tcm.6samp.txt|head -1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {for(i = 1; i <= NF; i++) print  $i}'  > temp-rnaseq-samp
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-rnaseq-samp temp out ####temp: samp_57	0.458996743	0.023573828	STAR005	57	CD4+ Tcm ::sampleID - starID
+paste temp-rnaseq-samp out  |  awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $5, $1, $7}' | grep -v notApplicable | sed 's/0/00/' > temp-rnaseq-samp-starID
+vi temp-rnaseq-samp-starID
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-rnaseq-samp-starID temp-cyto-p2-trans out
+paste temp-rnaseq-samp-starID out | grep -vw notApplicable | cut -f 4,5 > temp-cyto-p2-trans-with-rna-seq
+vi temp-cyto-p2-trans-with-rna-seq
+cat gene-count-Tcm.6samp.txt|cut -f 1,3,5,6,7 > temp-gene-count-tcm-4samp.txt
+Rscript temp-script-diff2-1-TEMrna-seq-cytokine.glm.R
+###[1] 6456-genes-kept    4
+bash -x script-diff-2-rnk
+bash script-gsea-star-hiv star-CPM.tcm.GLM.Fractalkine.diff2-1.name.rnk
+
+temp-cyto-p2-trans-with-rna-seq
+cp -i temp-cyto-p2-trans-with-rna-seq cyto-p2-trans-with-rna-seq-tem
+
+cat   dir-pearson-cor-pathways/gene-count-Tem-7samp.txt |awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1, $6, $7, $4, $3}' > temp-gene-count-tem-4samp-star568-10.txt
+> keep <-rowSums(cpm(y)>0) >= 3
+> y<-y[keep,]
+> dim(y)
+[1] 8510    4
+star-CPM.tem.GLM.IL-15.diff2-1.txt
+script-diff2-1-TEMrna-seq-cytokine.glm.R
+script-diff-2-rnk
 
 module avail | grep -i star
 module avail  STAR
