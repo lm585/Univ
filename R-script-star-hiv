@@ -1020,6 +1020,37 @@ star-CPM.tem.GLM.IL-15.diff2-1.txt
 script-diff2-1-TEMrna-seq-cytokine.glm.R
 script-diff-2-rnk
 
+bash script-cyto-hivPOS-pathway-p-value >> result.xls
+bash script-cyto-hivNEG-pathway-p-value >> result.xls
+
+cat temp-tem-infect
+#STAR0002_p2	518
+cat temp-tem-infect-il15
+#STAR0002_p2	518	2.147783982
+cat   dir-pearson-cor-pathways/gene-count-Tem-7samp.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1,"NA", $6, $7, $2, $4, "NA", $3, $5, $8}' | head
+gene	NA	samp_49	samp_51	samp_17	samp_27	NA	samp_22	samp_36	samp_7
+ENSG00000000003	NA	0	0	0	0	NA	7	0	0
+ENSG00000000005	NA	0	0	0	0	NA	0	0	0
+ENSG00000000419	NA	0	758	299	379	NA	452	4	0
+
+gene	STAR0002	STAR0005	STAR0006	STAR0007	STAR0008	STAR0009	STAR0010	STAR0011	STAR0012
+
+$ cat  temp-samp-star  | cut -f 1,4
+samp_49	STAR005
+samp_51	STAR006
+samp_17	STAR007
+samp_27	STAR008
+samp_22	STAR010
+samp_36	STAR011
+samp_7	STAR012
+
+cat   dir-pearson-cor-pathways/gene-count-Tem-7samp.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1,"NA", $6, $7, $2, $4, "NA", $3, $5, $8}' > temp-1
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp-tem-infect-il15 temp-tem-infect-il15-trans
+cat temp-tem-infect-il15-trans temp-1 > temp.txt
+vi temp.txt
+cp -i temp-tem-infect-il15-trans star-temp-tem-infect-il15-trans
+
+
 module avail | grep -i star
 module avail  STAR
 module load STAR
