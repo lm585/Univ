@@ -1,0 +1,22 @@
+#
+
+# genome="genes-20656.txt"
+# gc=`cat "$genome" |  wc -l |awk '{print $1}'`
+# echo "pathway	TF	path-LEG-upreg-targets	path-LEG-upreg	genome-targets	genome"
+
+ls temp-lead-genes.*.xls |  while read p
+do
+  ls chea-TF-*.targets.xls | while read tf
+  do
+   cat "$tf" |  awk '{print toupper($0)}' |sort | uniq > temp-tf
+   cat "$p" |  awk '{print toupper($0)}' |sort | uniq > temp-pathway
+   tf2=`echo "$tf" | sed 's/chea-TF-//' | sed 's/.targets.xls//' `
+
+   cat temp-tf temp-pathway | sort | uniq -d | while read cg
+   do
+    echo "TF-targets	$tf2	$cg"
+   done
+  done
+done
+
+#rm temp-tf temp-pathway
