@@ -1,0 +1,12 @@
+##
+
+###ls star-CPM.tem.GLM.IL.15.diff2-1.txt  star-CPM.tem.GLM.IL.22.diff2-1.txt  star-CPM.tem.GLM.TGF.B2.diff2-1.txt   star-CPM.tem.GLM.TGF.b1.diff2-1.txt | while read f
+ls "$1" | while read f
+do
+ pre=`echo "$f" | sed 's/.txt$//' `
+ bash ./script-preRank-genes $f > $pre.rnk
+ "../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" $pre.rnk GRCh38-geneID-name out
+ paste $pre.rnk out | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $4, $2}' > $pre.name.rnk
+ ls -lh $pre.name.rnk
+
+done 
