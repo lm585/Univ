@@ -1,14 +1,13 @@
 #
+# "logFC"	"logCPM"	"LR"	"PValue"	"FDR"
+# "ENSG00000169045"	1.28240399003135	14.1576397877527	300.094946042136	3.14112946315903e-67	1.78918734221538e-63
 
-cat diff-PBMC-date-2a3_4a5.all32kgenes.txt | sed 's/"//' | sed 's/"//' > temp-no-quote-diff-PBMC-date
 
-cat temp-pbmc-date-2-3-4-5-10594genes | while read g
-do
-  grep -i -w "$g" temp-no-quote-diff-PBMC-date | awk '
-  BEGIN{FS = "\t";
+awk '
+ BEGIN{FS = "\t";
         OFS = "\t";
-       }
-  {
+      }
+ {
    if($2 < 0)
      c = 1.0;
    else if($2 == 0)
@@ -16,8 +15,5 @@ do
    else
      c = -1.0;
    printf("%s\t%f\n", $1, c* log($5) / log(10) );
-  }
-  '
-done
-
-rm temp-no-quote-diff-PBMC-date
+ }
+ ' "$1" | sed 's/"//' | sed 's/"//'
