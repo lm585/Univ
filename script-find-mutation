@@ -1,0 +1,8 @@
+#
+
+cat  "$1" | while read ll
+do
+ pos=`echo "$ll" | cut -f 4`
+ echo -n "$ll	"
+ grep "^$pos	"  "$2"
+done
