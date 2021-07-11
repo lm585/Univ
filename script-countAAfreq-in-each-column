@@ -1,0 +1,23 @@
+#
+c=1
+c2=1
+x=`head -1 temp-aln-4.txt | awk '{print NF+1}' `
+while [ $c -lt $x ]
+do
+ cut -f $c temp-aln-4.txt | awk 'NR > 1' | sort | uniq -c > temp-1
+ gap=`head -1 temp-aln-4.txt | cut -f $c`
+ if [ "$gap" != "-" ]
+ then
+   echo -n "$c2"
+   c2=`expr $c2 + 1`
+   cat temp-1 | awk 'BEGIN { OFS = ""; ORS = ""} 
+      {
+   if($1 > 0)
+   {
+    print "\t" $1 "\t" $2;
+   }
+      }'
+   echo
+ fi
+ c=`expr $c + 1`
+done
