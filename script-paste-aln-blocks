@@ -1,0 +1,32 @@
+#
+grep -n "^$" temp-aln-2 | sed 's/://' > temp-line-break
+#75
+#150
+#225
+#300
+#375
+#450
+
+#1-74 f1
+#76-149 f2
+#151-224 f3
+#...
+#451-end f7
+#paste f1 f2 f3 .. f7
+n1=`head -1 temp-line-break`
+n6=`tail -n 1 temp-line-break`
+n=`expr $n1 - 1`
+head -$n temp-aln-2 > f1
+rm temp-aln-3
+cat temp-line-break | awk 'NR > 1' | while read ll
+do
+ awk 'NR > '$n1' && NR < '$ll' ' temp-aln-2 > f2
+ paste f1 f2 > temp-aln-3
+ mv temp-aln-3 f1
+ n1=$ll
+done
+
+awk 'NR > '$n6' ' temp-aln-2 > f2
+paste f1 f2 > temp-aln-3
+ls -lh temp-aln-3
+rm f1 f2 
