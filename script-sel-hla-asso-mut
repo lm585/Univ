@@ -1,0 +1,12 @@
+#
+cat "$1" | awk '
+{
+ for(i = 2; i <= NF; i++)
+   print $i;
+}
+' > temp-1
+
+cat temp-1 | while read ll
+do
+ grep -i "	$ll	" temp-gag-mut
+done
