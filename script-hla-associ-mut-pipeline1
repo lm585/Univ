@@ -1,0 +1,16 @@
+#
+star="star10"
+cat temp-aln | awk '{print $3}' > temp-aln-2
+bash -x script-paste-aln-blocks
+###vi temp-aln-3
+cat temp-aln-3 | sed 's/	//g' | sed 's/\(.\)/\1	/g' > temp-aln-4.txt
+head -20 temp-aln-4.txt | cut -f 1-20
+bash script-countAAfreq-in-each-column > temp-aln-5.txt
+###cp -i temp-aln-5.txt star09-gag-aln-AAfreq.txt
+cat  HLA-assoc-mutation-plusOne2009.txt  | grep -wi gag | grep -iw Direct | awk '$8 < 0.05'  > temp-gag-mut  ###101 mutati
+wc -l temp-gag-mut  
+bash script-sel-hla-asso-mut  $star.hla.txt > temp-gag-mut-$star-hla
+bash script-find-mutation temp-gag-mut-$star-hla temp-aln-5.txt > out
+bash script-find-mutation-2 > out.txt
+ls -lh out.txt
+
