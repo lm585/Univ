@@ -1163,7 +1163,60 @@ bash script-sel-hla-asso-mut  star09.hla.txt > temp-gag-mut-star09-hla
 bash script-find-mutation temp-gag-mut-star09-hla temp-aln-5.txt > out
 bash script-find-mutation-2 > out.txt
 
+bash  script-hla-associ-mut-pipeline1 star09 ###start following vi temp-aln ###multiple aln file
 
+###FLorida cytokine ~ RNA-seq , FL
+FL-donors-with-RNAseq-cytokine ##15 samples
+cat ./Florida-cohort-RT/raw.modify.CM-EM-ordered.txt | cut -f 1,18-19,21-100 > temp-em-genecount-15samples ###rm HT06(ST114) sample, no cytokine
+ rawCount <- read.delim("temp-em-genecount-15samples", header = T, row.names = 1)
+ dim(rawCount)
+###[1] 60155    15
+ group <- factor(rep(1, 15))
+ y <- DGEList(counts=rawCount,group=group)
+ y <- calcNormFactors(y)
+ keep <-rowSums(cpm(y)>=1) > 15/4
+ y<-y[keep,]
+ dim(y)
+###[1] 14828    15
+ d <- cpm(y)
+ write.table(d, "temp-2-CPM.txt", sep="\t")
+a = log10(d+1)
+b = a
+for(i in 1:dim(b)[1])
+{
+ a[i, ] <- (a[i, ] - mean(as.numeric(b[i,]), na.rm=T)) / var(as.numeric(b[i,]), na.rm = T)^(1/2) 
+}
+write.table(a,file="temp.em.log10.z.txt", sep = "\t", quote = F)
+vi temp.em.log10.z.txt ##edit header line, add "geneID" field
+cat temp.em.log10.z.txt | cut -f 1 | awk 'BEGIN {FS = "\t"; OFS = "\t"} {print $1, $1}' | sed 's/\.[0-9]*//' > temp-1
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-1  GRCh38-geneID-name out
+paste temp-1 out | grep -vw notApplicable |cut -f 2-4 > temp-2 ###ENSG00000000003.12	ENSG00000000003	TSPAN6 ; em.log10.z genes with Names; if no Names, discarded
+wc -l temp-2
+###14764 temp-2
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-2 temp.em.log10.z.txt out
+cat out | awk '{print NF}' | uniq -c
+###14764 16
+paste temp-2 out |cut -f 3,5-100 > temp.em.log10.z.geneName.txt ###ENSG00000000003.12	ENSG00000000003	TSPAN6	ENSG00000000003.12	1.32183982639182	-0.557593780014383	1.46777061946307 ; before cut
+head -1 temp.em.log10.z.txt > temp-3
+cat temp.em.log10.z.geneName.txt >> temp-3
+mv temp-3 temp.em.log10.z.geneName.txt
+x <- read.delim("temp.em.log10.z.geneName.txt", header = T)
+summary(x)
+dim(x)
+bash temp-script-generate-chea-target-file  ~/Documents/dir-gene-set-database/FL-em-intDNA-tilda-gene-sig.up.gmt
+bash temp-script-generate-chea-target-file  ~/Documents/dir-gene-set-database/FL-em-intDNA-tilda-sig-50recur-genes.up.gmt
+wc -l temp-lead-genes*
+vi script-pathway-exprAvg-ln-hallmark-2 
+bash script-pathway-exprAvg-ln-hallmark-2 > temp-1301
+cat temp-1301 | awk 'NF > 10' | sed 's/temp-lead-genes.//' | sed 's/.xls//' > temp-path-avg-exp
+vi temp-path-avg-exp ###add first field header
+cut -f 2-17 temp-path-avg-exp > temp-path-avg-exp-2
+"../antiIL10 monkey/dir-IL10-covid19/dir-belg-scRNAseq/ugent.covid-master/run/scrnaseq-metaannot-combine" temp-FL-donon-sample-info-EM FL-cytokine.txt out
+paste temp-FL-donon-sample-info-EM out | cut -f 2,5-100 |  grep -vw notApplicable > temp-1 ###ST112	HT02	EM	ST112	174.7200969	451.7609069 ; before cut
+"/Users/linyongmao/Documents/antiIL10 monkey/dir-IL10-covid19/table-transpose" temp-1 temp.plasma.cytokine.txt
+head -2 temp.plasma.cytokine.txt > temp
+head -2 temp-path-avg-exp-2 >> temp
+cat temp | cut -f 2-200 | sort | uniq -c ###check cytokine sample order & RNA-seq sample order
 
 module avail | grep -i star
 module avail  STAR
