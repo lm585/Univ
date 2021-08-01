@@ -1218,6 +1218,15 @@ head -2 temp.plasma.cytokine.txt > temp
 head -2 temp-path-avg-exp-2 >> temp
 cat temp | cut -f 2-200 | sort | uniq -c ###check cytokine sample order & RNA-seq sample order
 
+bash script-FL-em-up-up-goterm-TF.cyto.table
+cat temp-go-tf-table.txt | cut -f 1,4,6,9,11,13,14 > temp-go-tf-table.2.txt ##only retail cytok with significant corr.
+annot <- read.delim("temp-go-tf-table.2.txt", row.names=1)
+> col_fun = colorRamp2(c(-1, 0, 1), c("green", "white", "red"))
+> ca <- rowAnnotation(IFNg = annot$IFNg, IL15 = annot$IL.15, IL6=annot$IL.6,  SDF1a=annot$SDF.1a , TGFb3=annot$TGF.b3, TNFa =annot$TNFa, col = list(IFNg = col_fun, IL15 = col_fun, IL6 = col_fun, SDF1a = col_fun, TGFb3 = col_fun, TNFa = col_fun))
+> Heatmap(matrix = x, name = "TF reg",  column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(10, "cm"), width= unit(4, "cm"), right_annotation=ca)
+
+
+
 module avail | grep -i star
 module avail  STAR
 module load STAR
