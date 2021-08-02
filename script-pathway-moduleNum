@@ -1,0 +1,9 @@
+#
+cat "$1" | awk 'BEGIN {FS = "\t"; OFS = "\t"; }
+{
+ for(i = 1; i <= NF; i++)
+ {
+  print $i, "C" NR;
+ }
+}'
+
