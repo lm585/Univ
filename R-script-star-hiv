@@ -1225,6 +1225,38 @@ annot <- read.delim("temp-go-tf-table.2.txt", row.names=1)
 > ca <- rowAnnotation(IFNg = annot$IFNg, IL15 = annot$IL.15, IL6=annot$IL.6,  SDF1a=annot$SDF.1a , TGFb3=annot$TGF.b3, TNFa =annot$TNFa, col = list(IFNg = col_fun, IL15 = col_fun, IL6 = col_fun, SDF1a = col_fun, TGFb3 = col_fun, TNFa = col_fun))
 > Heatmap(matrix = x, name = "TF reg",  column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(10, "cm"), width= unit(4, "cm"), right_annotation=ca)
 
+> x <-read.delim("FL-tem-go-8TFs-NANOG-YAP1.table.1.txt", row.names=1)
+> clust <- read.delim("FL-tem-go-8TFs-NANOG-YAP1.clust-info.txt", header = T, row.names=1) ### row name (gene sig name) order same as data-matrix of main heatmap
+>  ca <- rowAnnotation(cluster=clust$cluster)
+> colum.split <- c(rep("1.TF", 8),rep("2.cyto", 6))
+> col_fun = colorRamp2(c(-1, 0, 1), c("blue", "grey", "red"))
+> Heatmap(matrix = x, name = "TF/cytokine",  column_names_side = "top",  row_names_gp = gpar(fontsize = 7), height = unit(10, "cm"), width= unit(4, "cm"), row_split= clust$cluster, column_split=colum.split, right_annotation=ca, col = col_fun, )
+> Heatmap(matrix = x, name = "TF/cytokine",  column_names_side = "top",  row_names_gp = gpar(fontsize = 7),  row_split= clust$cluster, column_split=colum.split, right_annotation=ca, col = col_fun, ) ##not setting height and width; first make quartz large, then adjust quartz size
+
+:s/[1-9]STAR /STAR /g
+:s/\(STAR 9\)\(T[CE]M\)\([0-9][0-9]*\)/^M\1^I\2^I\3/g
+:2, 10 s/\([0-9][0-9]*\)\([-+]\)\(.*\)Same\([0-9][0-9]*\)/\1^I\2^I\3^ISame^I\4/
+:2, 10 s/\([0-9][0-9]*\)\([-+]\)\(.*\)Opposite\([0-9][0-9]*\)/\1^I\2^I\3^IOpposite^I\4/
+
+:11, 13 s/[0-9][0-9]STAR /STAR /g
+:11, 13 s/\(STAR 9\)\(T[CE]M\)\([0-9][0-9]*\)/^M\1^I\2^I\3/g
+:12, 100 s/\([0-9][0-9]*\)\([-+]\)\(.*\)Same\([0-9][0-9]*\)/\1^I\2^I\3^ISame^I\4/
+:12, 100 s/\([0-9][0-9]*\)\([-+]\)\(.*\)Opposite\([0-9][0-9]*\)/\1^I\2^I\3^IOpposite^I\4/
+
+:105, 108 s/[0-9][0-9][0-9]STAR /STAR /g
+:105, 108 s/\(STAR [0-9][0-9]*\)\(T[CE]M\)\([XY0-9][0-9]*\)/^M\1^I\2^I\3/g
+:106, $ s/\([0-9][0-9]*\)\([-+]\)\(.*\)Same\([0-9][0-9]*\)/\1^I\2^I\3^ISame^I\4/
+:106, $ s/\([0-9][0-9]*\)\([-+]\)\(.*\)Opposite\([0-9][0-9]*\)/\1^I\2^I\3^IOpposite^I\4/
+3114333246      -       ZBTB20 ; special treatment because no # of detected times
+cat star-3donors-IS-paper-table.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF == 3'  | grep NANA | wc -l
+      32
+cat star-3donors-IS-paper-table.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF == 7'   | wc -l
+     248
+cat dir-is-integration-site/IS-summary-by-gene.txt | awk 'BEGIN {FS = "\t"; OFS = "\t"} $5 > 3' | cut -f 3 > temp-1
+vi temp-1 ###21 genes with in vivo >3 subjects; same as excel file
+cat star-3donors-IS-paper-table.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF == 7'   | cut -f 5  | sort | uniq -d > temp-stat-is-genes ##24 genes
+cat star-3donors-IS-paper-table.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF == 7'   | awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 > 1' | cut -f 5 >> temp-stat-is-genes
+sort temp-stat-is-genes | uniq > temp-stat-is-genes-2 ##45 genes with 'No. detected' > 1
 
 
 module avail | grep -i star
