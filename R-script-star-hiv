@@ -1157,11 +1157,14 @@ cat temp-aln-3 | sed 's/       //g' | sed 's/\(.\)/\1  /g' > temp-aln-4.txt
 bash script-countAAfreq-in-each-column > temp-aln-5.txt
 cp -i temp-aln-5.txt star09-gag-aln-AAfreq.txt
 cat  HLA-assoc-mutation-plusOne2009.txt  | grep -wi gag | grep -iw Direct | awk '$8 < 0.05'  > temp-gag-mut  ###101 mutations
+cat  HLA-assoc-mutation-plusOne2009.polGeneOnly.txt | grep -iw Direct | awk '$8 < 0.05'  > temp-gag-mut  ###for Pol gene only which contains 3 proteins PR, RT, INT
 cat hla.star04.txt
 #star04 A02 A32 B15 B44 C03 C05
 bash script-sel-hla-asso-mut  star09.hla.txt > temp-gag-mut-star09-hla
 bash script-find-mutation temp-gag-mut-star09-hla temp-aln-5.txt > out
 bash script-find-mutation-2 > out.txt
+###specific for pol gene because it has 3 proteins
+bash script-find-mutation-3 > out.txt
 
 bash  script-hla-associ-mut-pipeline1 star09 ###start following vi temp-aln ###multiple aln file
 
@@ -1257,6 +1260,20 @@ vi temp-1 ###21 genes with in vivo >3 subjects; same as excel file
 cat star-3donors-IS-paper-table.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF == 7'   | cut -f 5  | sort | uniq -d > temp-stat-is-genes ##24 genes
 cat star-3donors-IS-paper-table.2 | awk 'BEGIN {FS = "\t"; OFS = "\t"} NF == 7'   | awk 'BEGIN {FS = "\t"; OFS = "\t"} $7 > 1' | cut -f 5 >> temp-stat-is-genes
 sort temp-stat-is-genes | uniq > temp-stat-is-genes-2 ##45 genes with 'No. detected' > 1
+mv -i temp-stat-is-genes star-is-genes
+mv -i temp-stat-is-genes-2 star-is-genes-2
+cp -i star-is-genes-2 chea-TF-STAR-IS.targets.xls
+    298 temp-lead-genes.IS2.xls ###IS in >=2 subjects using public database
+      63 temp-lead-genes.IS3.xls
+      21 temp-lead-genes.IS4.xls
+bash script-TF-targets-enrich > temp-gogenes-TF.net
+bash "../antiIL10 monkey/dir-TF-db/script-hyperG-test-2-R"  temp-gogenes-TF.net > temp-r-input
+Rscript temp-r-input > temp-r-res
+cat temp-r-res | awk '{print $2}' > temp-p
+vi temp-p
+paste temp-gogenes-TF.net temp-p > temp-net-P
+cp -i temp-net-P star-is-genes-2-publicIS-overlap-net-p.txt
+star-is-genes-2-TF-overlap-p-q 
 
 
 module avail | grep -i star
