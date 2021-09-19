@@ -1,0 +1,15 @@
+Step 1:
+You had fastq files for each scRNA library. To generate single cell feature (gene) counts for a single library, run cellranger count. You can set the parameter --expect-cells=10000 and the option –nosecondary when running the count command.
+
+Run cellranger count for each library. If you have 10 libraries, you need to run 10 times with 10 outputs. Often, one sample (or one donor) is one library.
+
+Please note that, by default, --include-introns option is turned off, meaning that intronic reads were excluded from the UMI counting.
+
+Step 2:
+Step1 will generate filtered_feature_bc_matrix directory, among other outputs, for each library. Then use an R package Seurat. The following web site gives a nice documentation to merge multiple library outputs from cellranger into a single Seurat object.
+
+https://satijalab.org/seurat/archive/v3.1/merge_vignette.html 
+
+
+
+With the single Seurat object generated, you can continue the downstream traditional analysis with scRNA-seq data.
